@@ -1,0 +1,83 @@
+<!--[*]
+[script]brick_loginform.php[/script]
+
+[mcss=user]loginform.css[/mcss]
+
+[*]-->
+<div id="{v#id}form" class="user-login-form">
+    <div class="panel">
+        <div id="{v#id}panel-login" class="panel-collapse collapse in">
+            <form role="form" action="/user/login/" method="post">
+                <h3>Авторизация</h3>
+
+                <div class="form-group">
+                    <label for="{v#id}in-login" class="control-label">Имя пользователя или email</label>
+                    <input id="{v#id}in-login" type="text" class="form-control"
+                           placeholder="Имя пользователя или email">
+                </div>
+                <div class="form-group">
+                    <label for="{v#id}in-pass" class="control-label">Пароль</label>
+                    <input id="{v#id}in-pass" type="password" class="form-control" placeholder="Пароль">
+                </div>
+                <div class="form-group">
+                    <div class="checkbox">
+                        <label> <input type="checkbox"> Запомнить меня </label>
+                    </div>
+                </div>
+                <div class="form-group text-right">
+                    <button type="submit" class="btn btn-default">Войти</button>
+                </div>
+
+                <div class="form-group">
+                    <a data-parent="#{v#id}form" href="#{v#id}panel-reg"
+                       data-toggle="collapse">Новый пользователь? Регистрация...</a>
+                </div>
+            </form>
+        </div>
+        <div id="{v#id}panel-reg" class="panel-collapse collapse">
+            <form role="form" action="/user/register/" method="post">
+                <h3>Регистрация</h3>
+
+                <div class="form-group">
+                    <label for="{v#id}reg-login" class="control-label">Имя пользователя</label>
+                    <input id="{v#id}reg-login" type="text" class="form-control"
+                           placeholder="Имя пользователя">
+                </div>
+                <div class="form-group">
+                    <label for="{v#id}reg-email" class="control-label">Email</label>
+                    <input id="{v#id}reg-email" type="email" class="form-control"
+                           placeholder="Email">
+                </div>
+                <div class="form-group">
+                    <label for="{v#id}reg-pass" class="control-label">Пароль</label>
+                    <input id="{v#id}reg-pass" type="password" class="form-control"
+                           placeholder="Пароль">
+                </div>
+                <div class="form-group">
+                    <label for="{v#id}reg-passconf" class="control-label">Подвердите пароль</label>
+                    <input id="{v#id}reg-passconf" type="password" class="form-control"
+                           placeholder="Подвердите пароль">
+                </div>
+                <div class="form-group">
+                    <div class="checkbox">
+                        <label> <input type="checkbox"> Я согласен с
+                            <a href="/user/termofuse/">пользовательским соглашением</a></label>
+                    </div>
+                </div>
+                <div class="form-group text-right">
+                    <button type="submit" class="btn btn-default">Зарегистрироваться</button>
+                    <button type="button" class="btn btn-default"
+                            data-parent="#{v#id}form"
+                            data-target="#{v#id}panel-login"
+                            data-toggle="collapse">Отмена
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+<script>
+    Brick.f('bos', 'loginform', function(){
+
+    });
+</script>
