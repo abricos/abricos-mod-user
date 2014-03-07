@@ -6,18 +6,18 @@
 [*]-->
 <div id="{v#id}form" class="user-login-form">
     <div class="panel">
-        <div id="{v#id}login-widget" class="panel-collapse collapse in">
-            <form role="form" action="/user/login/" method="post">
+        <div id="{v#id}loginpanel" class="panel-collapse collapse in">
+            <form id="{v#id}loginform" role="form" action="/user/login/" method="post">
                 <h3>Авторизация</h3>
 
                 <div class="form-group">
                     <label for="{v#id}in-login" class="control-label">Имя пользователя или email</label>
-                    <input id="{v#id}in-login" type="text" class="form-control" data-input="login"
+                    <input id="{v#id}in-login" type="text" class="form-control" name="login"
                            placeholder="Имя пользователя или email">
                 </div>
                 <div class="form-group">
                     <label for="{v#id}in-pass" class="control-label">Пароль</label>
-                    <input id="{v#id}in-pass" type="password" class="form-control" data-input="password"
+                    <input id="{v#id}in-pass" type="password" class="form-control" name="password"
                            placeholder="Пароль">
                 </div>
                 <div class="form-group">
@@ -30,13 +30,13 @@
                 </div>
 
                 <div class="form-group">
-                    <a data-parent="#{v#id}form" href="#{v#id}panel-reg"
+                    <a data-parent="#{v#id}form" href="#{v#id}regpanel"
                        data-toggle="collapse">Новый пользователь? Регистрация...</a>
                 </div>
             </form>
         </div>
-        <div id="{v#id}reg-widget" class="panel-collapse collapse">
-            <form role="form" action="/user/register/" method="post">
+        <div id="{v#id}regpanel" class="panel-collapse collapse">
+            <form id="{v#id}regform" role="form" action="/user/register/" method="post">
                 <h3>Регистрация</h3>
 
                 <div class="form-group">
@@ -69,7 +69,7 @@
                     <button type="submit" class="btn btn-default">Зарегистрироваться</button>
                     <button type="button" class="btn btn-default"
                             data-parent="#{v#id}form"
-                            data-target="#{v#id}login-widget"
+                            data-target="#{v#id}loginpanel"
                             data-toggle="collapse">Отмена
                     </button>
                 </div>
@@ -79,11 +79,14 @@
 </div>
 <script>
 
-    Brick.f('user', 'guest', function(){
 
-        var widget = new Brick.mod.user.LoginFormWidget({
-            boundingBox: '#{v#id}login-widget'
+    Brick.f('user', 'guest', function(){
+        var NS = Brick.mod.user;
+
+        var widget = new NS.LoginFormWidget({
+            'boundingBox': '#{v#id}loginform'
         });
+        widget.render();
     });
 
 </script>

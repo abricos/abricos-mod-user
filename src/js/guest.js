@@ -20,74 +20,85 @@ Component.entryPoint = function(NS){
     var Login = function(){
         Login.superclass.constructor.apply(this, arguments);
     };
+    Login.NAME = 'login';
+    Login.ATTRS = {
+        login: {
+            value: '',
+            setter: function(val){
+                // console.log('setter=' + val);
+                return val;
+            }
+        },
+        password: {
+            value: ''
+        }
+    };
     Y.extend(Login, Y.Base, {
         authorize: function(){
             console.log('authorize()');
-            this.set('login', 'myyy-super-login');
-        },
-        _authorize: function(){
-            console.log('_authorize()');
-            this.authorize();
-        }
-    }, {
-        NAME: 'login',
-        ATTRS: {
-            login: {
-                value: '',
-                setter: function(val){
-                    console.log('setter='+val);
-                    return val;
-                }
-            },
-            password: {
-                value: ''
-            }
+            console.log(this.get('login'));
         }
     });
     NS.Login = Login;
 
-    var LoginForm = function(){
-        LoginForm.superclass.constructor.apply(this, arguments);
+
+    var FormFieldProvider = function(){
     };
-    LoginForm.NAME = 'loginForm';
-    LoginForm.ATTRS = {
+    FormFieldProvider.ATTRS = {
         boundingBox: {
             setter: Y.one
         }
     };
-    Y.extend(LoginForm, Y.Base, {
-        // Prototype methods for your new class
+    FormFieldProvider.NAME = 'formFieldProvider';
+    FormFieldProvider.prototype = {
+        _fillAttributesFromFields: function(){
+            var boundingBox = this.get(BOUNDING_BOX);
 
+            boundingBox.all('.form-control').each(function(fieldNode){
+                var name = fieldNode.get('name'),
+                    value = fieldNode.get('value');
+
+                if (this.attrAdded(name)){
+                    this.set(name, value);
+                }
+            }, this);
+        }
+    };
+    NS.FormFieldProvider = FormFieldProvider;
+
+
+    var LoginForm = function(){
+    };
+    LoginForm.NAME = 'loginForm';
+    LoginForm.prototype = {
         initializer: function(){
+            Y.after(this._bindUIFormFieldProvider, this, 'bindUI');
+        },
+        _bindUIFormFieldProvider: function(){
 
-            var bbox = this.get('boundingBox');
+            var boundingBox = this.get(BOUNDING_BOX);
 
-            // LoginForm.prototype.authorize.call(this);
+            boundingBox.on({
+                submit: Y.bind(this._onFormSubmit, this)
+            });
+        },
+        _onFormSubmit: function(event){
+
+            this._fillAttributesFromFields();
 
             this.authorize();
-
-            console.log('login=' + this.get('login'));
-
-            /*
-             var host = config.host;
-
-             var inputNode = host.one('[data-input="login"]');
-             this.set('inputNode', inputNode);
-
-             var inputNode = host.one('[data-input="login"]');
-             this.set('inputNode', inputNode);
-             /**/
-
+            return event.halt();
         }
-    });
-
+    };
     NS.LoginForm = LoginForm;
 
-    NS.LoginFormWidget = Y.Base.create('loginForm', Y.Widget, [
+
+    NS.LoginFormWidget = Y.Base.create('loginFormWidget', Y.Widget, [
         NS.Login,
+        NS.FormFieldProvider,
         NS.LoginForm
-    ]);
+    ], {
 
+    });
 
-}
-;
+};
