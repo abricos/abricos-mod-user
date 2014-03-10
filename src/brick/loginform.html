@@ -11,8 +11,8 @@
                 <h3>Авторизация</h3>
 
                 <div class="form-group">
-                    <label for="{v#id}in-login" class="control-label">Имя пользователя или email</label>
-                    <input id="{v#id}in-login" type="text" class="form-control" name="login"
+                    <label for="{v#id}in-username" class="control-label">Имя пользователя или email</label>
+                    <input id="{v#id}in-username" type="text" class="form-control" name="username"
                            placeholder="Имя пользователя или email">
                 </div>
                 <div class="form-group">
@@ -84,9 +84,14 @@
         var NS = Brick.mod.user;
 
         var widget = new NS.LoginFormWidget({
-            'boundingBox': '#{v#id}loginform'
+            'boundingBox': '#{v#id}loginform',
+            'fields': {
+                'username': 'roosit'
+            }
         });
         widget.render();
+        var fields = widget.get('fields');
+        fields.set('username', 'ROOSIT');
     });
 
 </script>

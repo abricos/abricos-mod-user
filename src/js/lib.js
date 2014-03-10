@@ -6,7 +6,10 @@
 
 var Component = new Brick.Component();
 Component.requires = {
-    yui: ['base']
+    yui: ['base'],
+    mod: [
+        {name: '{C#MODNAME}', files: ['struct.js']}
+    ]
 };
 Component.entryPoint = function(NS){
 
@@ -41,6 +44,14 @@ Component.entryPoint = function(NS){
 
                     NS.life(callback, result);
                 }
+            });
+        },
+        login: function(login, callback){
+            this.ajax({
+                'do': 'login',
+                'savedata': login.getAttrs()
+            }, function(){
+                NS.life(callback);
             });
         }
     };
