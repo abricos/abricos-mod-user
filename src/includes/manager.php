@@ -1,10 +1,9 @@
 <?php
 /**
- * @version $Id$
  * @package Abricos
  * @copyright Copyright (C) 2008-2011 Abricos. All rights reserved.
- * @license http://www.gnu.org/copyleft/gpl.html GNU/GPL, see LICENSE.php
- * @author Alexander Kuzmin (roosit@abricos.org)
+ * @license Licensed under the MIT license
+ * @author Alexander Kuzmin <roosit@abricos.org>
  */
 
 require_once 'dbquery.php';
@@ -65,7 +64,9 @@ class UserManager extends Ab_ModuleManager {
 	public function AJAX($d){
 		switch($d->do){
 			case "login":
-				return $this->Login($d->username, $d->password, $d->autologin);
+				return $this->LoginToAJAX($d->savedata);
+
+
 			case "loginext":
 				return $this->LoginExt($d->username, $d->password, $d->autologin);
 
@@ -320,6 +321,14 @@ class UserManager extends Ab_ModuleManager {
 	////////////////////////////////////////////////////////////////////
 	
 	private $_usercache = null;
+
+    public function LoginToAJAX($d){
+
+        $ret = new stdClass();
+        $ret->err = $this->Login($d->username, $d->password, $d->autologin);
+
+        return $ret;
+    }
 	
 	/**
 	 * Проверить данные авторизации и вернуть номер ошибки: 

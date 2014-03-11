@@ -8,7 +8,7 @@ var Component = new Brick.Component();
 Component.requires = {
     yui: ['base'],
     mod: [
-        {name: '{C#MODNAME}', files: ['struct.js']}
+        {name: '{C#MODNAME}', files: ['structure.js']}
     ]
 };
 Component.entryPoint = function(NS){
@@ -30,7 +30,8 @@ Component.entryPoint = function(NS){
     };
     Manager.prototype = {
         init: function(callback){
-
+            NS.manager = this;
+            NS.life(callback);
         },
         ajax: function(d, callback){
             d = d || {};
@@ -49,8 +50,8 @@ Component.entryPoint = function(NS){
         login: function(login, callback){
             this.ajax({
                 'do': 'login',
-                'savedata': login.getAttrs()
-            }, function(){
+                'savedata': login.toJSON()
+            }, function(r){
                 NS.life(callback);
             });
         }

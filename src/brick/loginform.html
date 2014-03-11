@@ -26,7 +26,8 @@
                     </div>
                 </div>
                 <div class="form-group text-right">
-                    <button type="submit" class="btn btn-default">Войти</button>
+                    <img src="/images/loading.gif" style="display: none" data-wait="show" />
+                    <button type="submit" class="btn btn-default" data-wait="disabled">Войти</button>
                 </div>
 
                 <div class="form-group">
@@ -85,13 +86,9 @@
 
         var widget = new NS.LoginFormWidget({
             'boundingBox': '#{v#id}loginform',
-            'fields': {
-                'username': 'roosit'
-            }
+            'waiting': true
         });
         widget.render();
-        var fields = widget.get('fields');
-        fields.set('username', 'ROOSIT');
     });
 
 </script>

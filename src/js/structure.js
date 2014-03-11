@@ -6,10 +6,14 @@
 
 var Component = new Brick.Component();
 Component.requires = {
-    yui: ['attribute']
+    mod: [
+        {name: 'sys', files: ['structure.js']}
+    ]
 };
 Component.entryPoint = function(NS){
-    var Y = Brick.YUI;
+
+    var Y = Brick.YUI,
+        SYS = Brick.mod.sys;
 
     var Login = function(){
         Login.superclass.constructor.apply(this, arguments);
@@ -29,6 +33,6 @@ Component.entryPoint = function(NS){
             value: ''
         }
     };
-    Y.extend(Login, Y.Base);
+    Y.extend(Login, SYS.Structure);
     NS.Login = Login;
 };
