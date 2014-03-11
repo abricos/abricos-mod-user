@@ -26,8 +26,8 @@
                     </div>
                 </div>
                 <div class="form-group text-right">
-                    <img src="/images/loading.gif" style="display: none" data-wait="show" />
-                    <button type="submit" class="btn btn-default" data-wait="disabled">Войти</button>
+                    <img src="/images/loading.gif" style="display: none" data-wait="show"/>
+                    <button type="submit" class="btn btn-default" data-wait="disable">Войти</button>
                 </div>
 
                 <div class="form-group">
@@ -85,8 +85,9 @@
         var NS = Brick.mod.user;
 
         var widget = new NS.LoginFormWidget({
-            'boundingBox': '#{v#id}loginform',
-            'waiting': true
+            'boundingBox': '#{v#id}loginform'
+
+            //, 'waiting': true
         });
         widget.render();
     });

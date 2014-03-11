@@ -35,11 +35,11 @@ Component.entryPoint = function(NS){
         _submitLoginForm: function(e){
 
             this.set('waiting', true);
-            var fields = this.get('fields');
+            var fields = this.get('fields'),
+                instance = this;
 
             NS.manager.login(fields, function(err, result){
-                // this.set('waiting', false);
-                // console.log('ok');
+                instance.set('waiting', false);
             });
 
             e.halt();
