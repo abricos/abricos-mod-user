@@ -35,4 +35,5 @@ Component.entryPoint = function(NS){
     };
     Y.extend(Login, SYS.Structure);
     NS.Login = Login;
+
 };

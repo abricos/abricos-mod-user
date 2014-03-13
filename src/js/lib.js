@@ -8,14 +8,54 @@ var Component = new Brick.Component();
 Component.requires = {
     yui: ['base'],
     mod: [
+        {name: 'sys', files: ['application.js']},
         {name: '{C#MODNAME}', files: ['structure.js']}
     ]
 };
 Component.entryPoint = function(NS){
 
     var Y = Brick.YUI,
-        L = Y.Lang;
+        L = Y.Lang,
 
+        SYS = Brick.mod.sys;
+
+    var AppBase = function(){
+    };
+    AppBase.prototype = {
+        login: function(login, callback){
+            this.ajax({
+                'do': 'login',
+                'savedata': login.toJSON()
+            }, function(err, r){
+                console.log(arguments);
+                // NS.life(callback);
+            });
+        }
+    };
+    NS.AppBase = AppBase;
+
+    var App = Y.Base.create('userApp', Y.Base, [
+        SYS.AJAX,
+        NS.AppBase
+    ]);
+    NS.App = App;
+
+
+    NS.appInstance = null;
+    NS.initApp = function(callback, config){
+        callback || (callback = function(){
+        });
+
+        if (NS.appInstance){
+            return callback(null, NS.appInstance);
+        }
+        NS.appInstance = new NS.App({
+            moduleName: '{C#MODNAME}'
+        });
+        callback(null, NS.appInstance);
+    };
+
+/*
     NS.lif = function(f){
         return L.isFunction(f) ? f : function(){
         };
@@ -24,6 +64,7 @@ Component.entryPoint = function(NS){
         f = NS.lif(f);
         f(p1, p2, p3, p4, p5, p6, p7);
     };
+
 
     var Manager = function(callback){
         this.init(callback);
@@ -65,4 +106,5 @@ Component.entryPoint = function(NS){
         }
         NS.manager = new NS.Manager(callback);
     };
+    /**/
 };

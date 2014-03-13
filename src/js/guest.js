@@ -15,6 +15,9 @@ Component.requires = {
 Component.entryPoint = function(NS){
 
     var Y = Brick.YUI,
+
+        COMPONENT = this,
+
         SYS = Brick.mod.sys;
 
     var LoginForm = function(){
@@ -25,7 +28,7 @@ Component.entryPoint = function(NS){
             this.set('fieldsClass', NS.Login);
 
             var instance = this;
-            NS.initManager(function(){
+            NS.initApp(function(){
                 instance._onLoadManager();
             });
         },
@@ -38,7 +41,8 @@ Component.entryPoint = function(NS){
             var fields = this.get('fields'),
                 instance = this;
 
-            NS.manager.login(fields, function(err, result){
+            NS.appInstance.login(fields, function(err, result){
+
                 instance.set('waiting', false);
             });
 
@@ -48,12 +52,19 @@ Component.entryPoint = function(NS){
     NS.LoginForm = LoginForm;
 
     NS.LoginFormWidget = Y.Base.create('loginFormWidget', Y.Widget, [
+        SYS.Language,
         SYS.Form,
         SYS.FormAction,
         SYS.WidgetWaiting,
         NS.LoginForm
     ], {
 
+    }, {
+        ATTRS: {
+            component: {
+                value: COMPONENT
+            }
+        }
     });
 
 };
