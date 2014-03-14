@@ -9,6 +9,7 @@ Component.requires = {
     yui: ['widget'],
     mod: [
         {name: 'sys', files: ['form.js']},
+        {name: 'widget', files: ['notice.js']},
         {name: '{C#MODNAME}', files: ['lib.js']}
     ]
 };
@@ -42,9 +43,21 @@ Component.entryPoint = function(NS){
                 instance = this;
 
             NS.appInstance.login(fields, function(err, result){
+                if (err){
 
-                instance.set('waiting', false);
-            });
+                    var errorText = this.template.replace('error', {
+                        msg: err.msg
+                    });
+
+                    Brick.mod.widget.notice.show(errorText);
+                    // TODO: show notice
+                    // this.language.get('error');
+                    // ...
+                    instance.set('waiting', false);
+                }else{
+                    // reload page
+                }
+            }, this);
 
             e.halt();
         }
@@ -52,6 +65,7 @@ Component.entryPoint = function(NS){
     NS.LoginForm = LoginForm;
 
     NS.LoginFormWidget = Y.Base.create('loginFormWidget', Y.Widget, [
+        SYS.Template,
         SYS.Language,
         SYS.Form,
         SYS.FormAction,

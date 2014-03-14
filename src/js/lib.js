@@ -22,21 +22,39 @@ Component.entryPoint = function(NS){
     var AppBase = function(){
     };
     AppBase.prototype = {
-        login: function(login, callback){
-            this.ajax({
+
+        login: function(login, callback, context){
+            var instance = this;
+            instance.ajax({
                 'do': 'login',
                 'savedata': login.toJSON()
-            }, function(err, r){
-                console.log(arguments);
-                console.log(this);
-
+            }, instance._onLogin, {
+                context: instance,
+                arguments: {callback: callback, context: context }
             });
+        },
+        _onLogin: function(err, res, details){
+            var callback = details.callback,
+                context = details.context;
+
+            if (!err){
+
+            }
+
+            if (callback){
+                if (err){
+                    callback.apply(context, [err]);
+                } else {
+                    callback.apply(context, [null]);
+                }
+            }
         }
     };
     NS.AppBase = AppBase;
 
     var App = Y.Base.create('userApp', Y.Base, [
         SYS.AJAX,
+        SYS.Language,
         NS.AppBase
     ]);
     NS.App = App;
