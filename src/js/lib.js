@@ -15,7 +15,8 @@ Component.requires = {
 Component.entryPoint = function(NS){
 
     var Y = Brick.YUI,
-        L = Y.Lang,
+
+        COMPONENT = this,
 
         SYS = Brick.mod.sys;
 
@@ -38,14 +39,22 @@ Component.entryPoint = function(NS){
                 context = details.context;
 
             if (!err){
+                var errorCode = res.data.err || 0;
+                if (errorCode > 0){
+                    var phId = 'ajax.login.error.' + errorCode;
 
+                    err = {
+                        code: errorCode,
+                        msg: this.language.get(phId)
+                    };
+                }
             }
 
             if (callback){
                 if (err){
                     callback.apply(context, [err]);
                 } else {
-                    callback.apply(context, [null]);
+                    callback.apply(context, [null, res.data]);
                 }
             }
         }
@@ -56,10 +65,17 @@ Component.entryPoint = function(NS){
         SYS.AJAX,
         SYS.Language,
         NS.AppBase
-    ]);
+    ], {
+    }, {
+        ATTRS: {
+            component: {
+                value: COMPONENT
+            }
+        }
+    });
     NS.App = App;
 
-
+console.log(Abricos);
     NS.appInstance = null;
     NS.initApp = function(callback, config){
         callback || (callback = function(){

@@ -43,17 +43,13 @@ Component.entryPoint = function(NS){
                 instance = this;
 
             NS.appInstance.login(fields, function(err, result){
+                instance.set('waiting', false);
                 if (err){
-
                     var errorText = this.template.replace('error', {
                         msg: err.msg
                     });
 
                     Brick.mod.widget.notice.show(errorText);
-                    // TODO: show notice
-                    // this.language.get('error');
-                    // ...
-                    instance.set('waiting', false);
                 }else{
                     // reload page
                 }
@@ -72,11 +68,13 @@ Component.entryPoint = function(NS){
         SYS.WidgetWaiting,
         NS.LoginForm
     ], {
-
     }, {
         ATTRS: {
             component: {
                 value: COMPONENT
+            },
+            templateBlockName: {
+                value: 'error'
             }
         }
     });
