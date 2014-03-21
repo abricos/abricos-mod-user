@@ -1,13 +1,7 @@
 /*
-@version $Id$
 @copyright Copyright (C) 2008 Abricos. All rights reserved.
 @license http://www.gnu.org/copyleft/gpl.html GNU/GPL, see LICENSE.php
 */
-
-/**
- * @module User
- * @namespace Brick.mod.user.cp
- */
 
 var Component = new Brick.Component();
 Component.requires = {
@@ -22,6 +16,22 @@ Component.entryPoint = function(NS){
 	var Dom = YAHOO.util.Dom,
 		E = YAHOO.util.Event,
 		L = YAHOO.lang;
+
+
+    var applyCSS = function(css){
+        var style = document.createElement('style');
+        style['type'] = 'text/css';
+
+        if (style.styleSheet){ // IE
+            style.styleSheet.cssText = css;
+        }else{
+            var tt1 = document.createTextNode(css);
+            style.appendChild(tt1);
+        }
+
+        var hh1 = document.getElementsByTagName('head')[0];
+        hh1.appendChild(style);
+    };
 	
 	Brick.namespace('Brick.mod.user.cp');
 	
@@ -142,9 +152,9 @@ Component.entryPoint = function(NS){
 				lst += bb['html'];
 				iconcss += bb['css'];
 			});
-			
-			Brick.util.CSS.update(iconcss);
-			
+
+            applyCSS(iconcss);
+
 			var menu = this._TM.getEl('widget.mainmenu');
 			menu.innerHTML = lst;
 			

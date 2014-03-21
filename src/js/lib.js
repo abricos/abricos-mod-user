@@ -75,7 +75,6 @@ Component.entryPoint = function(NS){
     });
     NS.App = App;
 
-console.log(Abricos);
     NS.appInstance = null;
     NS.initApp = function(callback, config){
         callback || (callback = function(){
