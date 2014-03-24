@@ -24,12 +24,12 @@ Component.entryPoint = function(NS){
          * User Name or Email
          */
         username: {
-            value: '',
-            setter: function(val){
-                return val;
-            }
+            value: ''
         },
         password: {
+            value: ''
+        },
+        autologin: {
             value: ''
         }
     };
