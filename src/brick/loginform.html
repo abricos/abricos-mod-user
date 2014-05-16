@@ -42,17 +42,17 @@
 
                 <div class="form-group">
                     <label for="{v#id}reg-login" class="control-label">Имя пользователя</label>
-                    <input id="{v#id}reg-login" type="text" class="form-control"
+                    <input id="{v#id}reg-login" type="text" class="form-control" name="username"
                            placeholder="Имя пользователя">
                 </div>
                 <div class="form-group">
                     <label for="{v#id}reg-email" class="control-label">Email</label>
-                    <input id="{v#id}reg-email" type="email" class="form-control"
+                    <input id="{v#id}reg-email" type="email" class="form-control" name="email"
                            placeholder="Email">
                 </div>
                 <div class="form-group">
                     <label for="{v#id}reg-pass" class="control-label">Пароль</label>
-                    <input id="{v#id}reg-pass" type="password" class="form-control"
+                    <input id="{v#id}reg-pass" type="password" class="form-control" name="password"
                            placeholder="Пароль">
                 </div>
                 <div class="form-group">
@@ -80,16 +80,17 @@
 </div>
 <script>
 
-
     Brick.f('user', 'guest', function(){
         var NS = Brick.mod.user;
-
-        var widget = new NS.LoginFormWidget({
+        var loginWidget = new NS.LoginFormWidget({
             'boundingBox': '#{v#id}loginform'
-
-            //, 'waiting': true
         });
-        widget.render();
+        loginWidget.render();
+
+        var regWidget = new NS.RegisterFormWidget({
+            'boundingBox': '#{v#id}regform'
+        });
+        regWidget.render();
     });
 
 </script>

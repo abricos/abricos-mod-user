@@ -36,4 +36,20 @@ Component.entryPoint = function(NS){
     Y.extend(Login, SYS.Structure);
     NS.Login = Login;
 
+    var RegisterData = function(){
+        RegisterData.superclass.constructor.apply(this, arguments);
+    };
+    RegisterData.NAME = 'registerData';
+    RegisterData.ATTRS = {
+        username: {
+            value: ''
+        },
+        password: {
+            value: ''
+        },
+        email: {
+            value: ''
+        }
+    };
+    NS.RegisterData = RegisterData;
 };

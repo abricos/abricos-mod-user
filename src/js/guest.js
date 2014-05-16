@@ -79,4 +79,47 @@ Component.entryPoint = function(NS){
         }
     });
 
+    var RegisterForm = function(){
+
+    };
+    RegisterForm.NAME = 'registerForm';
+
+    RegisterForm.prototype = {
+        initializer: function(){
+            this.set('fieldsClass', NS.RegisterData);
+
+            var instance = this;
+            NS.initApp(function(){
+                instance._onLoadManager();
+            });
+        },
+        _onLoadManager: function(){
+            this.after('submitForm', this._submitRegisterForm);
+        },
+        _submitRegisterForm: function(e){
+            console.log(e);
+            e.halt();
+        }
+    };
+    NS.RegisterForm = RegisterForm;
+
+    NS.RegisterFormWidget = Y.Base.create('registerFormWidget', Y.Widget, [
+        SYS.Template,
+        SYS.Language,
+        SYS.Form,
+        SYS.FormAction,
+        SYS.WidgetWaiting,
+        NS.RegisterForm
+    ], {
+    }, {
+        ATTRS: {
+            component: {
+                value: COMPONENT
+            },
+            templateBlockName: {
+                value: 'error'
+            }
+        }
+    });
+
 };
