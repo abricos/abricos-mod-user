@@ -60,12 +60,32 @@ class UserManager extends Ab_ModuleManager {
 	public function IsChangeUserRole($userid){
 		return $this->userid == $userid || $this->IsAdminRole();
 	}
+
+    private $_registration = null;
+
+    /**
+     * Получить менеджер регистрации пользователя
+     * @return UserRegistration
+     */
+    public function GetRegistration(){
+        if (empty($this->_registration)){
+            require_once 'classes/register.php';
+            $this->_registration = new UserRegistration($this);
+        }
+        return $this->_registration;
+    }
 	
 	public function AJAX($d){
 		switch($d->do){
 			case "login":
 				return $this->LoginToAJAX($d->savedata);
 
+            case "register":
+                return $this->GetRegistration()->AJAX($d);
+
+            /*
+            case "register":
+                return $this->Register($d->username, $d->password, $d->email, true);
 
 			case "loginext":
 				return $this->LoginExt($d->username, $d->password, $d->autologin);
@@ -73,8 +93,6 @@ class UserManager extends Ab_ModuleManager {
 			case "termsofuse": return $this->TermsOfUse();
 			case "termsofuseagreement": return $this->TermsOfUseAgreement();
 				
-			case "register":
-				return $this->Register($d->username, $d->password, $d->email, true);
 			case "user":
 				return $this->UserInfo($d->userid);
 			case "usersave":
@@ -85,11 +103,12 @@ class UserManager extends Ab_ModuleManager {
 				return $this->RegistrationActivate($d->userid, $d->actcode);
 			case "useremailcnfsend":
 				return $this->ConfirmEmailSendAgain($d->userid);
+            /**/
 		}
 		return -1;
 	}
-	
-	private $_newGroupId = 0;
+
+    private $_newGroupId = 0;
 	
 	public function DSProcess($name, $rows){
 		$p = $rows->p;
@@ -258,11 +277,11 @@ class UserManager extends Ab_ModuleManager {
 			// смена пароля
 			if (!empty($d->pass)){
 				if ($this->IsAdminRole()){
-					$data['password'] = $this->UserPasswordCrypt($d->pass, $user['salt']);
+					$data['password'] = UserManager::UserPasswordCrypt($d->pass, $user['salt']);
 				}else{
-					$passcrypt = $this->UserPasswordCrypt($d->oldpass, $user["salt"]);
+					$passcrypt = UserManager::UserPasswordCrypt($d->oldpass, $user["salt"]);
 					if ($passcrypt == $user["password"]){ 
-						$data['password'] = $this->UserPasswordCrypt($d->pass, $user['salt']);
+						$data['password'] = UserManager::UserPasswordCrypt($d->pass, $user['salt']);
 					}
 				}
 			}
@@ -291,7 +310,7 @@ class UserManager extends Ab_ModuleManager {
 
 		if ($this->IsAdminRole()){
 			// отключено
-			$data['password'] = $this->UserPasswordCrypt($newpassword, $user['salt']);
+			$data['password'] = UserManager::UserPasswordCrypt($newpassword, $user['salt']);
 		}else{
 			
 			// смена пароля
@@ -302,9 +321,9 @@ class UserManager extends Ab_ModuleManager {
 				return 3; // пароль совпадает с логином
 			}
 			
-			$passcrypt = $this->UserPasswordCrypt($oldpassword, $user["salt"]);
+			$passcrypt = UserManager::UserPasswordCrypt($oldpassword, $user["salt"]);
 			if ($passcrypt == $user["password"]){ 
-				$data['password'] = $this->UserPasswordCrypt($newpassword, $user['salt']);
+				$data['password'] = UserManager::UserPasswordCrypt($newpassword, $user['salt']);
 			}else{
 				return 4; // старый пароль ошибочный
 			}
@@ -315,30 +334,29 @@ class UserManager extends Ab_ModuleManager {
 		return 0;
 	}
 	
-	
+
 	////////////////////////////////////////////////////////////////////
 	//      	Функции: регистрации/авторизации пользователя     	  //
 	////////////////////////////////////////////////////////////////////
-	
+
 	private $_usercache = null;
 
     public function LoginToAJAX($d){
-
         $ret = new stdClass();
         $ret->err = $this->Login($d->username, $d->password, $d->autologin);
 
         return $ret;
     }
-	
+
 	/**
-	 * Проверить данные авторизации и вернуть номер ошибки: 
+	 * Проверить данные авторизации и вернуть номер ошибки:
 	 * 0 - нет ошибки,
-	 * 1 - ошибка в имени пользователя, 
-	 * 2 - неверное имя пользователя или пароль, 
-	 * 3 - не заполнены обязательные поля, 
+	 * 1 - ошибка в имени пользователя,
+	 * 2 - неверное имя пользователя или пароль,
+	 * 3 - не заполнены обязательные поля,
 	 * 4 - пользователь заблокирован,
 	 * 5 - пользователь не прошел верификацию email
-	 * 
+	 *
 	 * @param String $username имя пользователя или емайл
 	 * @param String $password пароль
 	 * @return Integer
@@ -346,33 +364,33 @@ class UserManager extends Ab_ModuleManager {
 	public function Login($username, $password, $autologin = false){
 		$username = trim($username);
 		$password = trim($password);
-		
+
 		if (empty($username) || empty($password)){ return 3; }
-	
-		// if (!$this->UserVerifyName($username)){ return 1; }
-		
+
+		// if (!$this->UserNameValidate($username)){ return 1; }
+
 		$user = UserQuery::UserByName($this->db, $username, true);
-		
+
 		if (empty($user)){ return 2; }
 		$this->_usercache = $user;
 
 		if ($user['emailconfirm'] < 1) { return 5; }
-		
-		$passcrypt = $this->UserPasswordCrypt($password, $user["salt"]);
+
+		$passcrypt = UserManager::UserPasswordCrypt($password, $user["salt"]);
 		if ($passcrypt != $user["password"]){ return 2; }
-		
+
 		$this->LoginMethod($user, $autologin);
-		
+
 		return 0;
 	}
-	
+
 	public function LoginMethod($user, $autologin = false){
 		$session = $this->module->session;
 		$session->Set('userid', $user['userid']);
-		
+
 		$guserid = $session->Get('guserid');
 		$session->Set('guserid', $user['userid']);
-		
+
 		// зашел тот же человек, но под другой учеткой
 		if ($guserid > 0 && $guserid != $user['userid']){
 			UserQueryExt::UserDoubleLogAppend($this->db, $guserid, $user['userid'], $_SERVER['REMOTE_ADDR']);
@@ -384,30 +402,30 @@ class UserManager extends Ab_ModuleManager {
 			setcookie($session->cookieName, $sessionKey, TIMENOW + $session->sessionTimeOut, $session->sessionPath);
 			UserQuery::SessionAppend($this->db, $user['userid'], $sessionKey, $privateKey);
 		}
-		
+
 		// Удалить пользователей не прошедших верификацию email (редкая операция)
 		UserQueryExt::RegistrationActivateClear($this->db);
-		
+
 		$this->UserDomainUpdate($user['userid']);
 	}
-	
+
 	public function LoginExt($username, $password, $autologin = false){
 		$ret = new stdClass();
 		$ret->error = $this->Login($username, $password, $autologin);
-		
+
 		$user = $this->_usercache;
 		if (is_null($user) || empty($user)){
 			return $ret;
 		}
-		
+
 		$ret->user = array(
 			"id" => $user['userid'],
 			"agr" => $user['agreement']
 		);
-		
+
 		return $ret;
 	}
-	
+
 	public function Logout(){
 		$session = $this->module->session;
 		$sessionKey = Abricos::CleanGPC('c', $session->cookieName, TYPE_STR);
@@ -419,63 +437,6 @@ class UserManager extends Ab_ModuleManager {
 			"group"		=> array(1),
 			"username"	=> "Guest"
 		);
-	}
-	
-	
-	public function UserVerifyName($username) {
-		$username = strtolower(trim($username));
-		
-		$length = strlen($username);
-		if ($length == 0) {
-			return false;
-		} else if ($length < 3) {
-			return false;
-		} else if ($length > 50) {
-			return false;
-		}else if ( preg_match("/^[^a-z]{1}|[^a-z0-9_.-]+/i", $username) ){
-			return false;
-		} 
-		// $username = htmlspecialchars_uni($username);
-		return true;
-	}
-
-	public function UserPasswordCrypt($password, $salt){
-		return md5(md5($password).$salt);
-	}
-	
-	public function UserCreateSalt() {
-		$salt = '';
-		for ($i = 0; $i < 3; $i++) {
-			$salt .= chr(rand(32, 126));
-		}
-		return $salt;
-	}
-
-	public static function EmailValidate($address) {
-		if (function_exists('filter_var')) { //Introduced in PHP 5.2
-			if(filter_var($address, FILTER_VALIDATE_EMAIL) === FALSE) {
-				return false;
-			} else {
-				return true;
-			}
-		} else {
-			return preg_match('/^(?:[\w\!\#\$\%\&\'\*\+\-\/\=\?\^\`\{\|\}\~]+\.)*[\w\!\#\$\%\&\'\*\+\-\/\=\?\^\`\{\|\}\~]+@(?:(?:(?:[a-zA-Z0-9_](?:[a-zA-Z0-9_\-](?!\.)){0,61}[a-zA-Z0-9_-]?\.)+[a-zA-Z0-9_](?:[a-zA-Z0-9_\-](?!$)){0,61}[a-zA-Z0-9_]?)|(?:\[(?:(?:[01]?\d{1,2}|2[0-4]\d|25[0-5])\.){3}(?:[01]?\d{1,2}|2[0-4]\d|25[0-5])\]))$/', $address);
-		}
-	}
-	
-	
-	public function RegisterCheck($username, $email, $checkMail = true){
-		if ($checkMail && !UserManager::EmailValidate($email)){
-			return 4;
-		}
-		if (!$this->UserVerifyName($username)){
-			return 3;
-		}else{
-			$retcode = UserQueryExt::UserExists($this->db, $username, $email);
-			if ($retcode > 0){ return $retcode; }
-		}
-		
-		return 0;		
 	}
 	
 	public function UserDomainUpdate($userid = 0){
@@ -490,78 +451,7 @@ class UserManager extends Ab_ModuleManager {
 		UserQueryExt::UserDomainUpdate($this->db, $userid, Abricos::$DOMAIN);
 	}
 	
-	/**
-	 * Зарегистрировать пользователя, в случае неудачи вернуть номер ошибки:
-	 * 0 - ошибки нет, пользователь успешно зарегистрирован,
-	 * 1 - пользователь с таким логином уже зарегистрирован, 
-	 * 2 - пользователь с таким email уже зарегистрирован
-	 * 3 - ошибка в имени пользователя,
-	 * 4 - ошибка в emial
-	 * 
-	 * @param String $username
-	 * @param String $password
-	 * @param String $email
-	 * @param Boolean $sendMail
-	 * @return Integer
-	 */
-	public function Register($username, $password, $email, $sendMail = true, $checkMail = true){
-		$retcode = $this->RegisterCheck($username, $email, $checkMail);
-		if ($retcode > 0){ return $retcode; }
 
-		$salt = $this->UserCreateSalt();
-		
-		$user = array();
-		$user["username"] = $username;
-		$user["joindate"] = TIMENOW;
-		$user["salt"] = $salt;
-		$user["password"] = $this->UserPasswordCrypt($password, $salt);
-		$user["email"] = $email;
-		
-		// Добавление пользователя в базу
-		if ($this->IsAdminRole()){
-			UserQueryExt::UserAppend($this->db, $user, User::UG_REGISTERED);
-		}else{
-			$userid = UserQueryExt::UserAppend($this->db, $user, User::UG_GUEST, $_SERVER['REMOTE_ADDR'], true);
-			Abricos::$user->AntibotUserDataUpdate($userid);
-			$this->UserDomainUpdate($userid);
-		}
-		
-		if (!$sendMail){ 
-			return 0; 
-		}
-		
-		$this->ConfirmEmailSend($user);
-			
-		return 0;
-	}
-	
-	private function ConfirmEmailSend($user){
-		$host = $_SERVER['HTTP_HOST'] ? $_SERVER['HTTP_HOST'] : $_ENV['HTTP_HOST'];
-		$link = "http://".$host."/user/activate/".$user["userid"]."/".$user["activateid"];
-		
-		$brick = Brick::$builder->LoadBrickS('user', 'templates', null, null);
-		
-		$subject = $brick->param->var['reg_mailconf_subj'];
-		$body = nl2br(Brick::ReplaceVarByData($brick->param->var['reg_mailconf'], array(
-			"actcode" => $user["activateid"],
-			"username" => $user['username'],
-			"link" => $link,
-			"sitename" => Brick::$builder->phrase->Get('sys', 'site_name')
-		)));
-		
-		$this->core->GetNotification()->SendMail($user["email"], $subject, $body);
-	}
-	
-	public function ConfirmEmailSendAgain($userid){
-		if (!$this->IsAdminRole()){
-			return;
-		}
-		$user = UserQueryExt::User($this->db, $userid);
-		$actinfo = UserQueryExt::RegistrationActivateInfo($this->db, $userid);
-		$user['activateid'] = $actinfo['activateid'];
-		$this->ConfirmEmailSend($user);
-	}
-	
 	/**
 	 * Активировать нового пользователя. Возврашает объект в котором св-во error содержит 
 	 * код ошибки:
@@ -645,8 +535,8 @@ class UserManager extends Ab_ModuleManager {
 			"username" => $user['username'],
 			"sitename" => $sitename
 		)));
-		
-		$this->core->GetNotification()->SendMail($email, $subject, $body);
+
+        Abricos::Notify()->SendMail($email, $subject, $body);
 		
 		return 0;
 	}
@@ -681,7 +571,7 @@ class UserManager extends Ab_ModuleManager {
 		$ret->email = $user['email'];
 
 		$newpass = cmsrand(100000, 999999);
-		$passcrypt = $this->UserPasswordCrypt($newpass, $user['salt']);
+		$passcrypt = UserManager::UserPasswordCrypt($newpass, $user['salt']);
 		UserQueryExt::PasswordChange($this->db, $userid, $passcrypt);
 
 		$ph = Brick::$builder->phrase;
@@ -696,8 +586,8 @@ class UserManager extends Ab_ModuleManager {
 		$message = str_replace("%1", $user['username'], $message);
 		$message = str_replace("%2", $newpass, $message);
 		$message = str_replace("%3", $sitename, $message);
-		
-		$this->core->GetNotification()->SendMail($user['email'], $subject, $message);
+
+        Abricos::Notify()->SendMail($user['email'], $subject, $message);
 		
 		return $ret;
 	}
@@ -756,7 +646,56 @@ class UserManager extends Ab_ModuleManager {
 		$field = $this->UserField($fieldName);
 		return !empty($field);
 	}
-	
+
+    /////////////////////////////////////////////////////////
+    //                   Static functions                  //
+    /////////////////////////////////////////////////////////
+
+
+    /**
+     * Проверка имени пользователя (логин) на допустимость символов
+     * @param $username
+     * @return bool
+     */
+    public static function UserNameValidate($username) {
+        $username = strtolower(trim($username));
+
+        $length = strlen($username);
+        if ($length == 0) {
+            return false;
+        } else if ($length < 3) {
+            return false;
+        } else if ($length > 50) {
+            return false;
+        }else if ( preg_match("/^[^a-z]{1}|[^a-z0-9_.-]+/i", $username) ){
+            return false;
+        }
+        // $username = htmlspecialchars_uni($username);
+        return true;
+    }
+
+    /**
+     * Проверка адреса электронной почты на допустимость формата
+     * @param $address
+     * @return bool
+     */
+    public static function EmailValidate($address) {
+        if (function_exists('filter_var')) { //Introduced in PHP 5.2
+            if(filter_var($address, FILTER_VALIDATE_EMAIL) === FALSE) {
+                return false;
+            } else {
+                return true;
+            }
+        } else {
+            return preg_match('/^(?:[\w\!\#\$\%\&\'\*\+\-\/\=\?\^\`\{\|\}\~]+\.)*[\w\!\#\$\%\&\'\*\+\-\/\=\?\^\`\{\|\}\~]+@(?:(?:(?:[a-zA-Z0-9_](?:[a-zA-Z0-9_\-](?!\.)){0,61}[a-zA-Z0-9_-]?\.)+[a-zA-Z0-9_](?:[a-zA-Z0-9_\-](?!$)){0,61}[a-zA-Z0-9_]?)|(?:\[(?:(?:[01]?\d{1,2}|2[0-4]\d|25[0-5])\.){3}(?:[01]?\d{1,2}|2[0-4]\d|25[0-5])\]))$/', $address);
+        }
+    }
+
+    public function UserPasswordCrypt($password, $salt){
+        return md5(md5($password).$salt);
+    }
+
+
 }
 
 ?>

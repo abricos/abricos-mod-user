@@ -57,6 +57,40 @@ Component.entryPoint = function(NS){
                     callback.apply(context, [null, res.data]);
                 }
             }
+        },
+        register: function(regData, callback, context){
+            var instance = this;
+            instance.ajax({
+                'do': 'register',
+                'savedata': regData.toJSON()
+            }, instance._onRegister, {
+                context: instance,
+                arguments: {callback: callback, context: context}
+            });
+        },
+        _onRegister: function(err, res, details){
+            var callback = details.callback,
+                context = details.context;
+
+            if (!err){
+                var errorCode = res.data.err || 0;
+                if (errorCode > 0){
+                    var phId = 'ajax.register.error' + errorCode;
+
+                    err = {
+                        code: errorCode,
+                        msg: this.language.get(phId)
+                    };
+                }
+            }
+
+            if (callback){
+                if (err){
+                    callback.apply(context, [err]);
+                } else {
+                    callback.apply(context, [null, res.data]);
+                }
+            }
         }
     };
     NS.AppBase = AppBase;

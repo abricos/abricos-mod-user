@@ -51,5 +51,6 @@ Component.entryPoint = function(NS){
             value: ''
         }
     };
+    Y.extend(RegisterData, SYS.Structure);
     NS.RegisterData = RegisterData;
 };

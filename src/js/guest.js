@@ -97,7 +97,23 @@ Component.entryPoint = function(NS){
             this.after('submitForm', this._submitRegisterForm);
         },
         _submitRegisterForm: function(e){
-            console.log(e);
+            this.set('waiting', true);
+            var fields = this.get('fields'),
+                instance = this;
+
+            NS.appInstance.register(fields, function(err, result){
+                instance.set('waiting', false);
+                if (err){
+                    var errorText = this.template.replace('error', {
+                        msg: err.msg
+                    });
+
+                    Brick.mod.widget.notice.show(errorText);
+                }else{
+                    // reload page
+                }
+            }, this);
+
             e.halt();
         }
     };
