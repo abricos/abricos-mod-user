@@ -75,7 +75,7 @@ Component.entryPoint = function(NS){
             if (!err){
                 var errorCode = res.data.err || 0;
                 if (errorCode > 0){
-                    var phId = 'ajax.register.error' + errorCode;
+                    var phId = 'ajax.register.error.' + errorCode;
 
                     err = {
                         code: errorCode,

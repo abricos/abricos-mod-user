@@ -117,7 +117,7 @@ class UserRegistration {
      */
     private function ConfirmEmailSend($user) {
         $host = $_SERVER['HTTP_HOST'] ? $_SERVER['HTTP_HOST'] : $_ENV['HTTP_HOST'];
-        $link = "http://".$host."/user/activate/".$user["userid"]."/".$user["activateid"];
+        $link = "http://".$host."/user/activate/".$user["userid"]."/".$user["activateid"]."/";
 
         $brick = Brick::$builder->LoadBrickS('user', 'templates', null, null);
 

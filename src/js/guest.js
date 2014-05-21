@@ -79,11 +79,8 @@ Component.entryPoint = function(NS){
         }
     });
 
-    var RegisterForm = function(){
-
-    };
+    var RegisterForm = function(){ };
     RegisterForm.NAME = 'registerForm';
-
     RegisterForm.prototype = {
         initializer: function(){
             this.set('fieldsClass', NS.RegisterData);
@@ -95,6 +92,7 @@ Component.entryPoint = function(NS){
         },
         _onLoadManager: function(){
             this.after('submitForm', this._submitRegisterForm);
+            this.after('clickForm', this._clickRegisterForm);
         },
         _submitRegisterForm: function(e){
             this.set('waiting', true);
@@ -104,7 +102,7 @@ Component.entryPoint = function(NS){
             NS.appInstance.register(fields, function(err, result){
                 instance.set('waiting', false);
                 if (err){
-                    var errorText = this.template.replace('error', {
+                    var errorText = this.template.replace('errorreg', {
                         msg: err.msg
                     });
 
@@ -115,6 +113,12 @@ Component.entryPoint = function(NS){
             }, this);
 
             e.halt();
+        },
+        _clickRegisterForm: function(e){
+            if (e.clickData !== 'termofuse'){ return; }
+            e.halt();
+
+            console.log('show "term of use" panel');
         }
     };
     NS.RegisterForm = RegisterForm;
@@ -124,6 +128,7 @@ Component.entryPoint = function(NS){
         SYS.Language,
         SYS.Form,
         SYS.FormAction,
+        SYS.FormClick,
         SYS.WidgetWaiting,
         NS.RegisterForm
     ], {
@@ -133,7 +138,7 @@ Component.entryPoint = function(NS){
                 value: COMPONENT
             },
             templateBlockName: {
-                value: 'error'
+                value: 'errorreg'
             }
         }
     });
