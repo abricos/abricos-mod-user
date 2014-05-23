@@ -6,7 +6,6 @@
 
 var Component = new Brick.Component();
 Component.requires = {
-    yui: ['widget'],
     mod: [
         {name: 'sys', files: ['form.js']},
         {name: 'widget', files: ['notice.js']},
@@ -92,7 +91,7 @@ Component.entryPoint = function(NS){
         },
         _onLoadManager: function(){
             this.after('submitForm', this._submitRegisterForm);
-            this.after('clickForm', this._clickRegisterForm);
+            this.after('widgetClick', this._clickRegisterForm);
         },
         _submitRegisterForm: function(e){
             this.set('waiting', true);
@@ -128,7 +127,7 @@ Component.entryPoint = function(NS){
         SYS.Language,
         SYS.Form,
         SYS.FormAction,
-        SYS.FormClick,
+        SYS.WidgetClick,
         SYS.WidgetWaiting,
         NS.RegisterForm
     ], {
