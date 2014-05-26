@@ -91,7 +91,8 @@ Component.entryPoint = function(NS){
         },
         _onLoadManager: function(){
             this.after('submitForm', this._submitRegisterForm);
-            this.after('widgetClick', this._clickRegisterForm);
+            this.after('click', this._clickRegisterForm);
+
         },
         _submitRegisterForm: function(e){
             this.set('waiting', true);
@@ -114,7 +115,7 @@ Component.entryPoint = function(NS){
             e.halt();
         },
         _clickRegisterForm: function(e){
-            if (e.clickData !== 'termofuse'){ return; }
+            if (e.dataClick !== 'termofuse'){ return; }
             e.halt();
 
             console.log('show "term of use" panel');
