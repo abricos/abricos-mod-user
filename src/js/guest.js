@@ -144,7 +144,9 @@ Component.entryPoint = function(NS){
         }
     });
 
-    NS.TermsOfUseDialog = Y.Base.create('termsOfUseDialog', SYS.Dialog, [], {
+    NS.TermsOfUseDialog = Y.Base.create('termsOfUseDialog', SYS.Dialog, [
+        SYS.WidgetWaiting
+    ], {
         /*
         onClick: function(e){
             switch (e.dataClick){
@@ -154,6 +156,29 @@ Component.entryPoint = function(NS){
             }
         },
         /**/
+
+        initializer: function(){
+            var instance = this;
+            NS.initApp(function(){
+                instance._onLoadManager();
+            });
+        },
+        _onLoadManager: function(){
+            var instance = this;
+            NS.appInstance.termsOfUse(function(err, result){
+                var text = "error";
+                if (!err){
+                    text = result.text;
+                }
+                instance.setTermsOfUseText(text);
+            }, this);
+        },
+        setTermsOfUseText: function(text){
+            var node = this.gel('text');
+            if (node){
+                node.setHTML(text);
+            }
+        }
     }, {
         ATTRS: {
             component: {
@@ -162,11 +187,6 @@ Component.entryPoint = function(NS){
             templateBlockName: {
                 value: 'termsofuse'
             }
-            /*,
-            width: {
-                value: 400
-            }
-            /**/
         }
     });
 };
