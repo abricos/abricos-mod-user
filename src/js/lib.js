@@ -23,7 +23,6 @@ Component.entryPoint = function(NS){
     var AppBase = function(){
     };
     AppBase.prototype = {
-
         login: function(login, callback, context){
             var instance = this;
             instance.ajax({
@@ -91,6 +90,9 @@ Component.entryPoint = function(NS){
                     callback.apply(context, [null, res.data]);
                 }
             }
+        },
+        termsOfUse: function(){
+            // callback
         }
     };
     NS.AppBase = AppBase;

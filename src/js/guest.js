@@ -7,7 +7,7 @@
 var Component = new Brick.Component();
 Component.requires = {
     mod: [
-        {name: 'sys', files: ['form.js']},
+        {name: 'sys', files: ['panel.js', 'form.js']},
         {name: 'widget', files: ['notice.js']},
         {name: '{C#MODNAME}', files: ['lib.js']}
     ]
@@ -118,7 +118,8 @@ Component.entryPoint = function(NS){
             if (e.dataClick !== 'termofuse'){ return; }
             e.halt();
 
-            console.log('show "term of use" panel');
+            new NS.termsOfUseDialog();
+
         }
     };
     NS.RegisterForm = RegisterForm;
@@ -143,4 +144,29 @@ Component.entryPoint = function(NS){
         }
     });
 
+    NS.TermsOfUseDialog = Y.Base.create('termsOfUseDialog', SYS.Dialog, [], {
+        /*
+        onClick: function(e){
+            switch (e.dataClick){
+                case 'btest':
+                    this.increment();
+                    return true;
+            }
+        },
+        /**/
+    }, {
+        ATTRS: {
+            component: {
+                value: COMPONENT
+            },
+            templateBlockName: {
+                value: 'termsofuse'
+            }
+            /*,
+            width: {
+                value: 400
+            }
+            /**/
+        }
+    });
 };
