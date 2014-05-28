@@ -117,7 +117,7 @@ class UserManager extends Ab_ModuleManager {
         return -1;
     }
 
-    public function TermsOfUser() {
+    public function TermsOfUse() {
         $brick = Brick::$builder->LoadBrickS('user', 'termsofuse', null, null);
         return $brick->content;
     }
