@@ -98,7 +98,20 @@ Component.entryPoint = function(NS){
             if (details.callback){
                 details.callback.apply(details.context, err ? [err] : [null, res.data]);
             }
+        },
+        logout: function(callback, context){
+            var instance = this;
+            instance.ajax({'do': 'logout'}, this._onLogout, {
+                context: instance,
+                arguments: {callback: callback, context: context}
+            });
+        },
+        _onLogout: function(err, res, details){
+            if (details.callback){
+                details.callback.apply(details.context, err ? [err] : [null, res.data]);
+            }
         }
+
     };
     NS.AppBase = AppBase;
 

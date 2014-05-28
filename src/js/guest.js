@@ -47,10 +47,9 @@ Component.entryPoint = function(NS){
                     var errorText = this.template.replace('error', {
                         msg: err.msg
                     });
-
                     Brick.mod.widget.notice.show(errorText);
                 }else{
-                    // reload page
+                    Brick.Page.reload();
                 }
             }, this);
 
@@ -108,7 +107,7 @@ Component.entryPoint = function(NS){
 
                     Brick.mod.widget.notice.show(errorText);
                 }else{
-                    // reload page
+                    Brick.Page.reload();
                 }
             }, this);
 
@@ -118,8 +117,7 @@ Component.entryPoint = function(NS){
             if (e.dataClick !== 'termofuse'){ return; }
             e.halt();
 
-            new NS.termsOfUseDialog();
-
+            new NS.TermsOfUseDialog();
         }
     };
     NS.RegisterForm = RegisterForm;

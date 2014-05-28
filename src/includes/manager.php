@@ -88,7 +88,10 @@ class UserManager extends Ab_ModuleManager {
                 return $this->GetRegistration()->AJAX($d);
 
             case "termsofuse":
-                return $this->TermsOfUse();
+                return $this->TermsOfUseToAJAX();
+
+            case "logout":
+                return $this->LogoutToAJAX();
 
             /*
             case "register":
@@ -114,11 +117,34 @@ class UserManager extends Ab_ModuleManager {
         return -1;
     }
 
-    public function TermsOfUse() {
+    public function TermsOfUser() {
         $brick = Brick::$builder->LoadBrickS('user', 'termsofuse', null, null);
+        return $brick->content;
+    }
 
+    public function TermsOfUseToAJAX() {
         $ret = new stdClass();
-        $ret->text = $brick->content;
+        $ret->text = $this->TermsOfUse();
+        return $ret;
+    }
+
+    public function Logout() {
+        $session = $this->module->session;
+        $sessionKey = Abricos::CleanGPC('c', $session->cookieName, TYPE_STR);
+        setcookie($session->cookieName, '', TIMENOW, $session->sessionPath);
+        UserQuery::SessionRemove($this->db, $sessionKey);
+        $this->module->session->Drop('userid');
+        $this->module->info = array(
+            "userid" => 0,
+            "group" => array(1),
+            "username" => "Guest"
+        );
+    }
+
+    public function LogoutToAJAX() {
+        $this->Logout();
+        $ret = new stdClass();
+        $ret->err = 0;
         return $ret;
     }
 
@@ -456,19 +482,6 @@ class UserManager extends Ab_ModuleManager {
         );
 
         return $ret;
-    }
-
-    public function Logout() {
-        $session = $this->module->session;
-        $sessionKey = Abricos::CleanGPC('c', $session->cookieName, TYPE_STR);
-        setcookie($session->cookieName, '', TIMENOW, $session->sessionPath);
-        UserQuery::SessionRemove($this->db, $sessionKey);
-        $this->module->session->Drop('userid');
-        $this->module->info = array(
-            "userid" => 0,
-            "group" => array(1),
-            "username" => "Guest"
-        );
     }
 
     public function UserDomainUpdate($userid = 0) {
