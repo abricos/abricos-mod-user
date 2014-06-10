@@ -13,7 +13,7 @@ var Component = new Brick.Component();
 Component.requires = {
 	mod:[
 	     {name: 'sys', files: ['container.js','form.js','wait.js']},
-	     {name: 'user', files: ['api.js']}
+	     {name: 'user', files: ['old-api.js']}
 	]
 };
 Component.entryPoint = function(NS){
