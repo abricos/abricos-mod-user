@@ -1,0 +1,48 @@
+<!--[*]
+[script]brick_userform.php[/script]
+
+[mcss=user]userform.css[/mcss]
+
+[*]-->
+<ul class="user-form dropdown-menu" id="userform-{v#id}">
+    <li>
+        <a href="/bos/#app=uprofile/ws/showws/" title="{v#username}">
+            Профиль пользователя
+        </a>
+    </li>
+    <li class="divider"></li>
+    <li>
+        <div id="appbosuicont-{v#id}" class="appbosuicont">
+            <div id="appbosuilist" class="aw-bos">
+                <div class="loading">
+                    <img src="/images/loading.gif" /> Загрузка...
+                </div>
+            </div>
+        </div>
+    </li>
+    <li class="divider"></li>
+    <li>
+        <a href="/user/logout/" data-click="user-logout">Выйти</a>
+    </li>
+</ul>
+
+<script>
+    Brick.f('user', 'user', function(){
+        var NS = Brick.mod.user;
+        var userWidget = new NS.UserFormWidget({
+            'boundingBox': '#userform-{v#id}'
+        });
+        userWidget.render();
+
+        Brick.f('bos', 'label', function(){
+            Brick.Permission.load(function(){
+                var elList = document.getElementById('appbosuicont-{v#id}');
+                new Brick.mod.bos.LabelListWidget(elList, {
+                    'startupBeforeEventDisable': true,
+                    'startupAfterEventDisable': true,
+                    'uriPrefix': '/bos/'
+                });
+            });
+        });
+    });
+</script>
