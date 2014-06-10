@@ -17,20 +17,20 @@ Component.requires = {
 	]
 };
 Component.entryPoint = function(NS){
-	
+
 	var Dom = YAHOO.util.Dom,
 		E = YAHOO.util.Event,
 		L = YAHOO.lang;
-	
+
 	var API = this.namespace.API;
-	
+
 	var buildTemplate = this.buildTemplate;
 	var LNG = this.language;
- 
+
 	/**
 	 * Панель авторизации пользователя.<br>
 	 * Для авторизации использует метод <a href="Brick.mod.user.API.html#method_login">Brick.mod.user.API.login()</a>
-	 * 
+	 *
 	 * @class LoginPanel
 	 * @extends Brick.widget.Panel
 	 * @constructor
@@ -60,11 +60,11 @@ Component.entryPoint = function(NS){
 				gel = function(n){ return  TM.getEl('loginpanel.'+n); };
 
 			E.on(gel('form'), 'submit', function(){ __self.send();});
-			
+
 			var p = this.param;
 			gel('username').value = p['username'];
 			gel('userpass').value = p['password'];
-			
+
 			if (p['error'] > 0){
 				var lng = Brick.util.Language.getc('mod.user.guest.loginpanel.error.srv');
 				var err = gel('error');
@@ -80,7 +80,7 @@ Component.entryPoint = function(NS){
 			this.close();
 		},
 		onClick: function(el){
-			var tp = this._TId['loginpanel']; 
+			var tp = this._TId['loginpanel'];
 			switch(el.id){
 			case tp['blogin']: this.send(); return true;
 			case tp['bcancel']: this.close(); return true;
@@ -90,11 +90,11 @@ Component.entryPoint = function(NS){
 			return false;
 		}
 	});
-	
+
 	NS.LoginPanel = LoginPanel;
-	
+
 	var EasyAuthRegPanel = function(config){
-		this.configWidget = config; 
+		this.configWidget = config;
 		EasyAuthRegPanel.superclass.constructor.call(this, {});
 	};
 	YAHOO.extend(EasyAuthRegPanel, Brick.widget.Dialog, {
@@ -106,7 +106,7 @@ Component.entryPoint = function(NS){
 		}
 	});
 	NS.EasyAuthRegPanel = EasyAuthRegPanel;
-	
+
 	var EasyAuthRegWidget = function(container, config){
 		config = L.merge({
 			'onAuthCallback': null
@@ -116,10 +116,10 @@ Component.entryPoint = function(NS){
 	EasyAuthRegWidget .prototype = {
 		init: function(container, cfg){
 			this.cfg = cfg;
-			
+
 			var TM = buildTemplate(this, 'authregwidget'), __self = this;
 			container.innerHTML = TM.replace('authregwidget');
-			
+
 			this.authWidget = new NS.AuthWidget(TM.getEl('authregwidget.authwidget'), {
 				'onClickRegCallback': function(){
 					__self.showRegister();
@@ -128,9 +128,9 @@ Component.entryPoint = function(NS){
 					__self.onAuth(userid);
 				}
 			});
-			
+
 			this.regWidget = null;
-			
+
 			E.on(container, 'click', function(e){
                 var el = E.getTarget(e);
                 if (__self.onClick(el)){ E.preventDefault(e); }
@@ -157,7 +157,7 @@ Component.entryPoint = function(NS){
 			var TM = this._TM, gel = function(n){ return TM.getEl('authregwidget.'+n);};
 			Dom.setStyle(gel('auth'), 'display', 'none');
 			Dom.setStyle(gel('reg'), 'display', '');
-			
+
 			this.regWidget = new RegisterWidget(gel('regwidget'), {
 				'onRegOkCallback': function(d){
 					__self.auth(d['username'], d['password']);
@@ -174,7 +174,7 @@ Component.entryPoint = function(NS){
 		}
 	};
 	NS.EasyAuthRegWidget = EasyAuthRegWidget;
-	
+
 	var AuthWidget = function(container, config){
 		config = L.merge({
 			'onAuthCallback': null,
@@ -186,10 +186,10 @@ Component.entryPoint = function(NS){
 	AuthWidget.prototype = {
 		init: function(container, config){
 			this.cfg = config;
-			
+
 			var TM = buildTemplate(this, 'authwidget'), __self = this;
 			container.innerHTML = TM.replace('authwidget');
-			
+
 			E.on(container, 'click', function(e){
                 var el = E.getTarget(e);
                 if (__self.onClick(el)){ E.preventDefault(e); }
@@ -198,7 +198,7 @@ Component.entryPoint = function(NS){
 				if (e.keyCode == 13){
 					__self.auth();
 				}
-			});			
+			});
 		},
 		destroy: function(){
 			var el = this._TM.getEl('authwidget.id');
@@ -217,14 +217,14 @@ Component.entryPoint = function(NS){
 		},
 		showRegister: function(){
 			var cfg = this.cfg;
-			
+
 			if (L.isFunction(cfg['onClickRegCallback'])){
 				cfg['onClickRegCallback']();
 			}else{
 				return new RegisterPanel();
 			}
 		},
-		
+
 		showRestPass: function(){
 			API.showPwdRestPanel();
 		},
@@ -235,13 +235,13 @@ Component.entryPoint = function(NS){
 		showError: function(err){
 			var TM = this._TM, gel = function(n){ return TM.getEl('authwidget.'+n);};
 			Dom.setStyle(gel('error'), 'display', '');
-			gel('error').innerHTML =  
+			gel('error').innerHTML =
 				Brick.util.Language.getc('mod.user.guest.loginpanel.error.srv.'+err);
 		},
 		getAuthData: function(){
 			var TM = this._TM, gel = function(n){ return TM.getEl('authwidget.'+n);},
 				fill = function(v){ return L.isString(v) && v.length>0; };
-				
+
 			var sd = {
 				'username': L.trim(gel('username').value),
 				'password': L.trim(gel('password').value),
@@ -251,33 +251,33 @@ Component.entryPoint = function(NS){
 			if (!fill(sd['username']) || !fill(sd['password'])){
 				this.showError('empty'); return null;
 			}
-			
+
 			return sd;
 		},
 		setValue: function(uname, upass, autologin){
 			var TM = this._TM, gel = function(n){ return TM.getEl('authwidget.'+n);};
-			
+
 			gel('username').value = L.trim(uname);
 			gel('password').value = L.trim(upass);
 		},
 		auth: function(){
 			var sd = this.getAuthData();
 			if (L.isNull(sd)){ return null; }
-			
+
 			var TM = this._TM, gel = function(n){ return TM.getEl('authwidget.'+n);};
 			var __self = this, cfg = this.cfg;
-			
+
 			Dom.setStyle(gel('bauth'), 'display', 'none');
 			Dom.setStyle(gel('saved'), 'display', '');
 
 			sd['do'] = 'auth';
 			this._savedata = sd;
-			
+
 			API.userLogin(sd['username'], sd['password'], sd['autologin'], function(err, userid){
-				
+
 				Dom.setStyle(gel('bauth'), 'display', '');
 				Dom.setStyle(gel('saved'), 'display', 'none');
-				
+
 				if (err > 0){
 					__self.showError(err);
 				}else{
@@ -291,9 +291,9 @@ Component.entryPoint = function(NS){
 		}
 	};
 	NS.AuthWidget = AuthWidget;
-	
+
 	var RegisterWidget = function(container, config){
-		config = L.merge({ 
+		config = L.merge({
 			'onRegOkCallback': null,
 			'onRegCancelCallback': null
 		}, config || {});
@@ -302,14 +302,14 @@ Component.entryPoint = function(NS){
 	RegisterWidget.prototype = {
 		init: function(container, cfg){
 			this.cfg = cfg;
-			
+
 			var TM = buildTemplate(this, 'regwidget'), __self = this;
 			container.innerHTML = TM.replace('regwidget');
-			
+
 			if (L.isFunction(cfg['onRegCancelCallback'])){
 				Dom.setStyle(TM.getEl('regwidget.bregcancel'), 'display', '');
 			}
-			
+
 			E.on(container, 'click', function(e){
                 var el = E.getTarget(e);
                 if (__self.onClick(el)){ E.preventDefault(e); }
@@ -346,13 +346,13 @@ Component.entryPoint = function(NS){
 		showError: function(err){
 			var TM = this._TM, gel = function(n){ return TM.getEl('regwidget.'+n);};
 			Dom.setStyle(gel('error'), 'display', '');
-			gel('error').innerHTML =  
+			gel('error').innerHTML =
 				gel('erroract').innerHTML = Brick.util.Language.getc('mod.user.register.error.'+err)
 		},
 		getRegData: function(){
 			var TM = this._TM, gel = function(n){ return TM.getEl('regwidget.'+n);},
 				fill = function(v){ return L.isString(v) && v.length>0; };
-				
+
 			var sd = {
 				'username': L.trim(gel('username').value),
 				'email': L.trim(gel('email').value),
@@ -366,34 +366,36 @@ Component.entryPoint = function(NS){
 				){
 				this.showError('empty'); return null;
 			}
-			
+
 			if (sd['password'] != L.trim(gel('passwordconf').value)){ this.showError('passconf'); return null; }
 			if (!sd['agr']){ this.showError('agreement'); return null; }
-			
+
 			gel('actemail').innerHTML = sd['email'];
-			
+
 			return sd;
 		},
 		register: function(){
 			var sd = this.getRegData();
 			if (L.isNull(sd)){ return null; }
-			
+
 			var TM = this._TM, gel = function(n){ return TM.getEl('regwidget.'+n);};
 			var __self = this;
-			
+
 			Dom.setStyle(gel('breg'), 'display', 'none');
 			Dom.setStyle(gel('saved'), 'display', '');
 
-			sd['do'] = 'register';
 			this._savedata = sd;
 			Brick.ajax('user', {
-				'data': sd,
+				'data': {
+                    'do': 'register',
+                    'savedata': sd
+                },
 				'event': function(r){
 					Dom.setStyle(gel('breg'), 'display', '');
 					Dom.setStyle(gel('saved'), 'display', 'none');
-					
-					var err = !L.isNull(r) ? r.data*1 : 100;
-					
+
+					var err = (L.isValue(r) && L.isValue(r.data) && L.isValue(r.data.err)) ? r.data.err*1 : 100;
+
 					if (err > 0){
 						__self.showError('s'+err);
 					}else{
@@ -404,14 +406,14 @@ Component.entryPoint = function(NS){
 		},
 		showActivate: function(){
 			var TM = this._TM, gel = function(n){ return TM.getEl('regwidget.'+n);};
-			
+
 			Dom.setStyle(gel('regform'), 'display', 'none');
 			Dom.setStyle(gel('actform'), 'display', '');
 		},
 		getActData: function(){
 			var TM = this._TM, gel = function(n){ return TM.getEl('regwidget.'+n);},
 				fill = function(v){ return L.isString(v) && v.length>0; };
-				
+
 			var sd = {
 				'userid': 0,
 				'actcode': L.trim(gel('actcode').value)
@@ -424,10 +426,10 @@ Component.entryPoint = function(NS){
 		activate: function(){
 			var sd = this.getActData();
 			if (L.isNull(sd)){ return null; }
-			
+
 			var TM = this._TM, gel = function(n){ return TM.getEl('regwidget.'+n);};
 			var __self = this;
-			
+
 			Dom.setStyle(gel('bact'), 'display', 'none');
 			Dom.setStyle(gel('savedact'), 'display', '');
 
@@ -437,7 +439,7 @@ Component.entryPoint = function(NS){
 				'event': function(r){
 					Dom.setStyle(gel('bact'), 'display', '');
 					Dom.setStyle(gel('savedact'), 'display', 'none');
-					
+
 					var err = !L.isNull(r) ? r.data.error*1 : 100;
 					if (err > 0){
 						__self.showError('a1');
@@ -450,31 +452,31 @@ Component.entryPoint = function(NS){
 		showRegOK: function(){
 			var cfg = this.cfg;
 			var sd = this._savedata;
-			
+
 			if (L.isFunction(cfg['onRegOkCallback'])){
 				cfg['onRegOkCallback'](sd);
 				return;
 			}
-			
+
 			var TM = this._TM, gel = function(n){ return TM.getEl('regwidget.'+n);};
-			
+
 			Dom.setStyle(gel('actform'), 'display', 'none');
 			Dom.setStyle(gel('regok'), 'display', '');
-			
+
 			API.userLogin(sd['username'], sd['password'], 0, function(error){
 				Brick.Page.reload();
 			});
 		}
 	};
-	NS.RegisterWidget = RegisterWidget;	
-	
+	NS.RegisterWidget = RegisterWidget;
+
 	/**
 	 * Панель регистрации пользователя
-	 * 
+	 *
 	 * @class RegisterPanel
 	 * @extends Brick.widget.Panel
 	 * @constructor
-	 * @param {Object} param (optional) 
+	 * @param {Object} param (optional)
 	 */
 	var RegisterPanel = function(param){
 		this.param = L.merge({
@@ -495,10 +497,10 @@ Component.entryPoint = function(NS){
 		}
 	});
 	NS.RegisterPanel = RegisterPanel;
-	
+
 	/**
 	 * Отобразить панель "Регистрация пользователя".
-	 * 
+	 *
  	 * @class API
 	 * @method showRegisterPanel
 	 * @static
@@ -509,7 +511,7 @@ Component.entryPoint = function(NS){
 
 	/**
 	 * Панель "Восстановление пароля"
-	 * 
+	 *
 	 * @class PwdRestPanel
 	 * @extends Brick.widget.Panel
 	 */
@@ -536,14 +538,14 @@ Component.entryPoint = function(NS){
 		}
 	});
 	NS.PwdRestPanel = PwdRestPanel;
-	
+
 	/**
 	 * Панель "Восстановление пароля - отправлено письмо на изменение пароля"
-	 * 
+	 *
 	 * @class PwdRestSendEmailPanel
 	 * @extends Brick.widget.Panel
 	 * @constructor
-	 * @param {Object} param 
+	 * @param {Object} param
 	 */
 	var PwdRestSendEmailPanel = function (param){
 		this.param = param;
@@ -556,7 +558,7 @@ Component.entryPoint = function(NS){
 		initTemplate: function(){
 			return TM.replace('pwdokpanel', {
 				'email': this.param['email']
-			}); 
+			});
 		},
 		onClick: function(el){
 			switch(el.id){
@@ -566,7 +568,7 @@ Component.entryPoint = function(NS){
 		}
 	});
 	NS.PwdRestSendEmailPanel = PwdRestSendEmailPanel;
-	
+
 	var TermsOfUsePanel = function(callback, userid){
 		this.callback = callback;
 		this.userid = userid;
@@ -574,11 +576,11 @@ Component.entryPoint = function(NS){
 	};
 	YAHOO.extend(TermsOfUsePanel, Brick.widget.Dialog, {
 		initTemplate: function(){
-			return buildTemplate(this, 'termsofuse').replace('termsofuse'); 
+			return buildTemplate(this, 'termsofuse').replace('termsofuse');
 		},
 		onLoad: function(el){
-			
-			var TM = this._TM; 
+
+			var TM = this._TM;
 			Brick.ajax('user', {
 				'data': {'do':'termsofuse'},
 				'event': function(r){
@@ -614,7 +616,7 @@ Component.entryPoint = function(NS){
 		},
 		agreement: function(){
 			var TM = this._TM, gel = function(n){ return TM.getEl('termsofuse.'+n);};
-			
+
 			Dom.setStyle(gel('bok'), 'display', 'none');
 			Dom.setStyle(gel('bcancel'), 'display', 'none');
 			Dom.setStyle(gel('saved'), 'display', '');
@@ -634,5 +636,5 @@ Component.entryPoint = function(NS){
 		}
 	});
 	NS.TermsOfUsePanel = TermsOfUsePanel;
-	
+
 };

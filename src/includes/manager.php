@@ -93,26 +93,22 @@ class UserManager extends Ab_ModuleManager {
             case "logout":
                 return $this->LogoutToAJAX();
 
-            /*
-            case "register":
-                return $this->Register($d->username, $d->password, $d->email, true);
+            // TODO: old functions
 
-			case "loginext":
-				return $this->LoginExt($d->username, $d->password, $d->autologin);
-
-			case "termsofuseagreement": return $this->TermsOfUseAgreement();
-				
-			case "user":
-				return $this->UserInfo($d->userid);
-			case "usersave":
-				return $this->UserUpdate($d);
-			case "passwordchange":
-				return $this->UserPasswordChange($d->userid, $d->pass, $d->passold);
-			case "useremailconfirm":
-				return $this->RegistrationActivate($d->userid, $d->actcode);
-			case "useremailcnfsend":
-				return $this->ConfirmEmailSendAgain($d->userid);
-            /**/
+            case "loginext":
+                return $this->LoginExt($d->username, $d->password, $d->autologin);
+            case "termsofuseagreement":
+                return $this->TermsOfUseAgreement();
+            case "user":
+                return $this->UserInfo($d->userid);
+            case "usersave":
+                return $this->UserUpdate($d);
+            case "passwordchange":
+                return $this->UserPasswordChange($d->userid, $d->pass, $d->passold);
+            case "useremailconfirm":
+                return $this->RegistrationActivate($d->userid, $d->actcode);
+            case "useremailcnfsend":
+                return $this->ConfirmEmailSendAgain($d->userid);
         }
         return -1;
     }
