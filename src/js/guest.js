@@ -23,10 +23,13 @@ Component.entryPoint = function(NS){
     var LoginForm = function(){
     };
     LoginForm.NAME = 'loginForm';
+    LoginForm.ATTRS = {
+        fieldsClass: {
+            value: NS.Login
+        }
+    };
     LoginForm.prototype = {
         initializer: function(){
-            this.set('fieldsClass', NS.Login);
-
             var instance = this;
             NS.initApp(function(){
                 instance._onLoadManager();
@@ -79,10 +82,13 @@ Component.entryPoint = function(NS){
 
     var RegisterForm = function(){ };
     RegisterForm.NAME = 'registerForm';
+    RegisterForm.ATTRS = {
+        fieldsClass: {
+            value: NS.RegisterData
+        }
+    };
     RegisterForm.prototype = {
         initializer: function(){
-            this.set('fieldsClass', NS.RegisterData);
-
             var instance = this;
             NS.initApp(function(){
                 instance._onLoadManager();
@@ -91,7 +97,6 @@ Component.entryPoint = function(NS){
         _onLoadManager: function(){
             this.after('submitForm', this._submitRegisterForm);
             this.after('click', this._clickRegisterForm);
-
         },
         _submitRegisterForm: function(e){
             this.set('waiting', true);
@@ -145,16 +150,6 @@ Component.entryPoint = function(NS){
     NS.TermsOfUseDialog = Y.Base.create('termsOfUseDialog', SYS.Dialog, [
         SYS.WidgetWaiting
     ], {
-        /*
-        onClick: function(e){
-            switch (e.dataClick){
-                case 'btest':
-                    this.increment();
-                    return true;
-            }
-        },
-        /**/
-
         initializer: function(){
             var instance = this;
             NS.initApp(function(){
