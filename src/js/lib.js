@@ -1,5 +1,4 @@
 /*!
- * Module for Abricos Platform (http://abricos.org)
  * Copyright 2008-2014 Alexander Kuzmin <roosit@abricos.org>
  * Licensed under the MIT license
  */
@@ -9,7 +8,7 @@ Component.requires = {
     yui: ['base'],
     mod: [
         {name: 'sys', files: ['application.js']},
-        {name: '{C#MODNAME}', files: ['structure.js']}
+        {name: '{C#MODNAME}', files: ['model.js']}
     ]
 };
 Component.entryPoint = function(NS){
