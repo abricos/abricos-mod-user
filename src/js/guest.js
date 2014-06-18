@@ -24,10 +24,11 @@ Component.entryPoint = function(NS){
     };
     LoginForm.NAME = 'loginForm';
     LoginForm.ATTRS = {
-        fieldsClass: {
-            value: NS.Login
+        model: {
+            value: new NS.Login()
         }
     };
+
     LoginForm.prototype = {
         initializer: function(){
             var instance = this;
@@ -41,17 +42,17 @@ Component.entryPoint = function(NS){
         _submitLoginForm: function(e){
 
             this.set('waiting', true);
-            var fields = this.get('fields'),
+            var model = this.get('model'),
                 instance = this;
 
-            NS.appInstance.login(fields, function(err, result){
+            NS.appInstance.login(model, function(err, result){
                 instance.set('waiting', false);
                 if (err){
                     var errorText = this.template.replace('error', {
                         msg: err.msg
                     });
                     Brick.mod.widget.notice.show(errorText);
-                }else{
+                } else {
                     Brick.Page.reload();
                 }
             }, this);
@@ -80,11 +81,12 @@ Component.entryPoint = function(NS){
         }
     });
 
-    var RegisterForm = function(){ };
+    var RegisterForm = function(){
+    };
     RegisterForm.NAME = 'registerForm';
     RegisterForm.ATTRS = {
-        fieldsClass: {
-            value: NS.RegisterData
+        model: {
+            value: new NS.RegisterData()
         }
     };
     RegisterForm.prototype = {
@@ -100,10 +102,10 @@ Component.entryPoint = function(NS){
         },
         _submitRegisterForm: function(e){
             this.set('waiting', true);
-            var fields = this.get('fields'),
+            var model = this.get('model'),
                 instance = this;
 
-            NS.appInstance.register(fields, function(err, result){
+            NS.appInstance.register(model, function(err, result){
                 instance.set('waiting', false);
                 if (err){
                     var errorText = this.template.replace('errorreg', {
@@ -111,7 +113,7 @@ Component.entryPoint = function(NS){
                     });
 
                     Brick.mod.widget.notice.show(errorText);
-                }else{
+                } else {
                     Brick.Page.reload();
                 }
             }, this);
@@ -119,7 +121,9 @@ Component.entryPoint = function(NS){
             e.halt();
         },
         _clickRegisterForm: function(e){
-            if (e.dataClick !== 'termofuse'){ return; }
+            if (e.dataClick !== 'termofuse'){
+                return;
+            }
             e.halt();
 
             new NS.TermsOfUseDialog();
