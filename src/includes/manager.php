@@ -747,6 +747,22 @@ class UserManager extends Ab_ModuleManager {
         return md5(md5($password).$salt);
     }
 
+    public function Bos_MenuData() {
+        if (!$this->IsAdminRole()) {
+            return null;
+        }
+        $lng = $this->module->lang;
+        return [
+            [
+                "name" => "adminka",
+                "title" => $lng['bosmenu']['adminka'],
+                "icon" => "/modules/user/images/app_icon.gif",
+                "url" => "user/board/showBoardPanel",
+                "parent" => "controlPanel"
+            ]
+        ];
+    }
+
 
 }
 

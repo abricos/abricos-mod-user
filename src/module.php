@@ -195,6 +195,10 @@ class User extends Ab_Module {
         $this->login = $info['username'];
     }
 
+    public function Bos_IsMenu(){
+        return true;
+    }
+
     /**
      * Текущий пользователь СУПЕРАДМИНИСТРАТОР
      *
