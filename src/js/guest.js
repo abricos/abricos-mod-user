@@ -186,4 +186,45 @@ Component.entryPoint = function(NS){
             }
         }
     });
+
+    NS.RegisterActivateDialog = Y.Base.create('registerActivateDialog', SYS.Dialog, [
+        SYS.WidgetWaiting
+    ], {
+        initializer: function(){
+            var instance = this;
+            NS.initApp(function(){
+                instance._onLoadManager();
+            });
+        },
+        _onLoadManager: function(){
+
+            var elEmail = this.gel('email');
+            console.log(elEmail);
+            return;
+            elEmail.innerHTML = this.get('userEMail');
+
+            /*
+             var instance = this;
+             NS.appInstance.termsOfUse(function(err, result){
+             var text = "error";
+             if (!err){
+             text = result.text;
+             }
+             instance.setTermsOfUseText(text);
+             }, this);
+             /**/
+        }
+    }, {
+        ATTRS: {
+            userEMail: {
+                value: ''
+            },
+            component: {
+                value: COMPONENT
+            },
+            templateBlockName: {
+                value: 'regactivate'
+            }
+        }
+    });
 };
