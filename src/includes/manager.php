@@ -752,15 +752,15 @@ class UserManager extends Ab_ModuleManager {
             return null;
         }
         $lng = $this->module->lang;
-        return [
-            [
+        return array(
+            array(
                 "name" => "adminka",
                 "title" => $lng['bosmenu']['adminka'],
                 "icon" => "/modules/user/images/app_icon.gif",
                 "url" => "user/board/showBoardPanel",
                 "parent" => "controlPanel"
-            ]
-        ];
+            )
+        );
     }
 
 
