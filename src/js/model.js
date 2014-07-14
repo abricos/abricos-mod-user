@@ -47,4 +47,16 @@ Component.entryPoint = function(NS){
         }
     });
 
+    NS.Activate = Y.Base.create('activate', Y.Model, [ ], {
+    }, {
+        ATTRS: {
+            userid: {
+                value: 0
+            },
+            code: {
+                value: 0
+            }
+        }
+    });
+
 };

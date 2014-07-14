@@ -114,7 +114,11 @@ Component.entryPoint = function(NS){
 
                     Brick.mod.widget.notice.show(errorText);
                 } else {
-                    Brick.Page.reload();
+
+                    new NS.RegisterActivateDialog({
+                        userId: result.userid,
+                        userEMail: model.get('email')
+                    });
                 }
             }, this);
 
@@ -191,31 +195,48 @@ Component.entryPoint = function(NS){
         SYS.WidgetWaiting
     ], {
         initializer: function(){
+            Y.after(this._syncRegisterActivateDialog, this, 'syncUI');
+        },
+        _syncRegisterActivateDialog: function(){
             var instance = this;
             NS.initApp(function(){
                 instance._onLoadManager();
             });
         },
         _onLoadManager: function(){
-
             var elEmail = this.gel('email');
-            console.log(elEmail);
-            return;
-            elEmail.innerHTML = this.get('userEMail');
+            elEmail.setHTML(this.get('userEMail'));
+        },
+        onClick: function(e){
+            if (e.dataClick === 'activate'){
+                this.registerActivate();
+                return true;
+            }
+        },
+        registerActivate: function(){
+            this.set('waiting', true);
 
-            /*
-             var instance = this;
-             NS.appInstance.termsOfUse(function(err, result){
-             var text = "error";
-             if (!err){
-             text = result.text;
-             }
-             instance.setTermsOfUseText(text);
-             }, this);
-             /**/
+            var activate = new NS.Activate({
+                userid: this.get('userId'),
+                code: this.gel('code').get('value')
+            });
+            NS.appInstance.activate(activate, function(err, result){
+                if (err){
+                    var errorText = this.template.replace('erroract', {
+                        msg: err.msg
+                    });
+
+                    Brick.mod.widget.notice.show(errorText);
+                } else {
+                    Brick.Page.reload();
+                }
+            }, this);
         }
     }, {
         ATTRS: {
+            userId: {
+                value: 0
+            },
             userEMail: {
                 value: ''
             },
@@ -223,7 +244,7 @@ Component.entryPoint = function(NS){
                 value: COMPONENT
             },
             templateBlockName: {
-                value: 'regactivate'
+                value: 'regactivate,erroract'
             }
         }
     });

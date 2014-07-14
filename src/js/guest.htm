@@ -34,7 +34,7 @@
         </p>
 
         <p>
-            На ваш почтовый ящик <span id="{i#email}"></span> выслано письмо с кодом активации.
+            На ваш почтовый ящик <i id="{i#email}"></i> выслано письмо с кодом активации.
         </p>
 
         <p>
@@ -43,16 +43,19 @@
 
         <div class="form-horizontal">
             <div class="form-group">
-                <label class="col-sm-4 control-label" for="{i#input}">Код активации</label>
+                <label class="col-sm-4 control-label" for="{i#code}">Код активации</label>
 
                 <div class="col-sm-8">
-                    <input id="{i#input}" type="text" class="form-control"/>
+                    <input id="{i#code}" type="text" class="form-control"/>
                 </div>
             </div>
             <div class="text-right">
-                <button id="{i#bsave}" class="btn btn-default">Активировать</button>
+                <button data-click="activate" class="btn btn-default">Активировать</button>
             </div>
         </div>
 
     </div>
 </div>
+
+<!--{erroract}-->
+<span>Ошибка активации: {v#msg}</span>

@@ -86,6 +86,24 @@ Component.entryPoint = function(NS){
                 callback.apply(context, err ? [err] : [null, res.data]);
             }
         },
+        activate: function(act, callback, context){
+            var instance = this;
+            instance.ajax({
+                'do': 'activate',
+                'savedata': act.toJSON()
+            }, instance._onActivate, {
+                context: instance,
+                arguments: {callback: callback, context: context}
+            });
+        },
+        _onActivate: function(err, res, details){
+            var callback = details.callback,
+                context = details.context;
+
+            if (callback){
+                callback.apply(context, err ? [err] : [null, res.data]);
+            }
+        },
         termsOfUse: function(callback, context){
             var instance = this;
             instance.ajax({'do': 'termsofuse'}, this._onTermsOfUse, {

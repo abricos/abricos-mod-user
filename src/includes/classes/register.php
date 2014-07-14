@@ -10,14 +10,22 @@ class UserRegistration {
      */
     public $manager;
 
+    /**
+     * @var Ab_Database
+     */
+    public $db;
+
     public function __construct(UserManager $manager) {
         $this->manager = $manager;
+        $this->db = $manager->db;
     }
 
     public function AJAX($d) {
         switch ($d->do) {
             case "register":
                 return $this->RegisterToAJAX($d->savedata);
+            case "activate":
+                return $this->ActivateToAJAX($d->savedata);
         }
         return null;
     }
@@ -48,6 +56,7 @@ class UserRegistration {
 
     /**
      * Создать "Соль" пароля
+     *
      * @return string
      */
     public function SaltGenerate() {
@@ -59,8 +68,14 @@ class UserRegistration {
     }
 
     public function RegisterToAJAX($d) {
+        $result = $this->Register($d->username, $d->password, $d->email, true, true);
+
         $ret = new stdClass();
-        $ret->err = $this->Register($d->username, $d->password, $d->email, true, true);
+        if (is_integer($result)){
+            $ret->err = $result;
+        }else{
+            $ret->userid = $result->userid;
+        }
 
         return $ret;
     }
@@ -76,7 +91,7 @@ class UserRegistration {
      * @param String $password
      * @param String $email
      * @param Boolean $sendEMail
-     * @return Integer
+     * @return Integer|Object
      */
     public function Register($username, $password, $email, $sendEMail = true, $checkEMail = true) {
         $retCode = $this->RegistrationValidate($username, $email, $checkEMail);
@@ -95,24 +110,27 @@ class UserRegistration {
 
         // Добавление пользователя в базу
         if ($this->manager->IsAdminRole()) {
-            UserQueryExt::UserAppend($this->manager->db, $user, User::UG_REGISTERED);
+            $userid = UserQueryExt::UserAppend($this->manager->db, $user, User::UG_REGISTERED);
         } else {
             $userid = UserQueryExt::UserAppend($this->manager->db, $user, User::UG_GUEST, $_SERVER['REMOTE_ADDR'], true);
             Abricos::$user->AntibotUserDataUpdate($userid);
             $this->manager->UserDomainUpdate($userid);
         }
+        $ret = new stdClass();
+        $ret->userid = $userid;
 
         if (!$sendEMail) {
-            return 0;
+            return $ret;
         }
 
         $this->ConfirmEmailSend($user);
 
-        return 0;
+        return $ret;
     }
 
     /**
      * Отправить письмо активации пользователю
+     *
      * @param $user
      */
     private function ConfirmEmailSend($user) {
@@ -140,6 +158,51 @@ class UserRegistration {
         $actinfo = UserQueryExt::RegistrationActivateInfo($this->manager->db, $userid);
         $user['activateid'] = $actinfo['activateid'];
         $this->ConfirmEmailSend($user);
+    }
+
+    public function ActivateToAJAX($d) {
+        $ret = new stdClass();
+        $ret->err = $this->Activate($d->userid, $d->code);
+        return $ret;
+    }
+
+    /**
+     * Активировать нового пользователя.
+     * В случае неудачи вернуть код ошибки:
+     * 0 - ошбики нет,
+     * 1 - пользователь не найден,
+     * 2 - пользователь уже активирован
+     * 3 - прочая ошибка
+     *
+     * @param integer $userid идентификатор пользователя
+     * @param integer $code код активации
+     * @return stdClass
+     */
+    public function Activate($userid, $code = 0) {
+        if (empty($userid)) {
+            $row = UserQueryExt::RegistrationActivateInfoByCode($this->db, $code);
+            if (empty($row)) {
+                sleep(1);
+            } else {
+                $userid = $row['userid'];
+            }
+        }
+
+        $user = UserQuery::User($this->db, $userid);
+        if (empty($user)) {
+            return 1;
+        } else if (intval($user['emailconfirm']) === 1) {
+            return 2;
+        }
+        if ($code === 0) {
+            if (!$this->IsAdminRole()) {
+                return 0;
+            }
+            $row = UserQueryExt::RegistrationActivateInfo($this->db, $userid);
+            $code = $row['activateid'];
+        }
+
+        return UserQueryExt::RegistrationActivate($this->db, $userid, $code);
     }
 
 }

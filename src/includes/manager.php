@@ -85,6 +85,7 @@ class UserManager extends Ab_ModuleManager {
                 return $this->LoginToAJAX($d->savedata);
 
             case "register":
+            case "activate":
                 return $this->GetRegistration()->AJAX($d);
 
             case "termsofuse":
@@ -105,8 +106,6 @@ class UserManager extends Ab_ModuleManager {
                 return $this->UserUpdate($d);
             case "passwordchange":
                 return $this->UserPasswordChange($d->userid, $d->pass, $d->passold);
-            case "useremailconfirm":
-                return $this->RegistrationActivate($d->userid, $d->actcode);
             case "useremailcnfsend":
                 return $this->ConfirmEmailSendAgain($d->userid);
         }
@@ -148,34 +147,36 @@ class UserManager extends Ab_ModuleManager {
     private $_newGroupId = 0;
 
     public function DSProcess($name, $rows) {
+        if ($this->IsAdminRole()) {
+            return null;
+        }
         $p = $rows->p;
         $db = $this->db;
-        if ($this->IsAdminRole()) {
-            switch ($name) {
-                case 'grouplist':
-                    foreach ($rows->r as $r) {
-                        if ($r->f == 'a') {
-                            $this->_newGroupId = UserQueryExt::GroupAppend($db, $r->d->nm);
-                        }
-                        if ($r->f == 'u') {
-                            UserQueryExt::GroupUpdate($this->db, $r->d);
-                        }
+        switch ($name) {
+            case 'grouplist':
+                foreach ($rows->r as $r) {
+                    if ($r->f == 'a') {
+                        $this->_newGroupId = UserQueryExt::GroupAppend($db, $r->d->nm);
                     }
-                    return;
-                case 'rolelist':
-                    foreach ($rows->r as $r) {
-                        if ($r->f == 'a') {
-                            if (intval($p->groupid) == 0 && intval($this->_newGroupId) > 0) {
-                                $p->groupid = $this->_newGroupId;
-                            }
-                            UserQueryExt::RoleAppend($db, $p->groupid, $r->d);
-                        }
-                        if ($r->f == 'd') {
-                            UserQueryExt::RoleRemove($this->db, $r->d->id);
-                        }
+                    if ($r->f == 'u') {
+                        UserQueryExt::GroupUpdate($this->db, $r->d);
                     }
-                    return;
-            }
+                }
+                return;
+            case 'rolelist':
+                foreach ($rows->r as $r) {
+                    if ($r->f == 'a') {
+                        if (intval($p->groupid) == 0 && intval($this->_newGroupId) > 0) {
+                            $p->groupid = $this->_newGroupId;
+                        }
+                        UserQueryExt::RoleAppend($db, $p->groupid, $r->d);
+                    }
+                    if ($r->f == 'd') {
+                        UserQueryExt::RoleRemove($this->db, $r->d->id);
+                    }
+                }
+                return;
+
         }
     }
 
@@ -492,54 +493,6 @@ class UserManager extends Ab_ModuleManager {
         UserQueryExt::UserDomainUpdate($this->db, $userid, Abricos::$DOMAIN);
     }
 
-
-    /**
-     * Активировать нового пользователя. Возврашает объект в котором св-во error содержит
-     * код ошибки:
-     * 0 - ошбики нет,
-     * 1 - пользователь не найден,
-     * 2 - пользователь уже активирован
-     *
-     * @param integer $userid идентификатор пользователя
-     * @param integer $activeid код активации
-     * @return stdClass
-     */
-    public function RegistrationActivate($userid, $activeid = 0) {
-
-        if (empty($userid)) {
-            $row = UserQueryExt::RegistrationActivateInfoByCode($this->db, $activeid);
-            if (empty($row)) {
-                sleep(1);
-            } else {
-                $userid = $row['userid'];
-            }
-        }
-
-        $ret = new stdClass();
-        $ret->error = 0;
-        $user = UserQuery::User($this->db, $userid);
-        if (empty($user)) {
-            $ret->error = 1;
-        } else if ($user['emailconfirm'] == 1) {
-            $ret->error = 2;
-        } else {
-            $ret->username = $user['username'];
-
-            if ($activeid == 0) {
-                if (!$this->IsAdminRole()) {
-                    return null;
-                }
-                $row = UserQueryExt::RegistrationActivateInfo($this->db, $userid);
-                $activeid = $row['activateid'];
-            }
-
-            $ret->error = UserQueryExt::RegistrationActivate($this->db, $userid, $activeid);
-            if ($this->IsAdminRole()) {
-                $ret->user = $this->UserInfo($userid);
-            }
-        }
-        return $ret;
-    }
 
     /**
      * Запросить систему восстановить пароль и вернуть номер ошибки:
