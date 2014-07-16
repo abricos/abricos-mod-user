@@ -86,6 +86,7 @@ class UserManager extends Ab_ModuleManager {
 
             case "register":
             case "activate":
+            case "useremailcnfsend":
                 return $this->GetRegistration()->AJAX($d);
 
             case "termsofuse":
@@ -106,8 +107,6 @@ class UserManager extends Ab_ModuleManager {
                 return $this->UserUpdate($d);
             case "passwordchange":
                 return $this->UserPasswordChange($d->userid, $d->pass, $d->passold);
-            case "useremailcnfsend":
-                return $this->ConfirmEmailSendAgain($d->userid);
         }
         return -1;
     }

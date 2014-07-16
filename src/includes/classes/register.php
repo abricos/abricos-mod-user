@@ -26,6 +26,10 @@ class UserRegistration {
                 return $this->RegisterToAJAX($d->savedata);
             case "activate":
                 return $this->ActivateToAJAX($d->savedata);
+
+            case "useremailcnfsend":
+                return $this->ConfirmEmailSendAgain($d->userid);
+
         }
         return null;
     }
@@ -151,7 +155,7 @@ class UserRegistration {
     }
 
     public function ConfirmEmailSendAgain($userid) {
-        if (!$this->IsAdminRole()) {
+        if (!$this->manager->IsAdminRole()) {
             return;
         }
         $user = UserQueryExt::User($this->manager->db, $userid);

@@ -95,7 +95,6 @@ Component.entryPoint = function(){
 	
 	API.showUserEditorPanel = function(userid, callback){
 		API.fn('manager', function(){
-			var widget = new NS.UserEditorPanel(userid, callback);
 			API.addWidget('UserEditorPanel', widget);
 			API.dsRequest();
 		});
