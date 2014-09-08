@@ -15,7 +15,8 @@ $tplBosMenu = "";
 $bosModule = Abricos::GetModule("bos");
 if (!empty($bosModule)) {
     $modBrick = Brick::$builder->LoadBrickS("bos", "menu", $brick, array( "p" => array(
-        "noWrap" => true
+        "noWrap" => true,
+        "noChild" => true
     )));
     $tplBosMenu = Brick::ReplaceVarByData($v["bosmenu"], array(
         "bosmenu" => $modBrick->content
