@@ -1,7 +1,8 @@
 <?php
 return array(
     "bosmenu" => array(
-        "adminka" => "Админка"
+        "adminka" => "Админка",
+        "users" => "Пользователи"
     ),
     'brick' => array(
         'templates' => array(
