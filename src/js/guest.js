@@ -6,6 +6,7 @@
 
 var Component = new Brick.Component();
 Component.requires = {
+    yui: ['aui-form-validator'],
     mod: [
         {name: 'sys', files: ['panel.js', 'form.js']},
         {name: 'widget', files: ['notice.js']},
@@ -20,137 +21,75 @@ Component.entryPoint = function(NS){
 
         SYS = Brick.mod.sys;
 
-    var LoginForm = function(){
-    };
-    LoginForm.NAME = 'loginForm';
-    LoginForm.ATTRS = {
-        model: {
-            value: new NS.Login()
-        }
-    };
-
-    LoginForm.prototype = {
-        initializer: function(){
-            var instance = this;
-            NS.initApp(function(){
-                instance._onLoadManager();
-            });
-        },
-        _onLoadManager: function(){
-            this.after('submitForm', this._submitLoginForm);
-        },
-        _submitLoginForm: function(e){
-
+    NS.LoginFormWidget = Y.Base.create('loginFormWidget', NS.AppWidget, [
+        Y.FormValidator,
+        SYS.Form,
+        SYS.FormAction
+    ], {
+        onSubmitFormAction: function(){
             this.set('waiting', true);
-            var model = this.get('model'),
-                instance = this;
+            var model = this.get('model');
 
             NS.appInstance.login(model, function(err, result){
-                instance.set('waiting', false);
-                if (err){
-                    var errorText = this.template.replace('error', {
-                        msg: err.msg
-                    });
-                    Brick.mod.widget.notice.show(errorText);
-                } else {
+                this.set('waiting', false);
+                if (!err){
                     Brick.Page.reload();
                 }
             }, this);
-
-            e.halt();
         }
-    };
-    NS.LoginForm = LoginForm;
-
-    NS.LoginFormWidget = Y.Base.create('loginFormWidget', Y.Widget, [
-        SYS.Template,
-        SYS.Language,
-        SYS.Form,
-        SYS.FormAction,
-        SYS.WidgetWaiting,
-        NS.LoginForm
-    ], {
     }, {
         ATTRS: {
             component: {
                 value: COMPONENT
             },
-            templateBlockName: {
-                value: 'error'
+            useExistingWidget: {
+                value: true
+            },
+            model: {
+                value: new NS.Login()
             }
         }
     });
 
-    var RegisterForm = function(){
-    };
-    RegisterForm.NAME = 'registerForm';
-    RegisterForm.ATTRS = {
-        model: {
-            value: new NS.RegisterData()
-        }
-    };
-    RegisterForm.prototype = {
-        initializer: function(){
-            var instance = this;
-            NS.initApp(function(){
-                instance._onLoadManager();
-            });
-        },
-        _onLoadManager: function(){
-            this.after('submitForm', this._submitRegisterForm);
-            this.after('click', this._clickRegisterForm);
-        },
-        _submitRegisterForm: function(e){
+    NS.RegisterFormWidget = Y.Base.create('registerFormWidget', NS.AppWidget, [
+        SYS.Form,
+        SYS.FormAction
+    ], {
+        onSubmitFormAction: function(){
             this.set('waiting', true);
-            var model = this.get('model'),
-                instance = this;
+            var model = this.get('model');
 
             NS.appInstance.register(model, function(err, result){
-                instance.set('waiting', false);
+                this.set('waiting', false);
                 if (err){
-                    var errorText = this.template.replace('errorreg', {
-                        msg: err.msg
-                    });
-
-                    Brick.mod.widget.notice.show(errorText);
-                } else {
-
-                    new NS.RegisterActivateDialog({
-                        userId: result.userid,
-                        userEMail: model.get('email')
-                    });
+                    return;
                 }
-            }, this);
+                new NS.RegisterActivateDialog({
+                    userId: result.register.userid,
+                    userEMail: model.get('email'),
+                    userPassword: model.get('password')
+                });
 
-            e.halt();
+            }, this);
         },
-        _clickRegisterForm: function(e){
+        onClick: function(e){
             if (e.dataClick !== 'termofuse'){
                 return;
             }
-            e.halt();
 
             new NS.TermsOfUseDialog();
+            return true;
         }
-    };
-    NS.RegisterForm = RegisterForm;
-
-    NS.RegisterFormWidget = Y.Base.create('registerFormWidget', Y.Widget, [
-        SYS.Template,
-        SYS.Language,
-        SYS.Form,
-        SYS.FormAction,
-        SYS.WidgetClick,
-        SYS.WidgetWaiting,
-        NS.RegisterForm
-    ], {
     }, {
         ATTRS: {
             component: {
                 value: COMPONENT
             },
-            templateBlockName: {
-                value: 'errorreg'
+            useExistingWidget: {
+                value: true
+            },
+            model: {
+                value: new NS.RegisterData()
             }
         }
     });
@@ -160,7 +99,7 @@ Component.entryPoint = function(NS){
     ], {
         initializer: function(){
             var instance = this;
-            NS.initApp(function(){
+            NS.initApp(function(err, appInstance){
                 instance._onLoadManager();
             });
         },
@@ -169,7 +108,7 @@ Component.entryPoint = function(NS){
             NS.appInstance.termsOfUse(function(err, result){
                 var text = "error";
                 if (!err){
-                    text = result.text;
+                    text = result.termsofuse;
                 }
                 instance.setTermsOfUseText(text);
             }, this);
@@ -218,16 +157,12 @@ Component.entryPoint = function(NS){
 
             var activate = new NS.Activate({
                 userid: this.get('userId'),
-                code: this.gel('code').get('value')
+                code: this.gel('code').get('value'),
+                email: this.get('userEMail'),
+                password: this.get('userPassword')
             });
             NS.appInstance.activate(activate, function(err, result){
-                if (err){
-                    var errorText = this.template.replace('erroract', {
-                        msg: err.msg
-                    });
-
-                    Brick.mod.widget.notice.show(errorText);
-                } else {
+                if (!err){
                     Brick.Page.reload();
                 }
             }, this);
@@ -238,6 +173,9 @@ Component.entryPoint = function(NS){
                 value: 0
             },
             userEMail: {
+                value: ''
+            },
+            userPassword: {
                 value: ''
             },
             component: {

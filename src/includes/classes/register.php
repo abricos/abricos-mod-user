@@ -1,9 +1,9 @@
 <?php
 
 /**
- * Class UserRegistration
+ * Class UserRegistrationManager
  */
-class UserRegistration {
+class UserRegistrationManager {
 
     /**
      * @var UserManager
@@ -26,10 +26,10 @@ class UserRegistration {
                 return $this->RegisterToAJAX($d->savedata);
             case "activate":
                 return $this->ActivateToAJAX($d->savedata);
-
             case "useremailcnfsend":
                 return $this->ConfirmEmailSendAgain($d->userid);
-
+            case "termsofuse":
+                return $this->TermsOfUseToAJAX();
         }
         return null;
     }
@@ -75,10 +75,10 @@ class UserRegistration {
         $result = $this->Register($d->username, $d->password, $d->email, true, true);
 
         $ret = new stdClass();
-        if (is_integer($result)){
+        if (is_integer($result)) {
             $ret->err = $result;
-        }else{
-            $ret->userid = $result->userid;
+        } else {
+            $ret->register->userid = $result->userid;
         }
 
         return $ret;
@@ -166,7 +166,7 @@ class UserRegistration {
 
     public function ActivateToAJAX($d) {
         $ret = new stdClass();
-        $ret->err = $this->Activate($d->userid, $d->code);
+        $ret->err = $this->Activate($d->userid, $d->code, $d->email, $d->password);
         return $ret;
     }
 
@@ -176,13 +176,13 @@ class UserRegistration {
      * 0 - ошбики нет,
      * 1 - пользователь не найден,
      * 2 - пользователь уже активирован
-     * 3 - прочая ошибка
+     * 3 - неверный код активации
      *
      * @param integer $userid идентификатор пользователя
      * @param integer $code код активации
      * @return stdClass
      */
-    public function Activate($userid, $code = 0) {
+    public function Activate($userid, $code = 0, $email = '', $password = '') {
         if (empty($userid)) {
             $row = UserQueryExt::RegistrationActivateInfoByCode($this->db, $code);
             if (empty($row)) {
@@ -206,8 +206,27 @@ class UserRegistration {
             $code = $row['activateid'];
         }
 
-        return UserQueryExt::RegistrationActivate($this->db, $userid, $code);
+        $ret = UserQueryExt::RegistrationActivate($this->db, $userid, $code);
+
+        if ($ret === 0 && !empty($email) && !empty($password)) {
+            $auth = $this->manager->GetAuthManager();
+            $auth->Login($email, $password);
+        }
+
+        return $ret;
     }
+
+    public function TermsOfUseToAJAX() {
+        $ret = new stdClass();
+        $ret->termsofuse = $this->TermsOfUse();
+        return $ret;
+    }
+
+    public function TermsOfUse() {
+        $brick = Brick::$builder->LoadBrickS('user', 'termsofuse', null, null);
+        return $brick->content;
+    }
+
 
 }
 

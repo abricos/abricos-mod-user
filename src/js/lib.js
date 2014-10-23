@@ -7,7 +7,8 @@ var Component = new Brick.Component();
 Component.requires = {
     yui: ['base'],
     mod: [
-        {name: 'sys', files: ['application.js']},
+        {name: 'sys', files: ['application.js', 'widget.js', 'form.js']},
+        {name: 'widget', files: ['notice.js']},
         {name: '{C#MODNAME}', files: ['model.js']}
     ]
 };
@@ -17,147 +18,193 @@ Component.entryPoint = function(NS){
 
         COMPONENT = this,
 
+        WAITING = 'waiting',
+        BOUNDING_BOX = 'boundingBox',
+
         SYS = Brick.mod.sys;
+
+    NS.URL = {
+        ws: "#app={C#MODNAMEURI}/wspace/ws/",
+        manager: {
+            view: function(){
+                return NS.URL.ws + 'manager/ManagerWidget/'
+            }
+        }
+    };
+    NS.AppWidget = Y.Base.create('appWidget', Y.Widget, [
+        SYS.Language,
+        SYS.Template,
+        SYS.WidgetClick,
+        SYS.WidgetWaiting
+    ], {
+        initializer: function(){
+            this._appWidgetArguments = Y.Array(arguments);
+
+            Y.after(this._syncUIAppWidget, this, 'syncUI');
+        },
+        _syncUIAppWidget: function(){
+            if (!this.get('useExistingWidget')){
+                var args = this._appWidgetArguments,
+                    tData = {};
+
+                if (Y.Lang.isFunction(this.buildTData)){
+                    tData = this.buildTData.apply(this, args);
+                }
+
+                var bBox = this.get(BOUNDING_BOX),
+                    defTName = this.template.cfg.defTName;
+
+                bBox.setHTML(this.template.replace(defTName, tData));
+            }
+            this.set(WAITING, true);
+
+            var instance = this;
+            NS.initApp({
+                initCallback: function(err, appInstance){
+                    instance._initAppWidget(err, appInstance);
+                }
+            });
+        },
+        _initAppWidget: function(err, appInstance){
+            this.set('appInstance', appInstance);
+            this.set(WAITING, false);
+            var args = this._appWidgetArguments
+            this.onInitAppWidget.apply(this, [err, appInstance, {
+                arguments: args
+            }]);
+        },
+        onInitAppWidget: function(){
+        }
+    }, {
+        ATTRS: {
+            render: {
+                value: true
+            },
+            appInstance: {
+                values: null
+            },
+            useExistingWidget: {
+                value: false
+            }
+        }
+    });
+
 
     var AppBase = function(){
     };
+    AppBase.ATTRS = {
+        initCallback: {
+            value: function(){
+            }
+        }
+    };
     AppBase.prototype = {
+        initializer: function(){
+            this.get('initCallback')(null, this);
+        },
+        onAJAXError: function(err){
+            Brick.mod.widget.notice.show(err.msg);
+        },
+        _treatAJAXResult: function(data){
+            data = data || {};
+            var ret = {};
+
+            if (data.termsofuse){
+                ret.termsofuse = data.termsofuse;
+            }
+            if (data.register){
+                ret.register = data.register;
+            }
+
+            return ret;
+        },
+        _defaultAJAXCallback: function(err, res, details){
+            var tRes = this._treatAJAXResult(res.data);
+
+            details.callback.apply(details.context, [err, tRes]);
+        },
+
         login: function(login, callback, context){
-            var instance = this;
-            instance.ajax({
+            this.ajax({
                 'do': 'login',
                 'savedata': login.toJSON()
-            }, instance._onLogin, {
-                context: instance,
-                arguments: {callback: callback, context: context }
+            }, this._defaultAJAXCallback, {
+                arguments: {callback: callback, context: context}
             });
-        },
-        _onLogin: function(err, res, details){
-            var callback = details.callback,
-                context = details.context;
-
-            if (!err){
-                var errorCode = res.data.err || 0;
-                if (errorCode > 0){
-                    var phId = 'ajax.login.error.' + errorCode;
-
-                    err = {
-                        code: errorCode,
-                        msg: this.language.get(phId)
-                    };
-                }
-            }
-
-            if (callback){
-                if (err){
-                    callback.apply(context, [err]);
-                } else {
-                    callback.apply(context, [null, res.data]);
-                }
-            }
         },
         register: function(regData, callback, context){
-            var instance = this;
-            instance.ajax({
+            this.ajax({
                 'do': 'register',
                 'savedata': regData.toJSON()
-            }, instance._onRegister, {
-                context: instance,
+            }, this._defaultAJAXCallback, {
                 arguments: {callback: callback, context: context}
             });
-        },
-        _onRegister: function(err, res, details){
-            var callback = details.callback,
-                context = details.context;
-
-            if (!err){
-                var errorCode = res.data.err || 0;
-                if (errorCode > 0){
-                    var phId = 'ajax.register.error.' + errorCode;
-
-                    err = {
-                        code: errorCode,
-                        msg: this.language.get(phId)
-                    };
-                }
-            }
-
-            if (callback){
-                callback.apply(context, err ? [err] : [null, res.data]);
-            }
         },
         activate: function(act, callback, context){
-            var instance = this;
-            instance.ajax({
+            this.ajax({
                 'do': 'activate',
                 'savedata': act.toJSON()
-            }, instance._onActivate, {
-                context: instance,
+            }, this._defaultAJAXCallback, {
                 arguments: {callback: callback, context: context}
             });
-        },
-        _onActivate: function(err, res, details){
-            var callback = details.callback,
-                context = details.context;
-
-            if (callback){
-                callback.apply(context, err ? [err] : [null, res.data]);
-            }
         },
         termsOfUse: function(callback, context){
             var instance = this;
-            instance.ajax({'do': 'termsofuse'}, this._onTermsOfUse, {
-                context: instance,
+            instance.ajax({
+                'do': 'termsofuse'
+            }, this._defaultAJAXCallback, {
                 arguments: {callback: callback, context: context}
             });
-        },
-        _onTermsOfUse: function(err, res, details){
-            if (details.callback){
-                details.callback.apply(details.context, err ? [err] : [null, res.data]);
-            }
         },
         logout: function(callback, context){
             var instance = this;
-            instance.ajax({'do': 'logout'}, this._onLogout, {
-                context: instance,
+            instance.ajax({
+                'do': 'logout'
+            }, this._defaultAJAXCallback, {
                 arguments: {callback: callback, context: context}
             });
-        },
-        _onLogout: function(err, res, details){
-            if (details.callback){
-                details.callback.apply(details.context, err ? [err] : [null, res.data]);
-            }
         }
-
     };
     NS.AppBase = AppBase;
 
-    var App = Y.Base.create('userApp', Y.Base, [
+    NS.App = Y.Base.create('userApp', Y.Base, [
         SYS.AJAX,
         SYS.Language,
         NS.AppBase
     ], {
+        initializer: function(){
+            NS.appInstance = this;
+        }
     }, {
         ATTRS: {
             component: {
                 value: COMPONENT
+            },
+            initCallback: {
+                value: null
+            },
+            moduleName: {
+                value: '{C#MODNAME}'
             }
         }
     });
-    NS.App = App;
 
     NS.appInstance = null;
-    NS.initApp = function(callback, config){
-        callback || (callback = function(){
-        });
+    NS.initApp = function(options){
+        if (Y.Lang.isFunction(options)){
+            options = {
+                initCallback: options
+            }
+        }
+        options = Y.merge({
+            initCallback: function(){
+            }
+        }, options || {});
 
         if (NS.appInstance){
-            return callback(null, NS.appInstance);
+            return options.initCallback(null, NS.appInstance);
         }
-        NS.appInstance = new NS.App({
-            moduleName: '{C#MODNAME}'
-        });
-        callback(null, NS.appInstance);
+        new NS.App(options);
     };
 
 };

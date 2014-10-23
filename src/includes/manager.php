@@ -69,77 +69,89 @@ class UserManager extends Ab_ModuleManager {
     /**
      * Получить менеджер регистрации пользователя
      *
-     * @return UserRegistration
+     * @return UserRegistrationManager
      */
-    public function GetRegistration() {
+    public function GetRegistrationManager() {
         if (empty($this->_registration)) {
             require_once 'classes/register.php';
-            $this->_registration = new UserRegistration($this);
+            $this->_registration = new UserRegistrationManager($this);
         }
         return $this->_registration;
     }
 
-    public function AJAX($d) {
-        switch ($d->do) {
-            case "login":
-                return $this->LoginToAJAX($d->savedata);
+    private $_authManager = null;
 
-            case "register":
-            case "activate":
-            case "useremailcnfsend":
-                return $this->GetRegistration()->AJAX($d);
-
-            case "termsofuse":
-                return $this->TermsOfUseToAJAX();
-
-            case "logout":
-                return $this->LogoutToAJAX();
-
-            // TODO: old functions
-
-            case "loginext":
-                return $this->LoginExt($d->username, $d->password, $d->autologin);
-            case "termsofuseagreement":
-                return $this->TermsOfUseAgreement();
-            case "user":
-                return $this->UserInfo($d->userid);
-            case "usersave":
-                return $this->UserUpdate($d);
-            case "passwordchange":
-                return $this->UserPasswordChange($d->userid, $d->pass, $d->passold);
+    /**
+     * Получить менеджер авторизации
+     *
+     * @return UserAuthManager
+     */
+    public function GetAuthManager() {
+        if (empty($this->_authManager)) {
+            require_once 'classes/auth.php';
+            $this->_authManager = new UserAuthManager($this);
         }
-        return -1;
+        return $this->_authManager;
     }
 
-    public function TermsOfUse() {
-        $brick = Brick::$builder->LoadBrickS('user', 'termsofuse', null, null);
-        return $brick->content;
-    }
-
-    public function TermsOfUseToAJAX() {
-        $ret = new stdClass();
-        $ret->text = $this->TermsOfUse();
-        return $ret;
-    }
-
-    public function Logout() {
-        $session = $this->module->session;
-        $sessionKey = Abricos::CleanGPC('c', $session->cookieName, TYPE_STR);
-        setcookie($session->cookieName, '', TIMENOW, $session->sessionPath);
-        UserQuery::SessionRemove($this->db, $sessionKey);
-        $this->module->session->Drop('userid');
-        $this->module->info = array(
-            "userid" => 0,
-            "group" => array(1),
-            "username" => "Guest"
-        );
-    }
-
-    public function LogoutToAJAX() {
-        $this->Logout();
+    public function TreatResult($res) {
         $ret = new stdClass();
         $ret->err = 0;
+
+        if (is_integer($res)) {
+            $ret->err = $res;
+        } else if (is_object($res)) {
+            $ret = $res;
+        }
+        $ret->err = intval($ret->err);
+
         return $ret;
+    }
+
+    public function AJAX($d) {
+        $ret = $this->GetAuthManager()->AJAX($d);
+
+        if (empty($ret)) {
+            $ret = $this->GetRegistrationManager()->AJAX($d);
+        }
+
+        if (empty($ret)) {
+            $ret = new stdClass();
+            $ret->err = 500;
+        }
+
+        return $ret;
+        /*
+
+                switch ($d->do) {
+
+                    // TODO: old functions
+
+                    case "loginext":
+                        return $this->LoginExt($d->username, $d->password, $d->autologin);
+                    case "termsofuseagreement":
+                        return $this->TermsOfUseAgreement();
+                    case "user":
+                        return $this->UserInfo($d->userid);
+                    case "usersave":
+                        return $this->UserUpdate($d);
+                    case "passwordchange":
+                        return $this->UserPasswordChange($d->userid, $d->pass, $d->passold);
+                }
+                return -1;
+                /**/
+    }
+
+    public function UserDomainUpdate($userid = 0) {
+        // не обновлять, если в конфиге домен не определен
+        if (empty(Abricos::$DOMAIN)) {
+            return;
+        }
+        if ($userid === 0) {
+            $userid = $this->userid;
+        }
+
+        UserQueryExt::UserDomainUpdate($this->db, $userid, Abricos::$DOMAIN);
     }
 
 
@@ -385,113 +397,6 @@ class UserManager extends Ab_ModuleManager {
     //      	Функции: регистрации/авторизации пользователя     	  //
     ////////////////////////////////////////////////////////////////////
 
-    private $_usercache = null;
-
-    public function LoginToAJAX($d) {
-        $ret = new stdClass();
-        $ret->err = $this->Login($d->username, $d->password, $d->autologin);
-
-        return $ret;
-    }
-
-    /**
-     * Проверить данные авторизации и вернуть номер ошибки:
-     * 0 - нет ошибки,
-     * 1 - ошибка в имени пользователя,
-     * 2 - неверное имя пользователя или пароль,
-     * 3 - не заполнены обязательные поля,
-     * 4 - пользователь заблокирован,
-     * 5 - пользователь не прошел верификацию email
-     *
-     * @param String $username имя пользователя или емайл
-     * @param String $password пароль
-     * @return Integer
-     */
-    public function Login($username, $password, $autologin = false) {
-        $username = trim($username);
-        $password = trim($password);
-
-        if (empty($username) || empty($password)) {
-            return 3;
-        }
-
-        // if (!$this->UserNameValidate($username)){ return 1; }
-
-        $user = UserQuery::UserByName($this->db, $username, true);
-
-        if (empty($user)) {
-            return 2;
-        }
-        $this->_usercache = $user;
-
-        if ($user['emailconfirm'] < 1) {
-            return 5;
-        }
-
-        $passcrypt = UserManager::UserPasswordCrypt($password, $user["salt"]);
-        if ($passcrypt != $user["password"]) {
-            return 2;
-        }
-
-        $this->LoginMethod($user, $autologin);
-
-        return 0;
-    }
-
-    public function LoginMethod($user, $autologin = false) {
-        $session = $this->module->session;
-        $session->Set('userid', $user['userid']);
-
-        $guserid = $session->Get('guserid');
-        $session->Set('guserid', $user['userid']);
-
-        // зашел тот же человек, но под другой учеткой
-        if ($guserid > 0 && $guserid != $user['userid']) {
-            UserQueryExt::UserDoubleLogAppend($this->db, $guserid, $user['userid'], $_SERVER['REMOTE_ADDR']);
-        }
-        if ($autologin) {
-            // установить куки для автологина
-            $privateKey = $this->module->GetSessionPrivateKey();
-            $sessionKey = md5(TIMENOW.$privateKey.cmsrand(1, 1000000));
-            setcookie($session->cookieName, $sessionKey, TIMENOW + $session->sessionTimeOut, $session->sessionPath);
-            UserQuery::SessionAppend($this->db, $user['userid'], $sessionKey, $privateKey);
-        }
-
-        // Удалить пользователей не прошедших верификацию email (редкая операция)
-        UserQueryExt::RegistrationActivateClear($this->db);
-
-        $this->UserDomainUpdate($user['userid']);
-    }
-
-    public function LoginExt($username, $password, $autologin = false) {
-        $ret = new stdClass();
-        $ret->error = $this->Login($username, $password, $autologin);
-
-        $user = $this->_usercache;
-        if (is_null($user) || empty($user)) {
-            return $ret;
-        }
-
-        $ret->user = array(
-            "id" => $user['userid'],
-            "agr" => $user['agreement']
-        );
-
-        return $ret;
-    }
-
-    public function UserDomainUpdate($userid = 0) {
-        // если в конфиге домен не определен, то нечего обновлять
-        if (empty(Abricos::$DOMAIN)) {
-            return;
-        }
-        if ($userid == 0) {
-            $userid = $this->userid;
-        }
-
-        UserQueryExt::UserDomainUpdate($this->db, $userid, Abricos::$DOMAIN);
-    }
-
 
     /**
      * Запросить систему восстановить пароль и вернуть номер ошибки:
@@ -695,7 +600,7 @@ class UserManager extends Ab_ModuleManager {
         }
     }
 
-    public function UserPasswordCrypt($password, $salt) {
+    public static function UserPasswordCrypt($password, $salt) {
         return md5(md5($password).$salt);
     }
 

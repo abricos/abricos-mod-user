@@ -55,6 +55,12 @@ Component.entryPoint = function(NS){
             },
             code: {
                 value: 0
+            },
+            email: {
+                value: ''
+            },
+            password: {
+                value: ''
             }
         }
     });

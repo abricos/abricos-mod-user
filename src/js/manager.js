@@ -17,7 +17,27 @@ if (Brick.componentExists('antibot', 'bot')){
 Component.entryPoint = function(NS){
 
     var Y = Brick.YUI,
-        L = Y.Lang;
+        COMPONENT = this;
+
+    NS.ManagerWidget = Y.Base.create('managerWidget', NS.AppWidget, [
+    ], {
+        onInitAppWidget: function(err, appInstance, options){
+        }
+    }, {
+        ATTRS: {
+            component: {
+                value: COMPONENT
+            },
+            templateBlockName: {
+                value: 'widget,list,row'
+            },
+            feedbackList: {
+                value: null
+            }
+        }
+    });
+
+
 
     var Dom = YAHOO.util.Dom,
         E = YAHOO.util.Event,
@@ -30,45 +50,6 @@ Component.entryPoint = function(NS){
 
     var UProfileExist = Brick.componentExists('uprofile', 'profile')
         && Brick.componentExists('bos', 'lib');
-
-    var ManagerWidget = function(container){
-        this.init(container);
-    };
-    ManagerWidget.prototype = {
-        pages: null,
-        init: function(container){
-            var TM = buildTemplate(this, 'manager');
-
-            container.innerHTML = TM.replace('manager');
-
-            // new YAHOO.widget.TabView();
-            var tabView = new Y.TabView({
-                'srcNode': '#' + TM.getElId('manager.tab')
-            });
-            tabView.render();
-
-            var pages = {};
-            pages['users'] = new NS.UsersWidget(TM.getEl('manager.users'));
-            pages['groups'] = new NS.GroupsWidget(TM.getEl('manager.groups'));
-            this.pages = pages;
-
-            var __self = this;
-            E.on(container, 'click', function(e){
-                if (__self.onClick(E.getTarget(e))){
-                    E.stopEvent(e);
-                }
-            });
-        },
-        onClick: function(el){
-            for (var n in this.pages){
-                if (this.pages[n].onClick(el)){
-                    return true;
-                }
-            }
-            return false;
-        }
-    };
-    NS.ManagerWidget = ManagerWidget;
 
 
     var UsersWidget = function(el){
