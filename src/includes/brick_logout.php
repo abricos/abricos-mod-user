@@ -11,8 +11,8 @@
  * @ignore
  */
 
-$userManager = Brick::$user->GetManager(); 
+$userManager = Brick::$user->GetManager()->GetAuthManager();
 $err = $userManager->Logout();
-header('Location: /');
+header('Location: /'); 
 
 ?>
