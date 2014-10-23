@@ -263,14 +263,6 @@ class UserManager extends Ab_ModuleManager {
     //                      Административные функции                  //
     ////////////////////////////////////////////////////////////////////
 
-    public function UserList($page = 1, $limit = 15, $filter = '') {
-        if (!$this->IsAdminRole()) {
-            return null;
-        }
-
-        $modAntibot = Abricos::GetModule('antibot');
-        return UserQueryExt::UserList($this->db, $page, $limit, $filter, !empty($modAntibot));
-    }
 
     public function UserCount($filter = '') {
         if (!$this->IsAdminRole()) {

@@ -13,8 +13,7 @@ Component.entryPoint = function(NS){
     var Y = Brick.YUI,
         SYS = Brick.mod.sys;
 
-    NS.Login = Y.Base.create('login', Y.Model, [ ], {
-    }, {
+    NS.Login = Y.Base.create('login', Y.Model, [], {}, {
         ATTRS: {
             /**
              * User Name or Email
@@ -32,8 +31,7 @@ Component.entryPoint = function(NS){
 
     });
 
-    NS.RegisterData = Y.Base.create('registerData', Y.Model, [ ], {
-    }, {
+    NS.RegisterData = Y.Base.create('registerData', Y.Model, [], {}, {
         ATTRS: {
             username: {
                 value: ''
@@ -47,21 +45,22 @@ Component.entryPoint = function(NS){
         }
     });
 
-    NS.Activate = Y.Base.create('activate', Y.Model, [ ], {
-    }, {
+    NS.Activate = Y.Base.create('activate', Y.Model, [], {}, {
         ATTRS: {
-            userid: {
-                value: 0
-            },
-            code: {
-                value: 0
-            },
-            email: {
-                value: ''
-            },
-            password: {
-                value: ''
-            }
+            userid: {value: 0},
+            code: {value: 0},
+            email: {value: ''},
+            password: {value: ''}
+        }
+    });
+
+    NS.User = Y.Base.create('user', Y.Model, [], {}, {
+        ATTRS: {
+            userid: {value: 0},
+            username: {value: ''},
+            firstname: {value: ''},
+            lastname: {value: ''},
+            email: {value: ''}
         }
     });
 

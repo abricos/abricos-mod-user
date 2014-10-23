@@ -163,7 +163,16 @@ Component.entryPoint = function(NS){
             }, this._defaultAJAXCallback, {
                 arguments: {callback: callback, context: context}
             });
+        },
+        activate: function(act, callback, context){
+            this.ajax({
+                'do': 'activate',
+                'savedata': act.toJSON()
+            }, this._defaultAJAXCallback, {
+                arguments: {callback: callback, context: context}
+            });
         }
+
     };
     NS.AppBase = AppBase;
 

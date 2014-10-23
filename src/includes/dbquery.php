@@ -183,7 +183,7 @@ class UserQueryExt extends UserQuery {
 				'".bkstr($user['username'])."', 
 				'".bkstr($user['password'])."', 
 				'".bkstr($user['email'])."', 
-				".($groupid == User::UG_GUEST ? 0 : 1).", 
+				".($groupid == User::UG_GUEST ? 0 : 1).",
 				'".bkstr($user['joindate'])."', 
 				'".bkstr($user['salt'])."',
 				'".bkstr($ip)."',

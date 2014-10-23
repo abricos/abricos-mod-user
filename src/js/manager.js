@@ -22,6 +22,7 @@ Component.entryPoint = function(NS){
     NS.ManagerWidget = Y.Base.create('managerWidget', NS.AppWidget, [
     ], {
         onInitAppWidget: function(err, appInstance, options){
+
         }
     }, {
         ATTRS: {
@@ -29,15 +30,17 @@ Component.entryPoint = function(NS){
                 value: COMPONENT
             },
             templateBlockName: {
-                value: 'widget,list,row'
+                value: 'users,utable,urow,urowwait'
             },
-            feedbackList: {
-                value: null
+            listPage: {
+                value: 1
+            },
+            listFilter: {
+                value: ''
             }
         }
     });
-
-
+    
 
     var Dom = YAHOO.util.Dom,
         E = YAHOO.util.Event,
