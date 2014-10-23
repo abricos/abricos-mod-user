@@ -40,7 +40,7 @@ Component.entryPoint = function(NS){
             }
         }
     });
-    
+
 
     var Dom = YAHOO.util.Dom,
         E = YAHOO.util.Event,

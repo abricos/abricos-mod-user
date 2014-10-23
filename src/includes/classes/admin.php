@@ -1,5 +1,8 @@
 <?php
 
+require_once 'admin_structure.php';
+require_once 'admin_dbquery.php';
+
 /**
  * Class UserAdminManager
  */

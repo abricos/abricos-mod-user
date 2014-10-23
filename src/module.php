@@ -50,11 +50,6 @@ class User extends Ab_Module {
      */
     const UG_ADMIN = 3;
 
-    // TODO: На удаление
-    private static $UG_REGISTERED_TO = array(1, 2);
-    // TODO: На удаление
-    private static $UG_ADMIN_TO = array(1, 2, 3);
-
     private $_manager = null;
 
     /**

@@ -6,6 +6,7 @@
  * @author Alexander Kuzmin <roosit@abricos.org>
  */
 
+require_once 'classes/structure.php';
 require_once 'dbquery.php';
 
 /**
