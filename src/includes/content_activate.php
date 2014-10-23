@@ -20,18 +20,20 @@ $adress = Abricos::$adress;
 $p_userid = bkint($adress->dir[2]);
 $p_actid =  bkint($adress->dir[3]);
 
-$userManager = Abricos::$user->GetManager(); 
+$regManager = Abricos::$user->GetManager()->GetRegistrationManager();
 
-$result = $userManager->RegistrationActivate($p_userid, $p_actid);
+$error = $regManager->Activate($p_userid, $p_actid);
 
-if ($result->error > 0){
+if ($error > 0){
 	$brick->param->var['result'] = Brick::ReplaceVarByData($brick->param->var['err'], array(
-		"err" => $brick->param->var['err'.$result->error]
+		"err" => $brick->param->var['err'.$error]
 	)); 
 }else{
-	$brick->param->var['result'] = Brick::ReplaceVarByData($brick->param->var['ok'], array(
-		"unm" => $result->username
-	)); 
+    $user = UserQuery::User(Brick::$db, $p_userid);
+
+    $brick->param->var['result'] = Brick::ReplaceVarByData($brick->param->var['ok'], array(
+		"unm" => $user['username']
+	));
 }
 
 
