@@ -1,6 +1,5 @@
 <?php
 /**
- * @version $Id$
  * @package Abricos
  * @subpackage User 
  * @license http://www.gnu.org/copyleft/gpl.html GNU/GPL, see LICENSE.php
@@ -11,8 +10,28 @@
  * Внешнии запросы
  */
 class UserQueryExt extends UserQuery {
-	
-	////////////////////////////////////////////////////////////////////
+
+
+
+    public static function User(Ab_Database $db, $userid) {
+        $sql = "
+			SELECT u.userid as id, u.*
+			FROM ".$db->prefix."user u
+			WHERE userid='".bkint($userid)."'
+			LIMIT 1
+		";
+        return $db->query_first($sql);
+    }
+
+
+
+
+
+
+
+
+
+    ////////////////////////////////////////////////////////////////////
 	//                      Запросы по пользователям                  //
 	////////////////////////////////////////////////////////////////////
 	
@@ -534,5 +553,113 @@ class UserQueryExt extends UserQuery {
 	}
 	
 }
+
+/**
+ * Часто запрашиваемые запросы (для внутреннего использования)
+ *
+ * @package Abricos
+ */
+class UserQuery {
+
+    /**
+     * Вернуть полные данные пользователя для внутренних функций.
+     *
+     * @param Ab_Database $db
+     * @param integer $userid
+     * @return array
+     */
+    public static function User(Ab_Database $db, $userid) {
+        $userid = bkint($userid);
+        if ($userid < 1) {
+            return;
+        }
+        $sql = "
+			SELECT *
+			FROM ".$db->prefix."user
+			WHERE userid='".bkint($userid)."'
+			LIMIT 1
+		";
+        $user = $db->query_first($sql);
+        if (empty($user)) {
+            return;
+        }
+        $user['group'] = UserQuery::GroupByUserId($db, $user['userid']);
+        return $user;
+    }
+
+    public static function UserByName(Ab_Database $db, $username, $orByEmail = false) {
+        $sql = "
+			SELECT *
+			FROM ".$db->prefix."user
+			WHERE username='".bkstr($username)."'
+				".($orByEmail ? " OR email='".bkstr($username)."'" : "")."
+			LIMIT 1
+		";
+        $user = $db->query_first($sql);
+        if (empty($user)) {
+            return;
+        }
+        $user['group'] = UserQuery::GroupByUserId($db, $user['userid']);
+        return $user;
+    }
+
+    public static function GroupByUserId(Ab_Database $db, $userid) {
+        $rows = $db->query_read("
+			SELECT
+				groupid as id
+			FROM ".$db->prefix."usergroup
+			WHERE userid=".bkint($userid)."
+		");
+        $ret = array();
+        while (($row = $db->fetch_array($rows))) {
+            array_push($ret, $row['id'] * 1);
+        }
+        return $ret;
+    }
+
+    public static function UserRole(Ab_Database $db, $user) {
+        if ($user['userid'] == 0) {
+            $sql = "
+				SELECT
+					ma.module as md,
+					ma.action as act,
+					ur.status as st
+				FROM ".$db->prefix."userrole ur
+				LEFT JOIN ".$db->prefix."sys_modaction ma ON ur.modactionid = ma.modactionid
+				WHERE ur.userid = 1 AND ur.usertype = 0
+			";
+        } else {
+            $sql = "
+				SELECT
+					ma.module as md,
+					ma.action as act,
+					ur.status as st
+				FROM ".$db->prefix."userrole ur
+				LEFT JOIN ".$db->prefix."sys_modaction ma ON ur.modactionid = ma.modactionid
+				WHERE ur.userid = ".bkint($user['userid'])." AND ur.usertype = 1
+			";
+            $gps = $user['group'];
+            if (count($gps) > 0) {
+                $arr = array();
+                foreach ($gps as $gp) {
+                    array_push($arr, "gp.groupid = ".$gp);
+                }
+                $sql .= "
+					UNION
+					SELECT
+						ma.module as md,
+						ma.action as act,
+						ur.status as st
+					FROM ".$db->prefix."userrole ur
+					LEFT JOIN ".$db->prefix."sys_modaction ma ON ur.modactionid = ma.modactionid
+					LEFT JOIN ".$db->prefix."group gp ON gp.groupid = ur.userid
+					WHERE ur.usertype = 0 AND (".implode(' OR ', $arr).")
+				";
+            }
+        }
+        return $db->query_read($sql);
+    }
+}
+
 
 ?>

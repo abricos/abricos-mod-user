@@ -25,7 +25,7 @@ class UserManager extends Ab_ModuleManager {
 
     private $_disableRoles = false;
 
-    public function __construct(User $module) {
+    public function __construct(UserModule $module) {
         parent::__construct($module);
     }
 
@@ -65,7 +65,7 @@ class UserManager extends Ab_ModuleManager {
         return $this->userid == $userid || $this->IsAdminRole();
     }
 
-    private $_registration = null;
+    private $_registrationManager = null;
 
     /**
      * Получить менеджер регистрации пользователя
@@ -73,11 +73,11 @@ class UserManager extends Ab_ModuleManager {
      * @return UserRegistrationManager
      */
     public function GetRegistrationManager() {
-        if (empty($this->_registration)) {
+        if (empty($this->_registrationManager)) {
             require_once 'classes/register.php';
-            $this->_registration = new UserRegistrationManager($this);
+            $this->_registrationManager = new UserRegistrationManager($this);
         }
-        return $this->_registration;
+        return $this->_registrationManager;
     }
 
     private $_authManager = null;
@@ -94,6 +94,24 @@ class UserManager extends Ab_ModuleManager {
         }
         return $this->_authManager;
     }
+
+    private $_sessionManager = null;
+
+    /**
+     * Получить менеджер авторизации
+     *
+     * @return UserSessionManager
+     */
+    public function GetSessionManager() {
+        if (empty($this->_sessionManager)) {
+            require_once 'classes/session.php';
+            $this->_sessionManager = new UserSessionManager($this);
+        }
+        return $this->_sessionManager;
+    }
+
+
+
 
     public function TreatResult($res) {
         $ret = new stdClass();
@@ -142,6 +160,33 @@ class UserManager extends Ab_ModuleManager {
                 return -1;
                 /**/
     }
+
+    private $_cacheUser = array();
+
+    /**
+     * @param int $userid
+     * @param bool $cacheClear
+     * @return null|UserItem
+     */
+    public function User($userid = 0, $cacheClear = false) {
+        $userid = intval($userid);
+
+        if (!empty($this->_cacheUser[$userid])){
+            return $this->_cacheUser[$userid];
+        }
+
+        $row = UserQueryExt::User($this->db, $userid);
+        if (empty($row)) {
+            return null;
+        }
+
+        $user = new UserItem($row);
+
+        $this->_cacheUser[$userid] =  $user;
+
+        return $user;
+    }
+
 
     public function UserDomainUpdate($userid = 0) {
         // не обновлять, если в конфиге домен не определен
