@@ -13,7 +13,7 @@
 class UserModule extends Ab_Module {
 
     /**
-     * @var User
+     * @var UserModule
      */
     public static $instance;
 
@@ -21,21 +21,6 @@ class UserModule extends Ab_Module {
      * TODO: remove
      */
     private $id = 0;
-
-    /**
-     * TODO: remove
-     */
-    private $login = 'Guest';
-
-    /**
-     * TODO: remove
-     */
-    private $info = array(
-        "userid" => 0,
-        "group" => array(1),
-        "agreement" => 1,
-        "username" => "Guest"
-    );
 
 
     /**

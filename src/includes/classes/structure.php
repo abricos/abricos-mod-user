@@ -2,6 +2,11 @@
 
 class UserItem extends AbricosItem {
 
+    /**
+     * @deprecated
+     */
+    public $login;
+
     public $username;
     public $firstname;
     public $lastname;
@@ -13,7 +18,7 @@ class UserItem extends AbricosItem {
 
     public $antibotdetect;
 
-    protected $info;
+    protected  $info;
 
     public function __construct($d) {
         parent::__construct($d);

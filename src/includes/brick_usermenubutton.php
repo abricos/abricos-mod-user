@@ -20,7 +20,7 @@ if (Abricos::$user->id === 0) {
     $modBrick = Brick::$builder->LoadBrickS("user", "userform", $brick);
 
     $content = Brick::ReplaceVarByData($v['user'], array(
-        "username" => Abricos::$user->login,
+        "username" => Abricos::$user->username,
         "userform" => $modBrick->content
     ));
 }
