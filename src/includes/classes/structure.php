@@ -18,7 +18,7 @@ class UserItem extends AbricosItem {
 
     public $antibotdetect;
 
-    protected  $info;
+    protected  $_data;
 
     public function __construct($d) {
         parent::__construct($d);
@@ -33,7 +33,7 @@ class UserItem extends AbricosItem {
         $this->antibotdetect = $d['antibotdetect'] > 0;
         $this->agreement = $d['agreement'] > 0;
 
-        $this->info = $d;
+        $this->_data = $d;
     }
 
     public function ToAJAX() {
@@ -66,7 +66,7 @@ class UserItem extends AbricosItem {
         return $this->_isSuperAdmin;
     }
 
-    protected $permission = null;
+    protected $_permission = null;
 
     public function GetActionRole($module, $action) {
         if ($module instanceof Ab_Module) {
@@ -77,12 +77,12 @@ class UserItem extends AbricosItem {
             return 1;
         }
 
-        if (is_null($this->permission)) {
-            $this->permission = $this->LoadPermission();
+        if (is_null($this->_permission)) {
+            $this->_permission = $this->LoadPermission();
         }
 
-        if (isset($this->permission[$module][$action])) {
-            return $this->permission[$module][$action];
+        if (isset($this->_permission[$module][$action])) {
+            return $this->_permission[$module][$action];
         }
         return -1;
     }
@@ -96,7 +96,7 @@ class UserItem extends AbricosItem {
 
         $perm = array();
 
-        $rows = UserQuery::UserRole($db, $this->info);
+        $rows = UserQuery::UserRole($db, $this->_data);
         while (($row = $db->fetch_array($rows))) {
             $mod = $row['md'];
             if (!$perm[$mod]) {
@@ -108,10 +108,37 @@ class UserItem extends AbricosItem {
         return $perm;
     }
 
+    protected $_groupList = null;
+
+    /**
+     * @return UserGroupList
+     */
+    public function GetGroupList(){
+        if (!is_null($this->_groupList)){
+            return $this->_groupList;
+        }
+        $db = Abricos::$db;
+        $list = new UserGroupList();
+
+        $rows = UserQuery::UserGroupList($db, $this->id);
+        while (($row = $db->fetch_array($rows))) {
+            $list->Add(new UserGroup($row));
+        }
+        $this->_groupList = $list;
+        return $list;
+    }
+
 
 }
 
 class UserList extends AbricosList {
 }
+
+class UserGroup extends AbricosItem {
+}
+
+class UserGroupList extends AbricosList {
+}
+
 
 ?>

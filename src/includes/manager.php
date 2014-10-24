@@ -70,12 +70,12 @@ class UserManager extends Ab_ModuleManager {
     /**
      * Получить менеджер регистрации пользователя
      *
-     * @return UserRegistrationManager
+     * @return UserManager_Registration
      */
     public function GetRegistrationManager() {
         if (empty($this->_registrationManager)) {
             require_once 'classes/register.php';
-            $this->_registrationManager = new UserRegistrationManager($this);
+            $this->_registrationManager = new UserManager_Registration($this);
         }
         return $this->_registrationManager;
     }
@@ -85,12 +85,12 @@ class UserManager extends Ab_ModuleManager {
     /**
      * Получить менеджер авторизации
      *
-     * @return UserAuthManager
+     * @return UserManager_Auth
      */
     public function GetAuthManager() {
         if (empty($this->_authManager)) {
             require_once 'classes/auth.php';
-            $this->_authManager = new UserAuthManager($this);
+            $this->_authManager = new UserManager_Auth($this);
         }
         return $this->_authManager;
     }
@@ -109,8 +109,6 @@ class UserManager extends Ab_ModuleManager {
         }
         return $this->_sessionManager;
     }
-
-
 
 
     public function TreatResult($res) {
@@ -163,26 +161,47 @@ class UserManager extends Ab_ModuleManager {
 
     private $_cacheUser = array();
 
+    public function CacheUserClear() {
+        $this->_cacheUser = array();
+    }
+
     /**
      * @param int $userid
      * @param bool $cacheClear
      * @return null|UserItem
      */
     public function User($userid = 0, $cacheClear = false) {
+        if ($cacheClear) {
+            $this->CacheUserClear();
+        }
         $userid = intval($userid);
 
-        if (!empty($this->_cacheUser[$userid])){
+        if (!empty($this->_cacheUser[$userid])) {
             return $this->_cacheUser[$userid];
         }
 
-        $row = UserQueryExt::User($this->db, $userid);
+        $row = UserQuery::UserById($this->db, $userid);
         if (empty($row)) {
             return null;
         }
 
         $user = new UserItem($row);
 
-        $this->_cacheUser[$userid] =  $user;
+        $this->_cacheUser[$userid] = $user;
+
+        return $user;
+    }
+
+    public function UserByName($username, $orByEmail = false) {
+        $row = UserQuery::UserByName($this->db, $username, $orByEmail);
+
+        if (empty($row)) {
+            return null;
+        }
+
+        $user = new UserItem($row);
+
+        $this->_cacheUser[$user->id] = $user;
 
         return $user;
     }
@@ -194,11 +213,15 @@ class UserManager extends Ab_ModuleManager {
             return;
         }
         if ($userid === 0) {
-            $userid = $this->userid;
+            $userid = Abricos::$user->id;
         }
 
         UserQueryExt::UserDomainUpdate($this->db, $userid, Abricos::$DOMAIN);
     }
+
+
+
+
 
 
     private $_newGroupId = 0;
@@ -297,10 +320,7 @@ class UserManager extends Ab_ModuleManager {
             if (is_null($roles)) {
                 continue;
             }
-            array_push($rows, array(
-                "nm" => $modname,
-                "roles" => $roles
-            ));
+            array_push($rows, array("nm" => $modname, "roles" => $roles));
         }
         return $rows;
     }
@@ -466,15 +486,8 @@ class UserManager extends Ab_ModuleManager {
 
         $brick = Brick::$builder->LoadBrickS('user', 'templates', null, null);
 
-        $subject = Brick::ReplaceVarByData($brick->param->var['pwd_mail_subj'], array(
-            "sitename" => $sitename
-        ));
-        $body = nl2br(Brick::ReplaceVarByData($brick->param->var['pwd_mail'], array(
-            "email" => $email,
-            "link" => $link,
-            "username" => $user['username'],
-            "sitename" => $sitename
-        )));
+        $subject = Brick::ReplaceVarByData($brick->param->var['pwd_mail_subj'], array("sitename" => $sitename));
+        $body = nl2br(Brick::ReplaceVarByData($brick->param->var['pwd_mail'], array("email" => $email, "link" => $link, "username" => $user['username'], "sitename" => $sitename)));
 
         Abricos::Notify()->SendMail($email, $subject, $body);
 
@@ -647,22 +660,7 @@ class UserManager extends Ab_ModuleManager {
             return null;
         }
         $lng = $this->module->lang;
-        return array(
-            array(
-                "name" => "adminka",
-                "title" => $lng['bosmenu']['adminka'],
-                "icon" => "/modules/user/images/cpanel-24.png",
-                "url" => "user/board/showBoardPanel",
-                "parent" => "controlPanel"
-            ),
-            array(
-                "name" => "user",
-                "title" => $lng['bosmenu']['users'],
-                "icon" => "/modules/user/images/users-24.png",
-                "url" => "user/wspace/ws",
-                "parent" => "controlPanel"
-            )
-        );
+        return array(array("name" => "adminka", "title" => $lng['bosmenu']['adminka'], "icon" => "/modules/user/images/cpanel-24.png", "url" => "user/board/showBoardPanel", "parent" => "controlPanel"), array("name" => "user", "title" => $lng['bosmenu']['users'], "icon" => "/modules/user/images/users-24.png", "url" => "user/wspace/ws", "parent" => "controlPanel"));
     }
 
 

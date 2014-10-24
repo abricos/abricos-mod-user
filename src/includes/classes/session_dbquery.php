@@ -1,6 +1,6 @@
 <?php
 
-class UserSessionQuery {
+class UserQuery_Session {
 
     public static function Session(Ab_Database $db, $cookieTimeOut, $hash, $idHash) {
         $sql = "

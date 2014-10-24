@@ -1,9 +1,13 @@
 <?php
 
+require_once 'auth_structure.php';
+require_once 'auth_dbquery.php';
+
+
 /**
- * Class UserAuthManager
+ * Class UserManager_Auth
  */
-class UserAuthManager {
+class UserManager_Auth {
 
     /**
      * @var User
@@ -45,10 +49,7 @@ class UserAuthManager {
 
         $user = $this->_usercache;
         if ($ret->err === 0 && !empty($user)) {
-            $ret->user = array(
-                "id" => $user['userid'],
-                "agr" => $user['agreement']
-            );
+            $ret->user = array("id" => $user['userid'], "agr" => $user['agreement']);
         }
 
         return $ret;
@@ -75,19 +76,19 @@ class UserAuthManager {
             return 3;
         }
 
-        $user = UserQuery::UserByName($this->db, $username, true);
+        $user = $this->manager->UserByName($username, true);
 
         if (empty($user)) {
             return 2;
         }
-        $this->_usercache = $user;
+        $user = new UserItem_Auth($user);
 
-        if ($user['emailconfirm'] < 1) {
+        if (!$user->emailconfirm) {
             return 5;
         }
 
-        $passcrypt = UserManager::UserPasswordCrypt($password, $user["salt"]);
-        if ($passcrypt != $user["password"]) {
+        $passcrypt = UserManager::UserPasswordCrypt($password, $user->salt);
+        if ($passcrypt != $user->password) {
             return 2;
         }
 
@@ -97,28 +98,34 @@ class UserAuthManager {
     }
 
     public function LoginMethod($user, $autologin = false) {
-        $session = $this->module->session;
-        $session->Set('userid', $user['userid']);
+        if ($user instanceof UserItem) {
+            $user = new UserItem_Auth($user);
+        }
+
+        $session = $this->manager->GetSessionManager();
+        $session->Set('userid', $user->id);
 
         $guserid = $session->Get('guserid');
-        $session->Set('guserid', $user['userid']);
+        $session->Set('guserid', $user->id);
 
         // зашел тот же человек, но под другой учеткой
-        if ($guserid > 0 && $guserid != $user['userid']) {
-            UserQueryExt::UserDoubleLogAppend($this->db, $guserid, $user['userid'], $_SERVER['REMOTE_ADDR']);
+        if ($guserid > 0 && $guserid != $user->id) {
+            UserQuery_Auth::UserDoubleLogAppend($this->db, $guserid, $user->id, $_SERVER['REMOTE_ADDR']);
         }
         if ($autologin) {
             // установить куки для автологина
-            $privateKey = $this->module->GetSessionPrivateKey();
+            $privateKey = $session->GetSessionPrivateKey();
             $sessionKey = md5(TIMENOW.$privateKey.cmsrand(1, 1000000));
             setcookie($session->cookieName, $sessionKey, TIMENOW + $session->sessionTimeOut, $session->sessionPath);
-            UserQuery::SessionAppend($this->db, $user['userid'], $sessionKey, $privateKey);
+            UserQuery_Session::SessionAppend($this->db, $user->id, $sessionKey, $privateKey);
         }
 
-        // Удалить пользователей не прошедших верификацию email (редкая операция)
-        UserQueryExt::RegistrationActivateClear($this->db);
+        $this->manager->GetRegistrationManager();
 
-        $this->manager->UserDomainUpdate($user['userid']);
+        // Удалить пользователей не прошедших верификацию email (редкая операция)
+        UserQuery_Register::RegistrationActivateClear($this->db);
+
+        $this->manager->UserDomainUpdate($user->id);
     }
 
     public function LogoutToAJAX() {
@@ -129,16 +136,14 @@ class UserAuthManager {
     }
 
     public function Logout() {
-        $session = $this->module->session;
+
+        $session = $this->manager->GetSessionManager();
         $sessionKey = Abricos::CleanGPC('c', $session->cookieName, TYPE_STR);
         setcookie($session->cookieName, '', TIMENOW, $session->sessionPath);
-        UserQuery::SessionRemove($this->db, $sessionKey);
-        $this->module->session->Drop('userid');
-        $this->module->info = array(
-            "userid" => 0,
-            "group" => array(1),
-            "username" => "Guest"
-        );
+        UserQuery_Session::SessionRemove($this->db, $sessionKey);
+        $session->Drop('userid');
+
+        // $this->module->info = array("userid" => 0, "group" => array(1), "username" => "Guest");
     }
 
 

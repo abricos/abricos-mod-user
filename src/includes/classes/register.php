@@ -1,9 +1,11 @@
 <?php
 
+require_once 'register_dbquery.php';
+
 /**
- * Class UserRegistrationManager
+ * Class UserManager_Registration
  */
-class UserRegistrationManager {
+class UserManager_Registration {
 
     /**
      * @var UserManager
