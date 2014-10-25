@@ -7,7 +7,7 @@ require_once 'session_dbquery.php';
  *
  * @package Abricos
  */
-class UserSessionManager {
+class UserManager_Session {
 
     /**
      * Время хранения сесси
@@ -134,7 +134,7 @@ class UserSessionManager {
             $sessionKey = Abricos::CleanGPC('c', $this->cookieName, TYPE_STR);
             if (!empty($sessionKey)) {
                 $privateKey = $this->GetSessionPrivateKey();
-                $sessionDB = UserSessionQuery::Session($db, $this->sessionTimeOut, $sessionKey, $privateKey);
+                $sessionDB = UserQuery_Session::Session($db, $this->sessionTimeOut, $sessionKey, $privateKey);
                 if (!empty($sessionDB)) {
                     $userid = $sessionDB['userid'];
                 }
@@ -153,7 +153,7 @@ class UserSessionManager {
                     $db->readonly = false;
                 }
 
-                UserSessionQuery::UserUpdateLastActive($db, $userid, $_SERVER['REMOTE_ADDR']);
+                UserQuery_Session::UserUpdateLastActive($db, $userid, $_SERVER['REMOTE_ADDR']);
 
                 // TODO: set antibot data
                 // $this->AntibotUserDataUpdate($userid);

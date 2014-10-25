@@ -100,12 +100,12 @@ class UserManager extends Ab_ModuleManager {
     /**
      * Получить менеджер авторизации
      *
-     * @return UserSessionManager
+     * @return UserManager_Session
      */
     public function GetSessionManager() {
         if (empty($this->_sessionManager)) {
             require_once 'classes/session.php';
-            $this->_sessionManager = new UserSessionManager($this);
+            $this->_sessionManager = new UserManager_Session($this);
         }
         return $this->_sessionManager;
     }

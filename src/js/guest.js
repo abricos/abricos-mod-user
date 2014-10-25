@@ -45,6 +45,9 @@ Component.entryPoint = function(NS){
             useExistingWidget: {
                 value: true
             },
+            updateUIFromModel: {
+                value: false
+            },
             model: {
                 value: new NS.Login()
             }
