@@ -21,7 +21,7 @@ class UserQuery {
     public static function UserByName(Ab_Database $db, $username, $orByEmail = false) {
         $sql = "
 			SELECT u.userid as id, u.*
-			FROM ".$db->prefix."user
+			FROM ".$db->prefix."user u
 			WHERE username='".bkstr($username)."'
 				".($orByEmail ? " OR email='".bkstr($username)."'" : "")."
 			LIMIT 1
