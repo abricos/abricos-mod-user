@@ -192,8 +192,8 @@ class UserManager extends Ab_ModuleManager {
         return $user;
     }
 
-    public function UserByName($username, $orByEmail = false) {
-        $row = UserQuery::UserByName($this->db, $username, $orByEmail);
+    public function UserByName($username, $checkEmail = false) {
+        $row = UserQuery::UserByName($this->db, $username, $checkEmail);
 
         if (empty($row)) {
             return null;
@@ -206,6 +206,12 @@ class UserManager extends Ab_ModuleManager {
         return $user;
     }
 
+    public function UserExist($useNameOrEmail, $checkEmail = true) {
+        $user = $this->UserByName($useNameOrEmail, $checkEmail);
+
+        return !empty($user);
+    }
+
 
     public function UserDomainUpdate($userid = 0) {
         // не обновлять, если в конфиге домен не определен
@@ -216,12 +222,8 @@ class UserManager extends Ab_ModuleManager {
             $userid = Abricos::$user->id;
         }
 
-        UserQueryExt::UserDomainUpdate($this->db, $userid, Abricos::$DOMAIN);
+        UserQuery::UserDomainUpdate($this->db, $userid, Abricos::$DOMAIN);
     }
-
-
-
-
 
 
     private $_newGroupId = 0;
@@ -236,10 +238,10 @@ class UserManager extends Ab_ModuleManager {
             case 'grouplist':
                 foreach ($rows->r as $r) {
                     if ($r->f == 'a') {
-                        $this->_newGroupId = UserQueryExt::GroupAppend($db, $r->d->nm);
+                        $this->_newGroupId = UserQuery::GroupAppend($db, $r->d->nm);
                     }
                     if ($r->f == 'u') {
-                        UserQueryExt::GroupUpdate($this->db, $r->d);
+                        UserQuery::GroupUpdate($this->db, $r->d);
                     }
                 }
                 return;
@@ -249,10 +251,10 @@ class UserManager extends Ab_ModuleManager {
                         if (intval($p->groupid) == 0 && intval($this->_newGroupId) > 0) {
                             $p->groupid = $this->_newGroupId;
                         }
-                        UserQueryExt::RoleAppend($db, $p->groupid, $r->d);
+                        UserQuery::RoleAppend($db, $p->groupid, $r->d);
                     }
                     if ($r->f == 'd') {
-                        UserQueryExt::RoleRemove($this->db, $r->d->id);
+                        UserQuery::RoleRemove($this->db, $r->d->id);
                     }
                 }
                 return;
@@ -288,15 +290,15 @@ class UserManager extends Ab_ModuleManager {
 
                 /////// Постраничный список групп //////
                 case 'grouplist':
-                    return UserQueryExt::GroupList($db);
+                    return UserQuery::GroupList($db);
                 case 'groupcount':
-                    return UserQueryExt::GroupCount($db);
+                    return UserQuery::GroupCount($db);
 
                 /////// Роли //////
                 case 'rolelist':
-                    return UserQueryExt::RoleList($db, $p->groupid);
+                    return UserQuery::RoleList($db, $p->groupid);
                 case 'modactionlist':
-                    return UserQueryExt::ModuleActionList($this->db);
+                    return UserQuery::ModuleActionList($this->db);
             }
         }
 
@@ -336,7 +338,7 @@ class UserManager extends Ab_ModuleManager {
         }
 
         $modAntibot = Abricos::GetModule('antibot');
-        return UserQueryExt::UserCount($this->db, $filter, !empty($modAntibot));
+        return UserQuery::UserCount($this->db, $filter, !empty($modAntibot));
     }
 
     public function UserGroupList($page = 1, $limit = 15, $filter = '') {
@@ -345,14 +347,14 @@ class UserManager extends Ab_ModuleManager {
         }
 
         $modAntibot = Abricos::GetModule('antibot');
-        return UserQueryExt::UserGroupList($this->db, $page, $limit, $filter, !empty($modAntibot));
+        return UserQuery::UserGroupList($this->db, $page, $limit, $filter, !empty($modAntibot));
     }
 
     public function UserInfo($userid) {
         if (!$this->IsChangeUserRole($userid)) {
-            $user = UserQueryExt::UserPublicInfo($this->db, $userid, true);
+            $user = UserQuery::UserPublicInfo($this->db, $userid, true);
         } else {
-            $user = UserQueryExt::UserPrivateInfo($this->db, $userid, true);
+            $user = UserQuery::UserPrivateInfo($this->db, $userid, true);
         }
         if (empty($user)) {
             return array('id' => $userid);
@@ -379,7 +381,7 @@ class UserManager extends Ab_ModuleManager {
             if ($err > 0) {
                 return $err;
             }
-            $user = UserQueryExt::UserByName($this->db, $d->unm);
+            $user = UserQuery::UserByName($this->db, $d->unm);
             $d->userid = $user['userid'];
         } else {
 
@@ -405,12 +407,12 @@ class UserManager extends Ab_ModuleManager {
                 $data['email'] = $d->eml;
             }
 
-            UserQueryExt::UserUpdate($this->db, $d->userid, $data);
+            UserQuery::UserUpdate($this->db, $d->userid, $data);
         }
         if (!$this->IsAdminRole()) {
             return;
         }
-        UserQueryExt::UserGroupUpdate($this->db, $d->userid, explode(',', $d->gp));
+        UserQuery::UserGroupUpdate($this->db, $d->userid, explode(',', $d->gp));
         return 0;
     }
 
@@ -445,7 +447,7 @@ class UserManager extends Ab_ModuleManager {
             }
         }
 
-        UserQueryExt::UserUpdate($this->db, $userid, $data);
+        UserQuery::UserUpdate($this->db, $userid, $data);
 
         return 0;
     }
@@ -466,18 +468,18 @@ class UserManager extends Ab_ModuleManager {
      * @return Integer
      */
     public function PasswordRestore($email) {
-        $user = UserQueryExt::UserByEmail($this->db, $email);
+        $user = UserQuery::UserByEmail($this->db, $email);
         if (empty($user)) {
             return 1;
         } // пользователь не найден
 
-        $sendcount = UserQueryExt::PasswordSendCount($this->db, $user['userid']);
+        $sendcount = UserQuery::PasswordSendCount($this->db, $user['userid']);
         if ($sendcount > 0) {
             return 2;
         } // письмо уже отправлено
 
         $hash = md5(microtime());
-        UserQueryExt::PasswordRequestCreate($this->db, $user['userid'], $hash);
+        UserQuery::PasswordRequestCreate($this->db, $user['userid'], $hash);
 
         $host = $_SERVER['HTTP_HOST'] ? $_SERVER['HTTP_HOST'] : $_ENV['HTTP_HOST'];
         $link = "http://".$host."/user/recpwd/".$hash;
@@ -499,7 +501,7 @@ class UserManager extends Ab_ModuleManager {
             return false;
         }
 
-        UserQueryExt::TermsOfUseAgreement($this->db, $this->userid);
+        UserQuery::TermsOfUseAgreement($this->db, $this->userid);
         return true;
     }
 
@@ -507,7 +509,7 @@ class UserManager extends Ab_ModuleManager {
         $ret = new stdClass();
         $ret->error = 0;
 
-        $pwdreq = UserQueryExt::PasswordRequestCheck($this->db, $hash);
+        $pwdreq = UserQuery::PasswordRequestCheck($this->db, $hash);
         if (empty($pwdreq)) {
             $ret->error = 1;
             sleep(1);
@@ -519,7 +521,7 @@ class UserManager extends Ab_ModuleManager {
 
         $newpass = cmsrand(100000, 999999);
         $passcrypt = UserManager::UserPasswordCrypt($newpass, $user['salt']);
-        UserQueryExt::PasswordChange($this->db, $userid, $passcrypt);
+        UserQuery::PasswordChange($this->db, $userid, $passcrypt);
 
         $ph = Brick::$builder->phrase;
         $sitename = $ph->Get('sys', 'site_name');
@@ -544,14 +546,14 @@ class UserManager extends Ab_ModuleManager {
             return null;
         }
 
-        return UserQueryExt::UserConfigList($this->db, $userid, $modname);
+        return UserQuery::UserConfigList($this->db, $userid, $modname);
     }
 
     public function UserConfigValueSave($userid, $modname, $varname, $value) {
         if (!$this->IsChangeUserRole($userid)) {
             return null;
         }
-        UserQueryExt::UserConfigSave($this->db, $userid, $modname, $varname, $value);
+        UserQuery::UserConfigSave($this->db, $userid, $modname, $varname, $value);
     }
 
     /**
@@ -562,7 +564,7 @@ class UserManager extends Ab_ModuleManager {
             return null;
         }
 
-        UserQueryExt::UserConfigAppend($this->db, $userid, $modname, $cfgname, $cfgval);
+        UserQuery::UserConfigAppend($this->db, $userid, $modname, $cfgname, $cfgval);
     }
 
     /**
@@ -573,7 +575,7 @@ class UserManager extends Ab_ModuleManager {
             return null;
         }
 
-        UserQueryExt::UserConfigUpdate($this->db, $userid, $cfgid, $cfgval);
+        UserQuery::UserConfigUpdate($this->db, $userid, $cfgid, $cfgval);
     }
 
     private $_userFields = null;
@@ -582,7 +584,7 @@ class UserManager extends Ab_ModuleManager {
         if (!is_null($this->_userFields)) {
             return $this->_userFields;
         }
-        $rows = UserQueryExt::UserFieldList($this->db);
+        $rows = UserQuery::UserFieldList($this->db);
         $cols = array();
         while (($row = $this->db->fetch_array($rows))) {
             $cols[$row['Field']] = $row;

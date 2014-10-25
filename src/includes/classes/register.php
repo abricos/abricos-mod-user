@@ -1,6 +1,7 @@
 <?php
 
 require_once 'register_dbquery.php';
+require_once 'auth_structure.php';
 
 /**
  * Class UserManager_Registration
@@ -50,11 +51,16 @@ class UserManager_Registration {
         }
         if (!UserManager::UserNameValidate($username)) {
             return 3;
-        } else {
-            $retCode = UserQueryExt::UserExists($this->manager->db, $username, $email);
-            if ($retCode > 0) {
-                return $retCode;
-            }
+        }
+
+        $user = $this->manager->UserByName($email, true);
+        if (!empty($user)) {
+            return 2;
+        }
+
+        $user = $this->manager->UserByName($username, false);
+        if (!empty($user)) {
+            return 1;
         }
 
         return 0;
@@ -107,19 +113,19 @@ class UserManager_Registration {
 
         $salt = $this->SaltGenerate();
 
-        $user = array();
-        $user["username"] = $username;
-        $user["joindate"] = TIMENOW;
-        $user["salt"] = $salt;
-        $user["password"] = UserManager::UserPasswordCrypt($password, $salt);
-        $user["email"] = $email;
+        $ud = array();
+        $ud["username"] = $username;
+        $ud["joindate"] = TIMENOW;
+        $ud["salt"] = $salt;
+        $ud["password"] = UserManager::UserPasswordCrypt($password, $salt);
+        $ud["email"] = $email;
 
         // Добавление пользователя в базу
         if ($this->manager->IsAdminRole()) {
-            $userid = UserQueryExt::UserAppend($this->manager->db, $user, User::UG_REGISTERED);
+            $userid = UserQuery_Register::UserAppend($this->manager->db, $ud, User::UG_REGISTERED);
         } else {
-            $userid = UserQueryExt::UserAppend($this->manager->db, $user, User::UG_GUEST, $_SERVER['REMOTE_ADDR'], true);
-            Abricos::$user->AntibotUserDataUpdate($userid);
+            $userid = UserQuery_Register::UserAppend($this->manager->db, $ud, User::UG_GUEST, $_SERVER['REMOTE_ADDR'], true);
+            UserModule::$instance->AntibotUserDataUpdate($userid);
             $this->manager->UserDomainUpdate($userid);
         }
         $ret = new stdClass();
@@ -129,7 +135,7 @@ class UserManager_Registration {
             return $ret;
         }
 
-        $this->ConfirmEmailSend($user);
+        $this->ConfirmEmailSend($ud);
 
         return $ret;
     }
@@ -137,33 +143,38 @@ class UserManager_Registration {
     /**
      * Отправить письмо активации пользователю
      *
-     * @param $user
+     * @param $userid
      */
-    private function ConfirmEmailSend($user) {
+    private function ConfirmEmailSend($userid) {
+        $user = $this->manager->User($userid);
+        if (empty($user)) {
+            return null;
+        }
+
+        $user = new UserItem_Auth($user);
+        $actinfo = UserQuery_Register::RegistrationActivateInfo($this->manager->db, $userid);
+
         $host = $_SERVER['HTTP_HOST'] ? $_SERVER['HTTP_HOST'] : $_ENV['HTTP_HOST'];
-        $link = "http://".$host."/user/activate/".$user["userid"]."/".$user["activateid"]."/";
+        $link = "http://".$host."/user/activate/".$user->id."/".$actinfo["activateid"]."/";
 
         $brick = Brick::$builder->LoadBrickS('user', 'templates', null, null);
 
         $subject = $brick->param->var['reg_mailconf_subj'];
         $body = nl2br(Brick::ReplaceVarByData($brick->param->var['reg_mailconf'], array(
-            "actcode" => $user["activateid"],
-            "username" => $user['username'],
+            "actcode" => $actinfo["activateid"],
+            "username" => $user->username,
             "link" => $link,
             "sitename" => Brick::$builder->phrase->Get('sys', 'site_name')
         )));
 
-        Abricos::Notify()->SendMail($user["email"], $subject, $body);
+        Abricos::Notify()->SendMail($user->email, $subject, $body);
     }
 
     public function ConfirmEmailSendAgain($userid) {
         if (!$this->manager->IsAdminRole()) {
             return;
         }
-        $user = UserQueryExt::User($this->manager->db, $userid);
-        $actinfo = UserQueryExt::RegistrationActivateInfo($this->manager->db, $userid);
-        $user['activateid'] = $actinfo['activateid'];
-        $this->ConfirmEmailSend($user);
+        $this->ConfirmEmailSend($userid);
     }
 
     public function ActivateToAJAX($d) {
@@ -194,21 +205,24 @@ class UserManager_Registration {
             }
         }
 
-        $user = UserQuery::User($this->db, $userid);
+        $user = $this->manager->User($userid);
         if (empty($user)) {
             return 1;
-        } else if (intval($user['emailconfirm']) === 1) {
+        }
+        $user = new UserItem_Auth($user);
+
+        if ($user->emailconfirm) {
             return 2;
         }
         if ($code === 0) {
             if (!$this->IsAdminRole()) {
                 return 0;
             }
-            $row = UserQueryExt::RegistrationActivateInfo($this->db, $userid);
+            $row = UserQuery_Register::RegistrationActivateInfo($this->db, $userid);
             $code = $row['activateid'];
         }
 
-        $ret = UserQueryExt::RegistrationActivate($this->db, $userid, $code);
+        $ret = UserQuery_Register::RegistrationActivate($this->db, $userid, $code);
 
         if ($ret === 0 && !empty($email) && !empty($password)) {
             $auth = $this->manager->GetAuthManager();
@@ -228,7 +242,6 @@ class UserManager_Registration {
         $brick = Brick::$builder->LoadBrickS('user', 'termsofuse', null, null);
         return $brick->content;
     }
-
 
 }
 
