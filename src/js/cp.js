@@ -10,6 +10,7 @@ Component.requires = {
 };
 Component.entryPoint = function(){
 
+    return;
     if (Brick.Permission.check('user', '50') != 1){
         return;
     }
