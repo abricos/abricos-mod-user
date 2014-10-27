@@ -1,11 +1,11 @@
 <?php
+
 /**
  * @package Abricos
- * @subpackage User 
+ * @subpackage User
  * @license http://www.gnu.org/copyleft/gpl.html GNU/GPL, see LICENSE.php
  * @author Alexander Kuzmin <roosit@abricos.org>
  */
-
 class UserQuery {
 
     public static function UserById(Ab_Database $db, $userid) {
@@ -38,7 +38,7 @@ class UserQuery {
         return $db->query_read($sql);
     }
 
-    public static function GroupList(Ab_Database $db){
+    public static function GroupList(Ab_Database $db) {
         $sql = "
 			SELECT
 				groupid as id,
@@ -49,7 +49,7 @@ class UserQuery {
         return $db->query_read($sql);
     }
 
-    public static function GroupAppend(Ab_Database $db, $name, $key = ''){
+    public static function GroupAppend(Ab_Database $db, $name, $key = '') {
         $sql = "
 			INSERT INTO ".$db->prefix."group (`groupname`, `groupkey`) VALUES (
 				'".bkstr($name)."',
@@ -60,7 +60,7 @@ class UserQuery {
         return $db->insert_id();
     }
 
-    public static function GroupUpdate(Ab_Database $db, $d){
+    public static function GroupUpdate(Ab_Database $db, $d) {
         $sql = "
 			UPDATE ".$db->prefix."group
 			SET groupname = '".bkstr($d->nm)."'
@@ -70,8 +70,8 @@ class UserQuery {
     }
 
 
-    public static function UserRole(Ab_Database $db, $user) {
-        if ($user['userid'] == 0) {
+    public static function UserRole(Ab_Database $db, UserItem $user) {
+        if ($user->id === 0) {
             $sql = "
 				SELECT
 					ma.module as md,
@@ -89,13 +89,14 @@ class UserQuery {
 					ur.status as st
 				FROM ".$db->prefix."userrole ur
 				LEFT JOIN ".$db->prefix."sys_modaction ma ON ur.modactionid = ma.modactionid
-				WHERE ur.userid = ".bkint($user['userid'])." AND ur.usertype = 1
+				WHERE ur.userid = ".bkint($user->id)." AND ur.usertype = 1
 			";
-            $gps = $user['group'];
-            if (count($gps) > 0) {
+            $gps = $user->GetGroupList();
+            if ($gps->Count() > 0) {
                 $arr = array();
-                foreach ($gps as $gp) {
-                    array_push($arr, "gp.groupid = ".$gp);
+                for ($i = 0; $i < $gps->Count(); $i++) {
+                    $group = $gps->GetByIndex($i);
+                    array_push($arr, "gp.groupid = ".$group->id);
                 }
                 $sql .= "
 					UNION
@@ -113,20 +114,20 @@ class UserQuery {
         return $db->query_read($sql);
     }
 
-    public static function PermissionInstall(Ab_Database $db, Ab_UserPermission $permission){
+    public static function PermissionInstall(Ab_Database $db, Ab_UserPermission $permission) {
         $modname = $permission->module->name;
         $actions = array();
         $rows = UserQuery::ModuleActionList($db, $modname);
-        while (($row = $db->fetch_array($rows))){
+        while (($row = $db->fetch_array($rows))) {
 
             $find = false;
-            foreach ($permission->defRoles as $role){
-                if (intval($role->action) == intval($row['act'])){
+            foreach ($permission->defRoles as $role) {
+                if (intval($role->action) == intval($row['act'])) {
                     $find = true;
                     break;
                 }
             }
-            if ($find){
+            if ($find) {
                 $actions[$row['act']] = $row;
             } else {
                 // action был удален, надо его зачистить на в базе
@@ -135,11 +136,13 @@ class UserQuery {
         }
 
         $asql = array();
-        foreach ($permission->defRoles as $role){
-            if (!empty($actions[$role->action])){ continue; }
+        foreach ($permission->defRoles as $role) {
+            if (!empty($actions[$role->action])) {
+                continue;
+            }
             array_push($asql, "('".$modname."', ".$role->action.")");
         }
-        if (!empty($asql)){
+        if (!empty($asql)) {
             $sql = "INSERT IGNORE INTO ".$db->prefix."sys_modaction (`module`, `action`) VALUES ";
             $sql .= implode(",", $asql);
             $db->query_write($sql);
@@ -147,21 +150,25 @@ class UserQuery {
 
         $rows = UserQuery::GroupList($db);
         $groups = array();
-        while (($row = $db->fetch_array($rows))){
-            if (empty($row['k'])){ continue; }
+        while (($row = $db->fetch_array($rows))) {
+            if (empty($row['k'])) {
+                continue;
+            }
             $groups[$row['k']] = $row['id'];
         }
 
         $rows = UserQuery::ModuleActionList($db, $modname);
-        while (($row = $db->fetch_array($rows))){
+        while (($row = $db->fetch_array($rows))) {
 
-            foreach ($permission->defRoles as $role){
-                if (intval($row['act']) != intval($role->action)){ continue; }
+            foreach ($permission->defRoles as $role) {
+                if (intval($row['act']) != intval($role->action)) {
+                    continue;
+                }
                 $groupid = intval($groups[$role->groupkey]);
-                if (empty($groupid)){
+                if (empty($groupid)) {
 
                     $groupname = $permission->module->lang['groups'][$role->groupkey];
-                    if (empty($groupname)){
+                    if (empty($groupname)) {
                         $groupname = $role->groupkey;
                     }
 
@@ -180,7 +187,7 @@ class UserQuery {
         }
     }
 
-    public static function PermissionRemove(Ab_Database $db, Ab_UserPermission $permission){
+    public static function PermissionRemove(Ab_Database $db, Ab_UserPermission $permission) {
         $rows = $db->query_read("
 			SELECT
 				modactionid as id,
@@ -188,7 +195,7 @@ class UserQuery {
 			FROM ".$db->prefix."sys_modaction
 			WHERE module = '".$permission->module->name."'
 		");
-        while (($row = $db->fetch_array($rows))){
+        while (($row = $db->fetch_array($rows))) {
             $sql = "
 				DELETE FROM ".$db->prefix."userrole
 				WHERE modactionid=".bkint($row['id'])."
@@ -207,9 +214,9 @@ class UserQuery {
      *
      * @param Ab_Database $db
      */
-    public static function ModuleActionList(Ab_Database $db, $modname = ''){
+    public static function ModuleActionList(Ab_Database $db, $modname = '') {
         $where = "";
-        if (!empty($modname)){
+        if (!empty($modname)) {
             $where = "WHERE module='".bkstr($modname)."'";
         }
         $sql = "
@@ -224,7 +231,7 @@ class UserQuery {
         return $db->query_read($sql);
     }
 
-    public static function ModuleActionRemove(Ab_Database $db, $modactionid){
+    public static function ModuleActionRemove(Ab_Database $db, $modactionid) {
         $sql = "
 			DELETE FROM ".$db->prefix."userrole
 			WHERE modactionid=".bkint($modactionid)."
@@ -238,7 +245,7 @@ class UserQuery {
         $db->query_write($sql);
     }
 
-    public static function UserFieldList (Ab_Database $db){
+    public static function UserFieldList(Ab_Database $db) {
         $sql = "SHOW COLUMNS FROM ".$db->prefix."user";
         return $db->query_read($sql);
     }
@@ -252,114 +259,120 @@ class UserQuery {
  */
 class UserQuery_old {
 
-	
 
-	public static function UserDomainUpdate(Ab_Database $db, $userid, $domain){
-		$sql = "
+    public static function UserDomainUpdate(Ab_Database $db, $userid, $domain) {
+        $sql = "
 			INSERT IGNORE INTO `".$db->prefix."userdomain` (`userid`, `domain`) VALUES (
 				".bkint($userid).",
 				'".bkstr($domain)."'
 			)
 		";
-		$db->query_write($sql);
-	}
-	
+        $db->query_write($sql);
+    }
 
-	public static function TermsOfUseAgreement(Ab_Database $db, $userid){
-		$sql = "
+
+    public static function TermsOfUseAgreement(Ab_Database $db, $userid) {
+        $sql = "
 			UPDATE ".$db->prefix."user
 			SET agreement=1
 			WHERE userid=".bkint($userid)."
 			LIMIT 1
 		";
-		$db->query_write($sql);
-	}
-	
+        $db->query_write($sql);
+    }
 
 
-	public static function UserUpdate(Ab_Database $db, $userid, $data){
-		$arr = array();
-		foreach ($data as $key => $value){
-			array_push($arr, $key."='".$value."'");
-		}
-		if (empty($arr)){ return; }
-		
-		$sql = "
+    public static function UserUpdate(Ab_Database $db, $userid, $data) {
+        $arr = array();
+        foreach ($data as $key => $value) {
+            array_push($arr, $key."='".$value."'");
+        }
+        if (empty($arr)) {
+            return;
+        }
+
+        $sql = "
 			UPDATE ".$db->prefix."user
 			SET ".implode(',', $arr)." 
 			WHERE userid = ".bkint($userid)."
 			LIMIT 1
 		";
-		$db->query_write($sql);
-	}
-	
-	public static function UserGroupRemoveByKey(Ab_Database $db, $userid, $key){
-		$group = UserQuery::GroupByKey($db, $key, true);
-		if (empty($group)){ return; }
-		UserQuery::UserGroupRemove($db, $userid, $group['id']);
-	}
-	
-	public static function UserGroupRemove(Ab_Database $db, $userid, $groupid){
-		$sql = "
+        $db->query_write($sql);
+    }
+
+    public static function UserGroupRemoveByKey(Ab_Database $db, $userid, $key) {
+        $group = UserQuery::GroupByKey($db, $key, true);
+        if (empty($group)) {
+            return;
+        }
+        UserQuery::UserGroupRemove($db, $userid, $group['id']);
+    }
+
+    public static function UserGroupRemove(Ab_Database $db, $userid, $groupid) {
+        $sql = "
 			DELETE FROM `".$db->prefix."usergroup`
 			WHERE userid=".bkint($userid)." AND groupid=".bkint($groupid)."
 		";
-		$db->query_write($sql);
-	}
-	
-	public static function UserGroupAppendByKey(Ab_Database $db, $userid, $key){
-		$group = UserQuery::GroupByKey($db, $key, true);
-		if (empty($group)){ return; }
-		UserQuery::UserGroupAppend($db, $userid, $group['id']);
-	}
-	
-	public static function UserGroupAppend(Ab_Database $db, $userid, $groupid){
-		$sql = "
+        $db->query_write($sql);
+    }
+
+    public static function UserGroupAppendByKey(Ab_Database $db, $userid, $key) {
+        $group = UserQuery::GroupByKey($db, $key, true);
+        if (empty($group)) {
+            return;
+        }
+        UserQuery::UserGroupAppend($db, $userid, $group['id']);
+    }
+
+    public static function UserGroupAppend(Ab_Database $db, $userid, $groupid) {
+        $sql = "
 			INSERT IGNORE INTO `".$db->prefix."usergroup` (`userid`, `groupid`) VALUES 
 			(".bkint($userid).",".bkint($groupid).")
 		";
-		$db->query_write($sql);
-	}
-	
-	public static function UserGroupUpdate(Ab_Database $db, $userid, $groups){
-		$sql = "
+        $db->query_write($sql);
+    }
+
+    public static function UserGroupUpdate(Ab_Database $db, $userid, $groups) {
+        $sql = "
 			DELETE FROM `".$db->prefix."usergroup`
 			WHERE userid=".bkint($userid)."
 		";
-		$db->query_write($sql);
-		
-		$arr = array();
-		foreach ($groups as $gp){
-			array_push($arr, "(".bkint($userid).",".bkint($gp).")");
-		}
-		if (count($arr) < 1){ return; }
-		
-		$sql = "
+        $db->query_write($sql);
+
+        $arr = array();
+        foreach ($groups as $gp) {
+            array_push($arr, "(".bkint($userid).",".bkint($gp).")");
+        }
+        if (count($arr) < 1) {
+            return;
+        }
+
+        $sql = "
 			INSERT IGNORE INTO `".$db->prefix."usergroup` (`userid`, `groupid`) VALUES 
 			".implode(',', $arr)."
 		";
-		$db->query_write($sql);
-	}
-	
-	private static function BuildListWhere ($filter = '', $notbot = false){
-		$aw = array();
-		if ($notbot){
-			array_push($aw, "antibotdetect=0");
-		}
-		if (!empty($filter)){
-			array_push($aw, "(username LIKE '%".bkstr($filter)."%' OR email LIKE '%".bkstr($filter)."%')");
-		}
-		$where = "";
-		if (count($aw)>0){
-			$where = "WHERE ".implode(" AND ", $aw);
-		}
-		return $where;
-	}
-	
-	public static function UserGroupList(Ab_Database $db, $page, $limit, $filter = '', $notbot = false){
-		$from = (($page-1)*$limit);
+        $db->query_write($sql);
+    }
 
-		$sql = "
+    private static function BuildListWhere($filter = '', $notbot = false) {
+        $aw = array();
+        if ($notbot) {
+            array_push($aw, "antibotdetect=0");
+        }
+        if (!empty($filter)) {
+            array_push($aw, "(username LIKE '%".bkstr($filter)."%' OR email LIKE '%".bkstr($filter)."%')");
+        }
+        $where = "";
+        if (count($aw) > 0) {
+            $where = "WHERE ".implode(" AND ", $aw);
+        }
+        return $where;
+    }
+
+    public static function UserGroupList(Ab_Database $db, $page, $limit, $filter = '', $notbot = false) {
+        $from = (($page - 1) * $limit);
+
+        $sql = "
 			SELECT
 				u.userid as uid, 
 				ug.groupid as gid
@@ -373,13 +386,13 @@ class UserQuery_old {
 			) u
 			LEFT JOIN ".$db->prefix."usergroup ug ON u.userid = ug.userid
 		";
-		return $db->query_read($sql);
-	}
+        return $db->query_read($sql);
+    }
 
-	public static function UserList(Ab_Database $db, $page, $limit, $filter = '', $notbot = false){
-		$from = (($page-1)*$limit);
-		
-		$sql = "
+    public static function UserList(Ab_Database $db, $page, $limit, $filter = '', $notbot = false) {
+        $from = (($page - 1) * $limit);
+
+        $sql = "
 			SELECT 
 				userid as id, 
 				username as unm,
@@ -391,21 +404,21 @@ class UserQuery_old {
 			ORDER BY CASE WHEN lastvisit>joindate THEN lastvisit ELSE joindate END DESC
 			LIMIT ".$from.",".bkint($limit)."
 		";
-		return $db->query_read($sql);
-	}
-	
-	public static function UserCount(Ab_Database $db, $filter = '', $notbot = false){
-		$sql = "
+        return $db->query_read($sql);
+    }
+
+    public static function UserCount(Ab_Database $db, $filter = '', $notbot = false) {
+        $sql = "
 			SELECT COUNT(userid) as cnt
 			FROM ".$db->prefix."user
 			".UserQuery::BuildListWhere($filter, $notbot)."
 			LIMIT 1
 		";
-		return $db->query_read($sql);
-	}
-	
-	public static function UserListAll(Ab_Database $db){
-		$sql = "
+        return $db->query_read($sql);
+    }
+
+    public static function UserListAll(Ab_Database $db) {
+        $sql = "
 			SELECT 
 				userid as id, 
 				username as unm,
@@ -414,40 +427,40 @@ class UserQuery_old {
 				lastvisit as vst
 			FROM ".$db->prefix."user
 		";
-		return $db->query_read($sql); 		
-	}
-	
-	public static function UserOnline(Ab_Database $db){
-		$sql = "
+        return $db->query_read($sql);
+    }
+
+    public static function UserOnline(Ab_Database $db) {
+        $sql = "
 			SELECT count( * ) AS cnt
 			FROM (
 				SELECT idhash
 				FROM ".$db->prefix."session
-				WHERE lastactivity > ".(TIMENOW-60*5)."
+				WHERE lastactivity > ".(TIMENOW - 60 * 5)."
 				GROUP BY idhash
 			)a		
 		";
-		return $db->query_read($sql);
-	}
-	
-	/**
-	 * Кол-во отправленых писем по восстановлению пароля юзеру
-	 */
-	public static function PasswordSendCount(Ab_Database $db, $userid){
-		$row = $db->query_first("
+        return $db->query_read($sql);
+    }
+
+    /**
+     * Кол-во отправленых писем по восстановлению пароля юзеру
+     */
+    public static function PasswordSendCount(Ab_Database $db, $userid) {
+        $row = $db->query_first("
 			SELECT counteml 
 			FROM ".$db->prefix."userpwdreq
 			WHERE userid='".bkint($userid)."'
 			LIMIT 1
 		");
-		if (empty($row)){
-			return 0;
-		}
-		return $row['counteml'];
-	}
-	
-	public static function PasswordRequestCreate(Ab_Database $db, $userid, $hash){
-		$sql = "
+        if (empty($row)) {
+            return 0;
+        }
+        return $row['counteml'];
+    }
+
+    public static function PasswordRequestCreate(Ab_Database $db, $userid, $hash) {
+        $sql = "
 			INSERT ".$db->prefix."userpwdreq (userid, hash, dateline, counteml) VALUES
 			(
 				".bkint($userid).",
@@ -456,52 +469,52 @@ class UserQuery_old {
 				1
 			)
 		";
-		$db->query_write($sql);
-	}
-	
-	public static function PasswordRequestCheck(Ab_Database $db, $hash){
-		$sql = "
+        $db->query_write($sql);
+    }
+
+    public static function PasswordRequestCheck(Ab_Database $db, $hash) {
+        $sql = "
 			SELECT * 
 			FROM ".$db->prefix."userpwdreq
 			WHERE hash = '".bkstr($hash)."'
 			LIMIT 1
 		";
-		return $db->query_first($sql);
-	}
-	
-	public static function PasswordChange(Ab_Database $db, $userid, $newpass){
-		$db->query_write("
+        return $db->query_first($sql);
+    }
+
+    public static function PasswordChange(Ab_Database $db, $userid, $newpass) {
+        $db->query_write("
 			UPDATE ".$db->prefix."user
 			SET password = '".$newpass."'
 			WHERE userid = ".bkint($userid)."
 			LIMIT 1
 		");
-		
-		$db->query_write("
+
+        $db->query_write("
 			DELETE FROM ".$db->prefix."userpwdreq
 			WHERE userid = ".bkint($userid)."
 		");
-	}
-	
-	
-	////////////////////////////////////////////////////////////////////
-	//                       Общедоступные запросы                    //
-	////////////////////////////////////////////////////////////////////
-	
+    }
 
-	////////////////////////////////////////////////////////////////////
-	//                       Административные запросы                 //
-	////////////////////////////////////////////////////////////////////
 
-	/**
-	 * Список ролей (ID роли, ID действия, статус)
-	 * 
-	 * @param Ab_Database $db
-	 * @param integer $groupid если $usertype=0, то роль группы, иначе роль пользователя 
-	 * @param integer $usertype 
-	 */
-	public static function RoleList(Ab_Database $db, $groupid, $usertype = 0){
-		$sql = "
+    ////////////////////////////////////////////////////////////////////
+    //                       Общедоступные запросы                    //
+    ////////////////////////////////////////////////////////////////////
+
+
+    ////////////////////////////////////////////////////////////////////
+    //                       Административные запросы                 //
+    ////////////////////////////////////////////////////////////////////
+
+    /**
+     * Список ролей (ID роли, ID действия, статус)
+     *
+     * @param Ab_Database $db
+     * @param integer $groupid если $usertype=0, то роль группы, иначе роль пользователя
+     * @param integer $usertype
+     */
+    public static function RoleList(Ab_Database $db, $groupid, $usertype = 0) {
+        $sql = "
 			SELECT 
 				roleid as id,
 				modactionid as maid,
@@ -509,11 +522,11 @@ class UserQuery_old {
 			FROM ".$db->prefix."userrole
 			WHERE userid=".bkint($groupid)." AND usertype=".bkint($usertype)."
 		";
-		return $db->query_read($sql);
-	}
-	
-	public static function RoleAppend(Ab_Database $db, $groupid, $d){
-		$sql = "
+        return $db->query_read($sql);
+    }
+
+    public static function RoleAppend(Ab_Database $db, $groupid, $d) {
+        $sql = "
 			INSERT IGNORE INTO ".$db->prefix."userrole 
 			(`modactionid`, `usertype`, `userid`, `status`) VALUES (
 			'".$d->maid."', 
@@ -521,21 +534,20 @@ class UserQuery_old {
 			".$groupid.",
 			".$d->st."
 		)";
-		$db->query_write($sql);
-	}
-	
-	public static function RoleRemove(Ab_Database $db, $roleid){
-		$sql = "
+        $db->query_write($sql);
+    }
+
+    public static function RoleRemove(Ab_Database $db, $roleid) {
+        $sql = "
 			DELETE FROM ".$db->prefix."userrole
 			WHERE roleid=".bkint($roleid)."
 		";
-		$db->query_write($sql);
-	}
-	
+        $db->query_write($sql);
+    }
 
-	
-	public static function GroupByKey(Ab_Database $db, $key, $retarray = false){
-		$sql = "
+
+    public static function GroupByKey(Ab_Database $db, $key, $retarray = false) {
+        $sql = "
 			SELECT 
 				groupid as id, 
 				groupname as nm,
@@ -544,24 +556,21 @@ class UserQuery_old {
 			WHERE groupkey='".bkstr($key)."'
 			LIMIT 1
 		";
-		return $retarray ? $db->query_first($sql) : $db->query_read($sql);
-	}
-	
+        return $retarray ? $db->query_first($sql) : $db->query_read($sql);
+    }
 
-	public static function GroupCount(Ab_Database $db){
-		$sql = "
+
+    public static function GroupCount(Ab_Database $db) {
+        $sql = "
 			SELECT COUNT(groupid) as cnt 
 			FROM ".$db->prefix."group
 			LIMIT 1
 		";
-		return $db->query_read($sql); 
-	}
-	
-
+        return $db->query_read($sql);
+    }
 
 
 }
-
 
 
 ?>

@@ -96,7 +96,7 @@ class UserItem extends AbricosItem {
 
         $perm = array();
 
-        $rows = UserQuery::UserRole($db, $this->_data);
+        $rows = UserQuery::UserRole($db, $this);
         while (($row = $db->fetch_array($rows))) {
             $mod = $row['md'];
             if (!$perm[$mod]) {
