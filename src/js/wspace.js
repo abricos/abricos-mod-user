@@ -36,8 +36,8 @@ Component.entryPoint = function(NS){
     };
     GMIDI = {};
     var DEFPAGE = {
-        'component': 'manager',
-        'wname': 'ManagerWidget',
+        'component': 'userlist',
+        'wname': 'UserListWidget',
         'p1': '', 'p2': '', 'p3': '', 'p4': ''
     };
 
@@ -53,7 +53,8 @@ Component.entryPoint = function(NS){
         },
         buildTData: function(pgInfo){
             return {
-                'urlmanager': NS.URL.manager.view()
+                'urluserlist': NS.URL.user.list(),
+                'urlgrouplist': NS.URL.group.list()
             };
         },
         onLoad: function(pgInfo){
@@ -165,8 +166,8 @@ Component.entryPoint = function(NS){
     NS.API.ws = function(){
         var args = arguments;
         var pgInfo = {
-            'component': args[0] || 'manager',
-            'wname': args[1] || 'ManagerWidget',
+            'component': args[0] || 'userlist',
+            'wname': args[1] || 'UserListWidget',
             'p1': args[2], 'p2': args[3], 'p3': args[4], 'p4': args[5]
         };
         if (L.isNull(activeWSPanel) || activeWSPanel.isDestroy()){

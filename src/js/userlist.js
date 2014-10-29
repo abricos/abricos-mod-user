@@ -19,7 +19,7 @@ Component.entryPoint = function(NS){
     var Y = Brick.YUI,
         COMPONENT = this;
 
-    NS.ManagerWidget = Y.Base.create('managerWidget', NS.AppWidget, [], {
+    NS.UserListWidget = Y.Base.create('managerWidget', NS.AppWidget, [], {
         onInitAppWidget: function(err, appInstance, options){
             this.set('waiting', true);
 
@@ -96,7 +96,9 @@ Component.entryPoint = function(NS){
             }
         }
     });
-    return;
+
+
+    return; // -------------------------- TODO: old functions --------------------------
 
     var Dom = YAHOO.util.Dom,
         E = YAHOO.util.Event,
@@ -148,51 +150,6 @@ Component.entryPoint = function(NS){
             });
         },
 
-        refresh: function(){
-            var prm = this.getParam();
-            DATA.get('userlist', true).clear();
-            DATA.get('usercount', true).clear();
-            DATA.get('usergrouplist', true).getRows(prm).clear();
-
-            UsersWidget.superclass.refresh.call(this);
-        },
-        initTables: function(){
-            UsersWidget.superclass.initTables.call(this);
-            var prm = this.getParam();
-            DATA.get('usergrouplist', true).getRows(prm);
-            DATA.get('grouplist', true).getRows();
-        },
-        renderTableAwait: function(){
-            this._TM.getEl("users.table").innerHTML = this._TM.replace('utable', {'rows': this._T['urowwait']});
-        },
-        renderRow: function(di){
-            var prm = this.getParam();
-            var gRows = DATA.get('grouplist').getRows();
-            var ugRows = DATA.get('usergrouplist', true).getRows(prm).filter({
-                'uid': di['id']
-            });
-            var lst = [];
-            ugRows.foreach(function(row){
-                var rg = gRows.getById(row.cell['gid']);
-                if (L.isNull(rg)){
-                    return;
-                }
-                lst[lst.length] = rg.cell['nm'];
-            });
-
-            return this._TM.replace('urow', {
-                'unm': di['unm'],
-                'eml': di['eml'],
-                'dl': Brick.dateExt.convert(di['dl']),
-                'vst': Brick.dateExt.convert(di['vst']),
-                'ugp': lst.join(','),
-                'id': di['id']
-            });
-        },
-        renderTable: function(lst){
-            var TM = this._TM;
-            TM.getEl("users.table").innerHTML = TM.replace('utable', {'rows': lst});
-        },
         onKeyPress: function(el, e){
             var TM = this._TM, TId = this._TId, tp = TId['users'];
 
@@ -206,41 +163,7 @@ Component.entryPoint = function(NS){
             return false;
         },
 
-        onClick: function(el){
-            var TM = this._TM, TId = this._TId, tp = TId['users'];
 
-            switch (el.id) {
-                case tp['refresh']:
-                    this.refresh();
-                    return true;
-                case tp['badd']:
-                    this.showUserEditor();
-                    return true;
-                case tp['bstopspam']:
-                    this.showStopSpam();
-                    return true;
-                case tp['bfilter']:
-                    this.setCustomFilter();
-                    return true;
-                case tp['bfilterclear']:
-                    this.clearCustomFilter();
-                    return true;
-            }
-
-            var prefix = el.id.replace(/([0-9]+$)/, ''),
-                numid = el.id.replace(prefix, ""),
-                tp = TId['urow'];
-
-            switch (prefix) {
-                case (tp['edit'] + '-'):
-                    this.showUserEditor(numid);
-                    return true;
-                case (tp['antibot'] + '-'):
-                    this.showAntibot(numid);
-                    return true;
-            }
-            return false;
-        },
         clearCustomFilter: function(){
             this._TM.getEl('users.filter').value = '';
             this.setCustomFilter();
@@ -272,43 +195,6 @@ Component.entryPoint = function(NS){
         }
     });
     NS.UsersWidget = UsersWidget;
-
-
-    var setValue = function(el, value){
-        value = value || "";
-        var tag = el.tagName.toLowerCase();
-        if (tag == 'input'){
-            var type = el.type.toLowerCase();
-            if (type == 'checkbox'){
-                switch (value) {
-                    case "0":
-                        break;
-                    default:
-                        el.checked = value ? "checked" : "";
-                        break;
-                }
-                return;
-            }
-        } else if (tag == 'label'){
-            el.innerHTML = value;
-            return;
-        }
-        el.value = value;
-    };
-
-    var getValue = function(el){
-        var tag = el.tagName.toLowerCase();
-        if (tag == 'textarea' || tag == 'select'){
-            return el.value;
-        } else if (tag == 'input'){
-            var type = el.type.toLowerCase();
-            if (type == 'checkbox'){
-                return (el.checked ? 1 : 0);
-            }
-            return el.value;
-        }
-        return null;
-    };
 
     var UserEditorPanel = function(userid, callback){
         this.userid = userid || 0;

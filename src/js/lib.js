@@ -25,9 +25,14 @@ Component.entryPoint = function(NS){
 
     NS.URL = {
         ws: "#app={C#MODNAMEURI}/wspace/ws/",
-        manager: {
-            view: function(){
-                return NS.URL.ws + 'manager/ManagerWidget/'
+        user: {
+            list: function(){
+                return NS.URL.ws + 'userlist/UserListWidget/'
+            }
+        },
+        group: {
+            list: function(){
+                return NS.URL.ws + 'grouplist/GroupListWidget/'
             }
         }
     };
@@ -101,6 +106,8 @@ Component.entryPoint = function(NS){
     AppBase.prototype = {
         initializer: function(){
             this.get('initCallback')(null, this);
+
+            this._cacheAdminGroupList = null;
         },
         onAJAXError: function(err){
             Brick.mod.widget.notice.show(err.msg);
@@ -128,6 +135,7 @@ Component.entryPoint = function(NS){
                 var groupList = new NS.Admin.GroupList({
                     items: d.list
                 });
+                this._cacheAdminGroupList = groupList;
                 ret.admingrouplist = groupList;
             }
 
@@ -188,6 +196,11 @@ Component.entryPoint = function(NS){
             });
         },
         adminGroupList: function(callback, context){
+            if (this._cacheAdminGroupList){
+                return callback.apply(context, [null, {
+                    admingrouplist: this._cacheAdminGroupList
+                }]);
+            }
             this.ajax({
                 'do': 'admingrouplist'
             }, this._defaultAJAXCallback, {
