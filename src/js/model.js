@@ -10,8 +10,7 @@ Component.requires = {
 };
 Component.entryPoint = function(NS){
 
-    var Y = Brick.YUI,
-        SYS = Brick.mod.sys;
+    var Y = Brick.YUI;
 
     NS.Login = Y.Base.create('login', Y.Model, [], {}, {
         ATTRS: {
@@ -60,8 +59,36 @@ Component.entryPoint = function(NS){
             username: {value: ''},
             firstname: {value: ''},
             lastname: {value: ''},
+            avatar: {value: ''}
+        }
+    });
+
+    NS.ListConfig = Y.Base.create('listConfig', Y.Model, [], {}, {
+        ATTRS: {
+            page: {value: 0},
+            filter: {value: ''}
+        }
+    });
+
+    NS.Personal = NS.Personal || {};
+
+    NS.Personal.User = Y.Base.create('user', NS.User, [], {}, {
+        ATTRS: {
             email: {value: ''}
         }
     });
+
+    NS.Admin = NS.Admin || {};
+
+    NS.Admin.User = Y.Base.create('user', NS.User, [], {}, {
+        ATTRS: {
+            email: {value: ''}
+        }
+    });
+
+    NS.Admin.UserList = Y.Base.create('userList', Y.ModelList, [], {
+        model: NS.Admin.User
+    });
+
 
 };

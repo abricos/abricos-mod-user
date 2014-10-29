@@ -4,12 +4,12 @@ require_once 'admin_structure.php';
 require_once 'admin_dbquery.php';
 
 /**
- * Class UserAdminManager
+ * Class UserManager_Admin
  */
-class UserAdminManager {
+class UserManager_Admin {
 
     /**
-     * @var User
+     * @var UserModule
      */
     public $module;
 
@@ -29,26 +29,44 @@ class UserAdminManager {
         $this->db = $manager->db;
     }
 
-    public function IsAdminRole(){
+    public function IsAdminRole() {
         return $this->manager->IsAdminRole();
     }
 
     public function AJAX($d) {
         switch ($d->do) {
-            case "userlist":
-                return $this->UserListToAJAX($d->savedata);
+            case "adminuserlist":
+                return $this->UserListToAJAX($d->adminuserlistconfig);
         }
         return null;
     }
 
+    public function UserListToAJAX($configData) {
+        $config = new UserListConfig($configData);
 
-    public function UserList($page = 1, $limit = 15, $filter = '') {
+        $list = $this->UserList($config);
+
+        if (empty($list)){
+            return 403;
+        }
+
+        $ret = new stdClass();
+        $ret->adminuserlist = $list->ToAJAX();
+        return $ret;
+    }
+
+    /**
+     * @param UserListConfig $config
+     * @return UserList
+     */
+    public function UserList($config) {
         if (!$this->IsAdminRole()) {
             return null;
         }
 
-        $modAntibot = Abricos::GetModule('antibot');
-        return UserQueryExt::UserList($this->db, $page, $limit, $filter, !empty($modAntibot));
+        $list = $this->manager->UserList($config, UserItem_Admin);
+
+        return $list;
     }
 
 

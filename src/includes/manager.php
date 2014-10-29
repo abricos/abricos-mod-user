@@ -65,6 +65,19 @@ class UserManager extends Ab_ModuleManager {
         return $this->userid == $userid || $this->IsAdminRole();
     }
 
+    private $_sessionManager = null;
+
+    /**
+     * @return UserManager_Session
+     */
+    public function GetSessionManager() {
+        if (empty($this->_sessionManager)) {
+            require_once 'classes/session.php';
+            $this->_sessionManager = new UserManager_Session($this);
+        }
+        return $this->_sessionManager;
+    }
+
     private $_registrationManager = null;
 
     /**
@@ -95,21 +108,18 @@ class UserManager extends Ab_ModuleManager {
         return $this->_authManager;
     }
 
-    private $_sessionManager = null;
+    private $_adminManager = null;
 
     /**
-     * Получить менеджер авторизации
-     *
-     * @return UserManager_Session
+     * @return UserManager_Admin
      */
-    public function GetSessionManager() {
-        if (empty($this->_sessionManager)) {
-            require_once 'classes/session.php';
-            $this->_sessionManager = new UserManager_Session($this);
+    public function GetAdminManager() {
+        if (empty($this->_adminManager)) {
+            require_once 'classes/admin.php';
+            $this->_adminManager = new UserManager_Admin($this);
         }
-        return $this->_sessionManager;
+        return $this->_adminManager;
     }
-
 
     public function TreatResult($res) {
         $ret = new stdClass();
@@ -133,30 +143,15 @@ class UserManager extends Ab_ModuleManager {
         }
 
         if (empty($ret)) {
+            $ret = $this->GetAdminManager()->AJAX($d);
+        }
+
+        if (empty($ret)) {
             $ret = new stdClass();
             $ret->err = 500;
         }
 
         return $ret;
-        /*
-
-                switch ($d->do) {
-
-                    // TODO: old functions
-
-                    case "loginext":
-                        return $this->LoginExt($d->username, $d->password, $d->autologin);
-                    case "termsofuseagreement":
-                        return $this->TermsOfUseAgreement();
-                    case "user":
-                        return $this->UserInfo($d->userid);
-                    case "usersave":
-                        return $this->UserUpdate($d);
-                    case "passwordchange":
-                        return $this->UserPasswordChange($d->userid, $d->pass, $d->passold);
-                }
-                return -1;
-                /**/
     }
 
     private $_cacheUser = array();
@@ -165,19 +160,58 @@ class UserManager extends Ab_ModuleManager {
         $this->_cacheUser = array();
     }
 
+    public function CacheUser($userid, $classUserItem = null) {
+        $type = UserItem::TYPE;
+
+        if (!empty($classUserItem)) {
+            $type = $classUserItem::TYPE;
+        }
+
+        return $this->_cacheUser[$type][$userid];
+    }
+
+    public function CacheUserAdd($user, $classUserItem = null) {
+        $type = UserItem::TYPE;
+
+        if (!empty($classUserItem)) {
+            $type = $classUserItem::TYPE;
+        }
+
+        $this->_cacheUser[$type][$user->id] = $user;
+    }
+
+    /**
+     * @param UserListConfig $config
+     * @return UserList
+     */
+    public function UserList($config, $classUserItem = null) {
+        $list = new UserList($config);
+
+        $rows = UserQuery::UserList($this->db, $list->config);
+        while (($row = $this->db->fetch_array($rows))) {
+            $user = new UserItem($row);
+            $this->CacheUserAdd($user);
+
+            if (!empty($classUserItem)) {
+                $user = new $classUserItem($user);
+                $this->CacheUserAdd($user, $classUserItem);
+            }
+            $list->Add($user);
+        }
+        return $list;
+    }
+
     /**
      * @param int $userid
-     * @param bool $cacheClear
+     * @param null $classUserItem
+     *
      * @return null|UserItem
      */
-    public function User($userid = 0, $cacheClear = false) {
-        if ($cacheClear) {
-            $this->CacheUserClear();
-        }
+    public function User($userid = 0, $classUserItem = null) {
         $userid = intval($userid);
-
-        if (!empty($this->_cacheUser[$userid])) {
-            return $this->_cacheUser[$userid];
+        $user = $this->CacheUser($userid, $classUserItem);
+        if (!empty($user)) {
+            return $user;
         }
 
         $row = UserQuery::UserById($this->db, $userid);
@@ -186,8 +220,12 @@ class UserManager extends Ab_ModuleManager {
         }
 
         $user = new UserItem($row);
+        $this->CacheUserAdd($user);
 
-        $this->_cacheUser[$userid] = $user;
+        if (!empty($classUserItem)) {
+            $user = new $classUserItem($user);
+            $this->CacheUserAdd($user, $classUserItem);
+        }
 
         return $user;
     }
@@ -225,6 +263,8 @@ class UserManager extends Ab_ModuleManager {
         UserQuery::UserDomainUpdate($this->db, $userid, Abricos::$DOMAIN);
     }
 
+
+    // TODO: Old Functions
 
     private $_newGroupId = 0;
 
@@ -331,15 +371,6 @@ class UserManager extends Ab_ModuleManager {
     //                      Административные функции                  //
     ////////////////////////////////////////////////////////////////////
 
-
-    public function UserCount($filter = '') {
-        if (!$this->IsAdminRole()) {
-            return null;
-        }
-
-        $modAntibot = Abricos::GetModule('antibot');
-        return UserQuery::UserCount($this->db, $filter, !empty($modAntibot));
-    }
 
     public function UserGroupList($page = 1, $limit = 15, $filter = '') {
         if (!$this->IsAdminRole()) {

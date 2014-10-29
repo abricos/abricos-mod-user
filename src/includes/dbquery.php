@@ -29,6 +29,42 @@ class UserQuery {
         return $db->query_first($sql);
     }
 
+    /**
+     * @param Ab_Database $db
+     * @param UserListConfig $config
+     * @return int3
+     */
+    public static function UserList(Ab_Database $db, $config){
+        $aw = array();
+        if ($config->isAntiBot) {
+            array_push($aw, "antibotdetect=0");
+        }
+        if (!empty($config->filter)) {
+            array_push($aw, "(username LIKE '%".bkstr($config->filter)."%' OR email LIKE '%".bkstr($config->filter)."%')");
+        }
+        $where = "";
+        if (count($aw) > 0) {
+            $where = "WHERE ".implode(" AND ", $aw);
+        }
+        $sql = "
+			SELECT count(u.userid) as cnt
+			FROM ".$db->prefix."user u
+			".$where."
+		";
+        $row = $db->query_first($sql);
+        $config->SetTotal($row['cnt']);
+
+        $sql = "
+			SELECT u.userid as id, u.*
+			FROM ".$db->prefix."user u
+			".$where."
+            ORDER BY CASE WHEN u.lastvisit>u.joindate THEN u.lastvisit ELSE u.joindate END DESC
+            LIMIT ".$config->GetFrom().", ".$config->limit."
+		";
+        return $db->query_read($sql);
+
+    }
+
     public static function UserGroupList(Ab_Database $db, $userid) {
         $sql = "
 			SELECT groupid as id
@@ -389,23 +425,6 @@ class UserQuery_old {
         return $db->query_read($sql);
     }
 
-    public static function UserList(Ab_Database $db, $page, $limit, $filter = '', $notbot = false) {
-        $from = (($page - 1) * $limit);
-
-        $sql = "
-			SELECT 
-				userid as id, 
-				username as unm,
-				email as eml,
-				joindate as dl,
-				lastvisit as vst
-			FROM ".$db->prefix."user
-			".UserQuery::BuildListWhere($filter, $notbot)."
-			ORDER BY CASE WHEN lastvisit>joindate THEN lastvisit ELSE joindate END DESC
-			LIMIT ".$from.",".bkint($limit)."
-		";
-        return $db->query_read($sql);
-    }
 
     public static function UserCount(Ab_Database $db, $filter = '', $notbot = false) {
         $sql = "

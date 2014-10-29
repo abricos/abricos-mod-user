@@ -19,9 +19,29 @@ Component.entryPoint = function(NS){
     var Y = Brick.YUI,
         COMPONENT = this;
 
-    NS.ManagerWidget = Y.Base.create('managerWidget', NS.AppWidget, [
-    ], {
+    NS.ManagerWidget = Y.Base.create('managerWidget', NS.AppWidget, [], {
         onInitAppWidget: function(err, appInstance, options){
+            this.reloadUserList();
+        },
+        reloadUserList: function(){
+            this.set('waiting', true);
+            var listConfig = this.get('listConfig');
+
+            this.get('appInstance').adminUserList(listConfig, function(err, result){
+                this.set('waiting', false);
+                if (!err){
+                    this.set('userList', result.userList);
+                }
+                this.renderUserList();
+
+            }, this);
+        },
+        renderUserList: function(){
+            var userList = this.get('userList');
+            console.log(userList);
+            if (!userList){
+                return;
+            }
 
         }
     }, {
@@ -32,15 +52,15 @@ Component.entryPoint = function(NS){
             templateBlockName: {
                 value: 'users,utable,urow,urowwait'
             },
-            listPage: {
-                value: 1
+            listConfig: {
+                value: new NS.ListConfig()
             },
-            listFilter: {
-                value: ''
+            userList: {
+                value: null
             }
         }
     });
-
+    return;
 
     var Dom = YAHOO.util.Dom,
         E = YAHOO.util.Event,
@@ -60,7 +80,7 @@ Component.entryPoint = function(NS){
 
         var config = {
             tm: TM, DATA: DATA, rowlimit: 10,
-            tables: { 'list': 'userlist', 'count': 'usercount' },
+            tables: {'list': 'userlist', 'count': 'usercount'},
             paginators: ['users.pagtop', 'users.pagbot'],
             filter: {'filter': ''}
         };
@@ -71,8 +91,8 @@ Component.entryPoint = function(NS){
             var upfl = UProfileExist;
             if (upfl){
                 upfl = Brick.mod.bos
-                    && Brick.mod.bos.Workspace
-                    && !L.isNull(Brick.mod.bos.Workspace.instance);
+                && Brick.mod.bos.Workspace
+                && !L.isNull(Brick.mod.bos.Workspace.instance);
             }
 
             var antibot = Brick.componentExists('antibot', 'bot');
@@ -527,7 +547,7 @@ Component.entryPoint = function(NS){
         var config = {
             rowlimit: 10,
             fulldata: true,
-            tables: { 'list': 'grouplist', 'count': 'groupcount' },
+            tables: {'list': 'grouplist', 'count': 'groupcount'},
             tm: TM,
             paginators: ['groups.pagtop', 'groups.pagbot'],
             DATA: DATA
@@ -774,10 +794,10 @@ Component.entryPoint = function(NS){
                 if (el.checked){
                     if (L.isNull(role)){
                         role = roleTable.newRow();
-                        role.update({ 'maid': di['id'] });
+                        role.update({'maid': di['id']});
                         roleRows.add(role);
                     }
-                    role.update({ 'st': 1 });
+                    role.update({'st': 1});
                 } else if (!L.isNull(role)){
                     role.remove();
                 }

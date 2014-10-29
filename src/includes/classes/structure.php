@@ -2,6 +2,8 @@
 
 class UserItem extends AbricosItem {
 
+    const TYPE = 'user';
+
     /**
      * @deprecated
      */
@@ -18,7 +20,7 @@ class UserItem extends AbricosItem {
 
     public $antibotdetect;
 
-    protected  $_data;
+    protected $_data;
 
     public function __construct($d) {
         parent::__construct($d);
@@ -113,8 +115,8 @@ class UserItem extends AbricosItem {
     /**
      * @return UserGroupList
      */
-    public function GetGroupList(){
-        if (!is_null($this->_groupList)){
+    public function GetGroupList() {
+        if (!is_null($this->_groupList)) {
             return $this->_groupList;
         }
         $db = Abricos::$db;
@@ -127,11 +129,36 @@ class UserItem extends AbricosItem {
         $this->_groupList = $list;
         return $list;
     }
-
-
 }
 
 class UserList extends AbricosList {
+    public $classConfig = UserListConfig;
+}
+
+class UserListConfig extends AbricosListConfig {
+
+    public $filter;
+
+    public $isAntiBot = false;
+
+    public function __construct($d = null) {
+        parent::__construct($d);
+        if (is_array($d)){
+            $this->filter = strval($d['filter']);
+        }
+
+        $this->limit = 10;
+
+        $modAntibot = Abricos::GetModule('antibot');
+        $this->isAntiBot = !empty($modAntibot);
+    }
+
+    public function ToAJAX(){
+        $ret = parent::ToAJAX();
+        $ret->filter = $this->filter;
+        return $ret;
+    }
+
 }
 
 class UserGroup extends AbricosItem {

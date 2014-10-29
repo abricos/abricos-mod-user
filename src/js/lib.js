@@ -115,6 +115,7 @@ Component.entryPoint = function(NS){
             if (data.register){
                 ret.register = data.register;
             }
+            console.log(data);
 
             return ret;
         },
@@ -164,10 +165,10 @@ Component.entryPoint = function(NS){
                 arguments: {callback: callback, context: context}
             });
         },
-        activate: function(act, callback, context){
+        adminUserList: function(listConfig, callback, context){
             this.ajax({
-                'do': 'activate',
-                'savedata': act.toJSON()
+                'do': 'adminuserlist',
+                'userlistconfig': listConfig.toJSON()
             }, this._defaultAJAXCallback, {
                 arguments: {callback: callback, context: context}
             });
