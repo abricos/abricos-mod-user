@@ -4,16 +4,11 @@
 
 var Component = new Brick.Component();
 Component.requires = {
-    yui: ['tabview'],
     mod: [
-        {name: 'sys', files: ['data.js', 'form.js', 'container.js', 'widgets.js']},
-        {name: 'user', files: ['guest.js']}
+        {name: 'sys', files: ['form.js']},
+        {name: '{C#MODNAME}', files: ['lib.js']}
     ]
 };
-if (Brick.componentExists('antibot', 'bot')){
-    var rm = Component.requires.mod;
-    rm[rm.length] = {name: 'antibot', files: ['bot.js']};
-}
 Component.entryPoint = function(NS){
 
     var Y = Brick.YUI,
