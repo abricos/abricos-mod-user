@@ -115,7 +115,14 @@ Component.entryPoint = function(NS){
             if (data.register){
                 ret.register = data.register;
             }
-            console.log(data);
+            if (data.adminuserlist){
+                var d = data.adminuserlist;
+                var userList = new NS.Admin.UserList({
+                    listConfig: new NS.UserListConfig(d.config),
+                    items: d.list
+                });
+                ret.adminuserlist = userList;
+            }
 
             return ret;
         },

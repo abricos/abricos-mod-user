@@ -65,8 +65,23 @@ Component.entryPoint = function(NS){
 
     NS.ListConfig = Y.Base.create('listConfig', Y.Model, [], {}, {
         ATTRS: {
-            page: {value: 0},
+            page: {value: 0}
+        }
+    });
+
+    NS.UserListConfig = Y.Base.create('userListConfig', NS.ListConfig, [], {}, {
+        ATTRS: {
             filter: {value: ''}
+        }
+    });
+
+    NS.UserList = Y.Base.create('userList', Y.ModelList, [], {
+        model: NS.User
+    }, {
+        ATTRS: {
+            listConfig: {
+                value: new NS.UserListConfig()
+            }
         }
     });
 
@@ -86,7 +101,7 @@ Component.entryPoint = function(NS){
         }
     });
 
-    NS.Admin.UserList = Y.Base.create('userList', Y.ModelList, [], {
+    NS.Admin.UserList = Y.Base.create('userList', NS.UserList, [], {
         model: NS.Admin.User
     });
 
