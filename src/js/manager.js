@@ -21,24 +21,16 @@ Component.entryPoint = function(NS){
 
     NS.ManagerWidget = Y.Base.create('managerWidget', NS.AppWidget, [], {
         onInitAppWidget: function(err, appInstance, options){
-            this.reloadUserList();
-        },
-        /*
-         buildTData: function(){
-         var upfl = UProfileExist;
-         if (upfl){
-         upfl = Brick.mod.bos
-         && Brick.mod.bos.Workspace
-         && !L.isNull(Brick.mod.bos.Workspace.instance);
-         }
+            this.set('waiting', true);
 
-         var antibot = Brick.componentExists('antibot', 'bot');
-         return {
-         'notuprofile': upfl ? '' : 'notuprofile',
-         'notantibot': antibot ? '' : 'notantibot'
-         };
-         },
-         /**/
+            this.get('appInstance').adminGroupList(function(err, result){
+                this.set('waiting', false);
+                if (!err){
+                    this.set('groupList', result.admingrouplist);
+                }
+                this.reloadUserList();
+            }, this);
+        },
         reloadUserList: function(){
             this.set('waiting', true);
             var listConfig = this.get('listConfig');
@@ -53,18 +45,29 @@ Component.entryPoint = function(NS){
         },
         renderUserList: function(){
             var userList = this.get('userList');
-            if (!userList){
+            var groupList = this.get('groupList');
+            if (!userList || !groupList){
                 return;
             }
             var tp = this.template, lst = "";
 
             userList.each(function(user){
                 var attrs = user.toJSON();
+
+                var aGroup = [];
+                for (var i = 0; i < attrs.groups.length; i++){
+                    var gid = attrs.groups[i];
+                    var group = groupList.getById(gid);
+                    if (!group){
+                        continue;
+                    }
+                    aGroup[aGroup.length] = group.get('title');
+                }
                 lst += tp.replace('row', [
                     {
                         joindate: Brick.dateExt.convert(attrs.joindate),
                         lastvisit: Brick.dateExt.convert(attrs.lastvisit),
-                        groups: ''
+                        groups: aGroup.join(', ')
                     },
                     attrs
                 ]);
@@ -84,6 +87,9 @@ Component.entryPoint = function(NS){
             },
             listConfig: {
                 value: new NS.ListConfig()
+            },
+            groupList: {
+                value: null
             },
             userList: {
                 value: null

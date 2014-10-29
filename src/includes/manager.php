@@ -250,6 +250,20 @@ class UserManager extends Ab_ModuleManager {
         return !empty($user);
     }
 
+    /**
+     * @return UserGroupList
+     */
+    public function GroupList() {
+        $list = new UserGroupList();
+
+        $rows = UserQuery::GroupList($this->db);
+        while (($row = $this->db->fetch_array($rows))) {
+            $group = new UserGroup($row);
+            $list->Add($group);
+        }
+        return $list;
+    }
+
 
     public function UserDomainUpdate($userid = 0) {
         // не обновлять, если в конфиге домен не определен

@@ -16,6 +16,9 @@ class UserItem_Admin extends UserItem {
     public function ToAJAX(){
         $ret = parent::ToAJAX();
         $ret->email = $this->email;
+
+        $ret->groups = $this->GetGroupList();
+
         return $ret;
     }
 

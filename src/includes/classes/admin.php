@@ -37,6 +37,8 @@ class UserManager_Admin {
         switch ($d->do) {
             case "adminuserlist":
                 return $this->UserListToAJAX($d->adminuserlistconfig);
+            case "admingrouplist":
+                return $this->GroupListToAJAX();
         }
         return null;
     }
@@ -46,7 +48,7 @@ class UserManager_Admin {
 
         $list = $this->UserList($config);
 
-        if (empty($list)){
+        if (empty($list)) {
             return 403;
         }
 
@@ -64,11 +66,27 @@ class UserManager_Admin {
             return null;
         }
 
-        $list = $this->manager->UserList($config, UserItem_Admin);
-
-        return $list;
+        return $this->manager->UserList($config, UserItem_Admin);
     }
 
+    public function GroupListToAJAX() {
+        $list = $this->GroupList();
+        if (empty($list)) {
+            return 403;
+        }
+
+        $ret = new stdClass();
+        $ret->admingrouplist = $list->ToAJAX();
+        return $ret;
+    }
+
+    public function GroupList() {
+        if (!$this->IsAdminRole()) {
+            return null;
+        }
+
+        return $this->manager->GroupList();
+    }
 
 }
 

@@ -113,18 +113,18 @@ class UserItem extends AbricosItem {
     protected $_groupList = null;
 
     /**
-     * @return UserGroupList
+     * @return array
      */
     public function GetGroupList() {
         if (!is_null($this->_groupList)) {
             return $this->_groupList;
         }
         $db = Abricos::$db;
-        $list = new UserGroupList();
+        $list = array();
 
         $rows = UserQuery::UserGroupList($db, $this->id);
         while (($row = $db->fetch_array($rows))) {
-            $list->Add(new UserGroup($row));
+            array_push($list, $row['id']);
         }
         $this->_groupList = $list;
         return $list;
@@ -143,7 +143,7 @@ class UserListConfig extends AbricosListConfig {
 
     public function __construct($d = null) {
         parent::__construct($d);
-        if (is_array($d)){
+        if (is_array($d)) {
             $this->filter = strval($d['filter']);
         }
 
@@ -153,7 +153,7 @@ class UserListConfig extends AbricosListConfig {
         $this->isAntiBot = !empty($modAntibot);
     }
 
-    public function ToAJAX(){
+    public function ToAJAX() {
         $ret = parent::ToAJAX();
         $ret->filter = $this->filter;
         return $ret;
@@ -162,6 +162,22 @@ class UserListConfig extends AbricosListConfig {
 }
 
 class UserGroup extends AbricosItem {
+    public $title;
+    public $sysname;
+
+    public function __construct($d) {
+        parent::__construct($d);
+
+        $this->title = strval($d['title']);
+        $this->sysname = strval($d['sysname']);
+    }
+
+    public function ToAJAX() {
+        $ret = parent::ToAJAX();
+        $ret->title = $this->title;
+        $ret->sysname = $this->sysname;
+        return $ret;
+    }
 }
 
 class UserGroupList extends AbricosList {

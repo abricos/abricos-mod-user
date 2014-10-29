@@ -85,6 +85,8 @@ Component.entryPoint = function(NS){
         }
     });
 
+    // --------------- Personal ------------------
+
     NS.Personal = NS.Personal || {};
 
     NS.Personal.User = Y.Base.create('user', NS.User, [], {}, {
@@ -93,17 +95,32 @@ Component.entryPoint = function(NS){
         }
     });
 
+    // --------------- Admin ------------------
+
     NS.Admin = NS.Admin || {};
 
     NS.Admin.User = Y.Base.create('user', NS.User, [], {}, {
         ATTRS: {
-            email: {value: ''}
+            email: {value: ''},
+            groups: {value: []}
         }
     });
 
     NS.Admin.UserList = Y.Base.create('userList', NS.UserList, [], {
         model: NS.Admin.User
     });
+
+    NS.Admin.Group = Y.Base.create('group', Y.Model, [], {}, {
+        ATTRS: {
+            title: {value: ''},
+            sysname: {value: ''}
+        }
+    });
+
+    NS.Admin.GroupList = Y.Base.create('groupList', Y.ModelList, [], {
+        model: NS.Admin.Group
+    });
+
 
 
 };

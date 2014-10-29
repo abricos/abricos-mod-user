@@ -78,12 +78,17 @@ class UserQuery {
         $sql = "
 			SELECT
 				groupid as id,
-				groupname as nm,
-				groupkey as k
+				groupname as title,
+				groupkey as sysname
 			FROM ".$db->prefix."group
+			ORDER BY groupid
 		";
         return $db->query_read($sql);
     }
+
+    // ********************************************************************
+    // TODO: old functions
+    // ********************************************************************
 
     public static function GroupAppend(Ab_Database $db, $name, $key = '') {
         $sql = "
@@ -128,11 +133,10 @@ class UserQuery {
 				WHERE ur.userid = ".bkint($user->id)." AND ur.usertype = 1
 			";
             $gps = $user->GetGroupList();
-            if ($gps->Count() > 0) {
+            if (count($gps) > 0) {
                 $arr = array();
-                for ($i = 0; $i < $gps->Count(); $i++) {
-                    $group = $gps->GetByIndex($i);
-                    array_push($arr, "gp.groupid = ".$group->id);
+                for ($i = 0; $i < count($gps); $i++) {
+                    array_push($arr, "gp.groupid = ".$gps[$i]);
                 }
                 $sql .= "
 					UNION

@@ -123,6 +123,13 @@ Component.entryPoint = function(NS){
                 });
                 ret.adminuserlist = userList;
             }
+            if (data.admingrouplist){
+                var d = data.admingrouplist;
+                var groupList = new NS.Admin.GroupList({
+                    items: d.list
+                });
+                ret.admingrouplist = groupList;
+            }
 
             return ret;
         },
@@ -176,6 +183,13 @@ Component.entryPoint = function(NS){
             this.ajax({
                 'do': 'adminuserlist',
                 'userlistconfig': listConfig.toJSON()
+            }, this._defaultAJAXCallback, {
+                arguments: {callback: callback, context: context}
+            });
+        },
+        adminGroupList: function(callback, context){
+            this.ajax({
+                'do': 'admingrouplist'
             }, this._defaultAJAXCallback, {
                 arguments: {callback: callback, context: context}
             });
