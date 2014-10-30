@@ -367,8 +367,8 @@ class UserManager extends Ab_ModuleManager {
 
     public function Permission() {
         $rows = array();
-        CMSRegistry::$instance->modules->RegisterAllModule();
-        $mods = CMSRegistry::$instance->modules->GetModules();
+        Abricos::$modules->RegisterAllModule();
+        $mods = Abricos::$modules->GetModules();
         foreach ($mods as $modname => $module) {
             if (is_null($module->permission)) {
                 continue;
