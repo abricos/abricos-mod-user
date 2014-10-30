@@ -11,7 +11,7 @@
  * @ignore
  */
 
-$userManager = Brick::$user->GetManager()->GetAuthManager();
+$userManager = UserModule::$instance->GetManager()->GetAuthManager();
 $err = $userManager->Logout();
 header('Location: /');
 
