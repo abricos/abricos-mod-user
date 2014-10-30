@@ -203,6 +203,8 @@ class UserQuery {
             $groups[$row['k']] = $row['id'];
         }
 
+        require_once 'classes/admin_dbquery.php';
+
         $rows = UserQuery::ModuleActionList($db, $modname);
         while (($row = $db->fetch_array($rows))) {
 
@@ -218,13 +220,13 @@ class UserQuery {
                         $groupname = $role->groupkey;
                     }
 
-                    $groupid = UserQuery::GroupAppend($db, $groupname, $role->groupkey);
+                    $groupid = UserQuery_Admin::GroupAppend($db, $groupname, $role->groupkey);
                     $groups[$role->groupkey] = $groupid;
                 }
 
                 $sql = "
 					INSERT IGNORE INTO ".$db->prefix."userrole
-					(`modactionid`, `usertype`, `userid`, `status`) VALUES
+					(modactionid, usertype, userid, status) VALUES
 					('".$row['id']."', 0, ".$groupid.", ".$role->status.")
 				";
                 $db->query_write($sql);
