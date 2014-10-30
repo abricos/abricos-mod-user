@@ -1,6 +1,7 @@
 <?php
 
 class UserQuery_Admin {
+
     public static function GroupAppend(Ab_Database $db, $title, $key = '') {
         $sql = "
 			INSERT INTO ".$db->prefix."group (groupname, groupkey) VALUES (

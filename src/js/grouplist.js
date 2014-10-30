@@ -55,9 +55,16 @@ Component.entryPoint = function(NS){
 
             switch (e.dataClick) {
                 case 'group-edit':
-                    new NS.GroupEditorDialog({groupId: groupId});
+                    this.showGroupEditorDialog(groupId);
                     return true;
             }
+        },
+        showGroupEditorDialog: function(groupId){
+            var dialog = new NS.GroupEditorDialog({groupId: groupId});
+
+            dialog.on('editorSaved', function(){
+                this.reloadGroupList();
+            }, this);
         }
     }, {
         ATTRS: {

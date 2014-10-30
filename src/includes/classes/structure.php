@@ -164,18 +164,21 @@ class UserListConfig extends AbricosListConfig {
 class UserGroup extends AbricosItem {
     public $title;
     public $sysname;
+    public $permission;
 
     public function __construct($d) {
         parent::__construct($d);
 
         $this->title = strval($d['title']);
         $this->sysname = strval($d['sysname']);
+        $this->permission = $d['permission'];
     }
 
     public function ToAJAX() {
         $ret = parent::ToAJAX();
         $ret->title = $this->title;
         $ret->sysname = $this->sysname;
+        $ret->permission = $this->permission;
         return $ret;
     }
 }

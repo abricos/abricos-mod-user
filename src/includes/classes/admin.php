@@ -41,6 +41,11 @@ class UserManager_Admin {
                 return $this->GroupListToAJAX();
             case "groupsave":
                 return $this->GroupSaveToAJAX($d->groupdata);
+            case 'rolelist':
+                return $this->RoleListToAJAX();
+            case 'modactionlist':
+                return $this->ActionList();
+
         }
         return null;
     }

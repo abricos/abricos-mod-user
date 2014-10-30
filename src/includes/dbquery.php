@@ -34,7 +34,7 @@ class UserQuery {
      * @param UserListConfig $config
      * @return int3
      */
-    public static function UserList(Ab_Database $db, $config){
+    public static function UserList(Ab_Database $db, $config) {
         $aw = array();
         if ($config->isAntiBot) {
             array_push($aw, "antibotdetect=0");
@@ -86,9 +86,23 @@ class UserQuery {
         return $db->query_read($sql);
     }
 
+    public static function GroupRoleList(Ab_Database $db) {
+        $sql = "
+			SELECT
+				roleid as id,
+				userid as gid,
+				modactionid as maid,
+				status as st
+			FROM ".$db->prefix."userrole
+			WHERE usertype = 0
+		";
+        return $db->query_read($sql);
+    }
+
+
     public static function UserDomainUpdate(Ab_Database $db, $userid, $domain) {
         $sql = "
-			INSERT IGNORE INTO `".$db->prefix."userdomain` (`userid`, `domain`) VALUES (
+			INSERT IGNORE INTO ".$db->prefix."userdomain (userid, `domain`) VALUES (
 				".bkint($userid).",
 				'".bkstr($domain)."'
 			)
@@ -101,7 +115,6 @@ class UserQuery {
     // ********************************************************************
     // TODO: old functions
     // ********************************************************************
-
 
 
     public static function UserRole(Ab_Database $db, UserItem $user) {
@@ -293,7 +306,6 @@ class UserQuery {
 class UserQuery_old {
 
 
-
     public static function TermsOfUseAgreement(Ab_Database $db, $userid) {
         $sql = "
 			UPDATE ".$db->prefix."user
@@ -412,30 +424,6 @@ class UserQuery_old {
         return $db->query_read($sql);
     }
 
-
-    public static function UserCount(Ab_Database $db, $filter = '', $notbot = false) {
-        $sql = "
-			SELECT COUNT(userid) as cnt
-			FROM ".$db->prefix."user
-			".UserQuery::BuildListWhere($filter, $notbot)."
-			LIMIT 1
-		";
-        return $db->query_read($sql);
-    }
-
-    public static function UserListAll(Ab_Database $db) {
-        $sql = "
-			SELECT 
-				userid as id, 
-				username as unm,
-				email as eml,
-				joindate as dl,
-				lastvisit as vst
-			FROM ".$db->prefix."user
-		";
-        return $db->query_read($sql);
-    }
-
     public static function UserOnline(Ab_Database $db) {
         $sql = "
 			SELECT count( * ) AS cnt
@@ -512,30 +500,12 @@ class UserQuery_old {
     //                       Административные запросы                 //
     ////////////////////////////////////////////////////////////////////
 
-    /**
-     * Список ролей (ID роли, ID действия, статус)
-     *
-     * @param Ab_Database $db
-     * @param integer $groupid если $usertype=0, то роль группы, иначе роль пользователя
-     * @param integer $usertype
-     */
-    public static function RoleList(Ab_Database $db, $groupid, $usertype = 0) {
-        $sql = "
-			SELECT 
-				roleid as id,
-				modactionid as maid,
-				status as st
-			FROM ".$db->prefix."userrole
-			WHERE userid=".bkint($groupid)." AND usertype=".bkint($usertype)."
-		";
-        return $db->query_read($sql);
-    }
 
     public static function RoleAppend(Ab_Database $db, $groupid, $d) {
         $sql = "
-			INSERT IGNORE INTO ".$db->prefix."userrole 
+			INSERT IGNORE INTO ".$db->prefix."userrole
 			(`modactionid`, `usertype`, `userid`, `status`) VALUES (
-			'".$d->maid."', 
+			'".$d->maid."',
 			0,
 			".$groupid.",
 			".$d->st."
@@ -549,30 +519,6 @@ class UserQuery_old {
 			WHERE roleid=".bkint($roleid)."
 		";
         $db->query_write($sql);
-    }
-
-
-    public static function GroupByKey(Ab_Database $db, $key, $retarray = false) {
-        $sql = "
-			SELECT 
-				groupid as id, 
-				groupname as nm,
-				groupkey as k
-			FROM ".$db->prefix."group
-			WHERE groupkey='".bkstr($key)."'
-			LIMIT 1
-		";
-        return $retarray ? $db->query_first($sql) : $db->query_read($sql);
-    }
-
-
-    public static function GroupCount(Ab_Database $db) {
-        $sql = "
-			SELECT COUNT(groupid) as cnt 
-			FROM ".$db->prefix."group
-			LIMIT 1
-		";
-        return $db->query_read($sql);
     }
 
 

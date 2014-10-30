@@ -256,11 +256,47 @@ class UserManager extends Ab_ModuleManager {
     public function GroupList() {
         $list = new UserGroupList();
 
+        $rows = UserQuery::ModuleActionList($this->db);
+        $mods = array();
+        while (($row = $this->db->fetch_array($rows))) {
+
+            $modName = $row['md'];
+            if (!is_array($mods[$modName])) {
+                $mods[$modName] = array();
+            }
+
+            $mods[$modName][$row['id']] = $row;
+        }
+
+
+        $rows = UserQuery::GroupRoleList($this->db);
+        $roles = array();
+        while (($row = $this->db->fetch_array($rows))) {
+            $roles[$row['maid']."-".$row['gid']] = $row;
+        }
+
         $rows = UserQuery::GroupList($this->db);
         while (($row = $this->db->fetch_array($rows))) {
+            $perms = array();
+            foreach ($mods as $modName => $acts) {
+                $perms[$modName] = array();
+
+                foreach ($acts as $actid => $actRow) {
+                    $role = $roles[$actRow['id']."-".$row['id']];
+
+                    $perms[$modName][$actRow['act']] = array(
+                        "st" => !empty($role) ? intval($role['st']) : 0
+                    );
+                }
+            }
+            $row['permission'] = &$perms;
+
             $group = new UserGroup($row);
             $list->Add($group);
+
         }
+
+
         return $list;
     }
 
@@ -289,16 +325,6 @@ class UserManager extends Ab_ModuleManager {
         $p = $rows->p;
         $db = $this->db;
         switch ($name) {
-            case 'grouplist':
-                foreach ($rows->r as $r) {
-                    if ($r->f == 'a') {
-                        $this->_newGroupId = UserQuery::GroupAppend($db, $r->d->nm);
-                    }
-                    if ($r->f == 'u') {
-                        UserQuery::GroupUpdate($this->db, $r->d);
-                    }
-                }
-                return;
             case 'rolelist':
                 foreach ($rows->r as $r) {
                     if ($r->f == 'a') {
@@ -330,31 +356,6 @@ class UserManager extends Ab_ModuleManager {
                 return $this->Permission();
         }
 
-        // Запросы уровня администратора
-        if ($this->IsAdminRole()) {
-            switch ($name) {
-
-                /////// Постраничный список пользователей //////
-                case 'userlist':
-                    return $this->UserList($p->page, $p->limit, $p->filter);
-                case 'usercount':
-                    return $this->UserCount($p->filter);
-                case 'usergrouplist':
-                    return $this->UserGroupList($p->page, $p->limit, $p->filter);
-
-                /////// Постраничный список групп //////
-                case 'grouplist':
-                    return UserQuery::GroupList($db);
-                case 'groupcount':
-                    return UserQuery::GroupCount($db);
-
-                /////// Роли //////
-                case 'rolelist':
-                    return UserQuery::RoleList($db, $p->groupid);
-                case 'modactionlist':
-                    return UserQuery::ModuleActionList($this->db);
-            }
-        }
 
         return null;
     }

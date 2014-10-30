@@ -113,7 +113,8 @@ Component.entryPoint = function(NS){
     NS.Admin.Group = Y.Base.create('group', Y.Model, [], {}, {
         ATTRS: {
             title: {value: ''},
-            sysname: {value: ''}
+            sysname: {value: ''},
+            permission: {value: {}}
         }
     });
 

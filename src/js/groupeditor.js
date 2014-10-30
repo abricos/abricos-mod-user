@@ -57,6 +57,7 @@ Component.entryPoint = function(NS){
             } else {
                 group = groupList.getById(groupId);
             }
+            console.log(group.toJSON());
             this.set('model', group);
         },
         onSubmitFormAction: function(){
@@ -67,7 +68,7 @@ Component.entryPoint = function(NS){
             this.get('appInstance').groupSave(model, function(err, result){
                 this.set('waiting', false);
                 if (!err){
-                    this.fire('editorSaved', result.groupList);
+                    this.fire('editorSaved');
                 }
             }, this);
         },
@@ -120,7 +121,6 @@ Component.entryPoint = function(NS){
                 instance.hide();
             });
             widget.on('editorSaved', function(){
-                console.log(arguments);
                 instance.fire('editorSaved');
                 instance.hide();
             });
