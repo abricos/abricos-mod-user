@@ -107,7 +107,7 @@ Component.entryPoint = function(NS){
         initializer: function(){
             this.get('initCallback')(null, this);
 
-            this._cacheAdminGroupList = null;
+            this._cacheGroupList = null;
         },
         onAJAXError: function(err){
             Brick.mod.widget.notice.show(err.msg);
@@ -122,21 +122,21 @@ Component.entryPoint = function(NS){
             if (data.register){
                 ret.register = data.register;
             }
-            if (data.adminuserlist){
-                var d = data.adminuserlist;
+            if (data.users){
+                var d = data.users;
                 var userList = new NS.Admin.UserList({
                     listConfig: new NS.UserListConfig(d.config),
                     items: d.list
                 });
-                ret.adminuserlist = userList;
+                ret.userList = userList;
             }
-            if (data.admingrouplist){
-                var d = data.admingrouplist;
+            if (data.groups){
+                var d = data.groups;
                 var groupList = new NS.Admin.GroupList({
                     items: d.list
                 });
-                this._cacheAdminGroupList = groupList;
-                ret.admingrouplist = groupList;
+                this._cacheGroupList = groupList;
+                ret.groupList = groupList;
             }
 
             return ret;
@@ -187,27 +187,34 @@ Component.entryPoint = function(NS){
                 arguments: {callback: callback, context: context}
             });
         },
-        adminUserList: function(listConfig, callback, context){
+        userList: function(listConfig, callback, context){
             this.ajax({
-                'do': 'adminuserlist',
+                'do': 'userlist',
                 'userlistconfig': listConfig.toJSON()
             }, this._defaultAJAXCallback, {
                 arguments: {callback: callback, context: context}
             });
         },
-        adminGroupList: function(callback, context){
-            if (this._cacheAdminGroupList){
+        groupList: function(callback, context){
+            if (this._cacheGroupList){
                 return callback.apply(context, [null, {
-                    admingrouplist: this._cacheAdminGroupList
+                    groupList: this._cacheGroupList
                 }]);
             }
             this.ajax({
-                'do': 'admingrouplist'
+                'do': 'grouplist'
+            }, this._defaultAJAXCallback, {
+                arguments: {callback: callback, context: context}
+            });
+        },
+        groupSave: function(model, callback, context){
+            this.ajax({
+                'do': 'groupsave',
+                'groupdata': model.toJSON()
             }, this._defaultAJAXCallback, {
                 arguments: {callback: callback, context: context}
             });
         }
-
     };
     NS.AppBase = AppBase;
 

@@ -35,10 +35,12 @@ class UserManager_Admin {
 
     public function AJAX($d) {
         switch ($d->do) {
-            case "adminuserlist":
-                return $this->UserListToAJAX($d->adminuserlistconfig);
-            case "admingrouplist":
+            case "userlist":
+                return $this->UserListToAJAX($d->userlistconfig);
+            case "grouplist":
                 return $this->GroupListToAJAX();
+            case "groupsave":
+                return $this->GroupSaveToAJAX($d->groupdata);
         }
         return null;
     }
@@ -53,7 +55,7 @@ class UserManager_Admin {
         }
 
         $ret = new stdClass();
-        $ret->adminuserlist = $list->ToAJAX();
+        $ret->users = $list->ToAJAX();
         return $ret;
     }
 
@@ -76,7 +78,7 @@ class UserManager_Admin {
         }
 
         $ret = new stdClass();
-        $ret->admingrouplist = $list->ToAJAX();
+        $ret->groups = $list->ToAJAX();
         return $ret;
     }
 
@@ -86,6 +88,43 @@ class UserManager_Admin {
         }
 
         return $this->manager->GroupList();
+    }
+
+    public function GroupSaveToAJAX($sd) {
+        if (!$this->IsAdminRole()) {
+            return 403;
+        }
+
+        $res = $this->GroupSave($sd);
+        if (empty($res)) {
+            return 500;
+        }
+        $ret = $this->GroupListToAJAX();
+        $ret->groupid = $res->groupid;
+
+        return $ret;
+    }
+
+    public function GroupSave($d) {
+        if (!$this->IsAdminRole()) {
+            return null;
+        }
+
+        $utmf = Abricos::TextParser(true);
+
+        $d->id = intval($d->id);
+        $d->title = $utmf->Parser($d->title);
+
+        if ($d->id === 0) {
+            $d->id = UserQuery_Admin::GroupAppend($this->db, $d->title);
+        } else {
+            UserQuery_Admin::GroupUpdate($this->db, $d);
+        }
+
+        $ret = new stdClass();
+        $ret->groupid = $d->id;
+
+        return $ret;
     }
 
 }

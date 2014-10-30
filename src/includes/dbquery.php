@@ -86,29 +86,22 @@ class UserQuery {
         return $db->query_read($sql);
     }
 
+    public static function UserDomainUpdate(Ab_Database $db, $userid, $domain) {
+        $sql = "
+			INSERT IGNORE INTO `".$db->prefix."userdomain` (`userid`, `domain`) VALUES (
+				".bkint($userid).",
+				'".bkstr($domain)."'
+			)
+		";
+        $db->query_write($sql);
+    }
+
+
+
     // ********************************************************************
     // TODO: old functions
     // ********************************************************************
 
-    public static function GroupAppend(Ab_Database $db, $name, $key = '') {
-        $sql = "
-			INSERT INTO ".$db->prefix."group (`groupname`, `groupkey`) VALUES (
-				'".bkstr($name)."',
-				'".bkstr($key)."'
-			)
-		";
-        $db->query_write($sql);
-        return $db->insert_id();
-    }
-
-    public static function GroupUpdate(Ab_Database $db, $d) {
-        $sql = "
-			UPDATE ".$db->prefix."group
-			SET groupname = '".bkstr($d->nm)."'
-			WHERE groupid = ".bkint($d->id)."
-		";
-        $db->query_write($sql);
-    }
 
 
     public static function UserRole(Ab_Database $db, UserItem $user) {
@@ -299,16 +292,6 @@ class UserQuery {
  */
 class UserQuery_old {
 
-
-    public static function UserDomainUpdate(Ab_Database $db, $userid, $domain) {
-        $sql = "
-			INSERT IGNORE INTO `".$db->prefix."userdomain` (`userid`, `domain`) VALUES (
-				".bkint($userid).",
-				'".bkstr($domain)."'
-			)
-		";
-        $db->query_write($sql);
-    }
 
 
     public static function TermsOfUseAgreement(Ab_Database $db, $userid) {

@@ -18,10 +18,10 @@ Component.entryPoint = function(NS){
         onInitAppWidget: function(err, appInstance, options){
             this.set('waiting', true);
 
-            this.get('appInstance').adminGroupList(function(err, result){
+            this.get('appInstance').groupList(function(err, result){
                 this.set('waiting', false);
                 if (!err){
-                    this.set('groupList', result.admingrouplist);
+                    this.set('groupList', result.groupList);
                 }
                 this.reloadUserList();
             }, this);
@@ -30,10 +30,10 @@ Component.entryPoint = function(NS){
             this.set('waiting', true);
             var listConfig = this.get('listConfig');
 
-            this.get('appInstance').adminUserList(listConfig, function(err, result){
+            this.get('appInstance').userList(listConfig, function(err, result){
                 this.set('waiting', false);
                 if (!err){
-                    this.set('userList', result.adminuserlist);
+                    this.set('userList', result.userList);
                 }
                 this.renderUserList();
             }, this);

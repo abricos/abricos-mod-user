@@ -20,10 +20,10 @@ Component.entryPoint = function(NS){
         reloadGroupList: function(){
             this.set('waiting', true);
 
-            this.get('appInstance').adminGroupList(function(err, result){
+            this.get('appInstance').groupList(function(err, result){
                 this.set('waiting', false);
                 if (!err){
-                    this.set('groupList', result.admingrouplist);
+                    this.set('groupList', result.groupList);
                 }
                 this.renderGroupList();
             }, this);
@@ -55,9 +55,7 @@ Component.entryPoint = function(NS){
 
             switch (e.dataClick) {
                 case 'group-edit':
-                    new NS.GroupEditorDialog({
-                        groupId: groupId
-                    });
+                    new NS.GroupEditorDialog({groupId: groupId});
                     return true;
             }
         }
