@@ -157,6 +157,7 @@ class UserQuery {
 				";
             }
         }
+
         return $db->query_read($sql);
     }
 
@@ -197,10 +198,10 @@ class UserQuery {
         $rows = UserQuery::GroupList($db);
         $groups = array();
         while (($row = $db->fetch_array($rows))) {
-            if (empty($row['k'])) {
+            if (empty($row['sysname'])) {
                 continue;
             }
-            $groups[$row['k']] = $row['id'];
+            $groups[$row['sysname']] = $row['id'];
         }
 
         require_once 'classes/admin_dbquery.php';

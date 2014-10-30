@@ -72,7 +72,7 @@ class UserModule extends Ab_Module {
     }
 
     public function GetContentName() {
-        $adress = $this->registry->adress;
+        $adress = Abricos::$adress;
         $cname = '';
 
         if ($adress->level == 1) { // http://mysite.com/user/
@@ -85,7 +85,7 @@ class UserModule extends Ab_Module {
             $cname = $adress->dir[1];
         }
         if ($cname == '') {
-            $this->registry->SetPageStatus(PAGESTATUS_404);
+            Abricos::SetPageStatus(PAGESTATUS_404);
         }
         return $cname;
     }
