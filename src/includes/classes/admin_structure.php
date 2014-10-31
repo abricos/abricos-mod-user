@@ -2,8 +2,6 @@
 
 class UserItem_Admin extends UserItem {
 
-    const TYPE = 'admin';
-
     public $email;
 
     public function __construct(UserItem $user) {
@@ -20,6 +18,10 @@ class UserItem_Admin extends UserItem {
         $ret->groups = $this->GetGroupList();
 
         return $ret;
+    }
+
+    public function GetType(){
+        return 'admin';
     }
 
 }

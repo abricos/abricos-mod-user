@@ -2,8 +2,6 @@
 
 class UserItem extends AbricosItem {
 
-    const TYPE = 'user';
-
     /**
      * @deprecated
      */
@@ -36,6 +34,10 @@ class UserItem extends AbricosItem {
         $this->agreement = $d['agreement'] > 0;
 
         $this->_data = $d;
+    }
+
+    public function GetType(){
+        return 'user';
     }
 
     public function ToAJAX() {

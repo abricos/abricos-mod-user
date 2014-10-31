@@ -160,24 +160,12 @@ class UserManager extends Ab_ModuleManager {
         $this->_cacheUser = array();
     }
 
-    public function CacheUser($userid, $classUserItem = null) {
-        $type = UserItem::TYPE;
-
-        if (!empty($classUserItem)) {
-            $type = $classUserItem::TYPE;
-        }
-
+    public function CacheUser($userid, $type) {
         return $this->_cacheUser[$type][$userid];
     }
 
-    public function CacheUserAdd($user, $classUserItem = null) {
-        $type = UserItem::TYPE;
-
-        if (!empty($classUserItem)) {
-            $type = $classUserItem::TYPE;
-        }
-
-        $this->_cacheUser[$type][$user->id] = $user;
+    public function CacheUserAdd($user) {
+        $this->_cacheUser[$user->GetType()][$user->id] = $user;
     }
 
     /**
@@ -190,11 +178,11 @@ class UserManager extends Ab_ModuleManager {
         $rows = UserQuery::UserList($this->db, $list->config);
         while (($row = $this->db->fetch_array($rows))) {
             $user = new UserItem($row);
-            $this->CacheUserAdd($user);
+            $this->CacheUserAdd($user, $user->GetType());
 
             if (!empty($classUserItem)) {
                 $user = new $classUserItem($user);
-                $this->CacheUserAdd($user, $classUserItem);
+                $this->CacheUserAdd($user, $user->GetType());
             }
             $list->Add($user);
         }
@@ -209,8 +197,17 @@ class UserManager extends Ab_ModuleManager {
      */
     public function User($userid = 0, $classUserItem = null) {
         $userid = intval($userid);
-        $user = $this->CacheUser($userid, $classUserItem);
+        $user = $this->CacheUser($userid, 'user');
         if (!empty($user)) {
+            if (!empty($classUserItem)){
+                // TODO: hack
+                $user = new $classUserItem($user);
+                $tUser = $this->CacheUser($userid, $user->GetType());
+                if (!empty($tUser)){
+                    return $tUser;
+                }
+            }
+
             return $user;
         }
 
@@ -220,11 +217,11 @@ class UserManager extends Ab_ModuleManager {
         }
 
         $user = new UserItem($row);
-        $this->CacheUserAdd($user);
+        $this->CacheUserAdd($user, $user->GetType());
 
         if (!empty($classUserItem)) {
             $user = new $classUserItem($user);
-            $this->CacheUserAdd($user, $classUserItem);
+            $this->CacheUserAdd($user, $user->GetType());
         }
 
         return $user;
