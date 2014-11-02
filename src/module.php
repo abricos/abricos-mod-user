@@ -75,13 +75,7 @@ class UserModule extends Ab_Module {
         $adress = Abricos::$adress;
         $cname = '';
 
-        if ($adress->level == 1) { // http://mysite.com/user/
-            if (Abricos::$user->id === 0) {
-                $cname = 'index_guest';
-            } else {
-                $cname = 'index';
-            }
-        } else if ($adress->level > 1) {
+        if ($adress->level > 1) {
             $cname = $adress->dir[1];
         }
         if ($cname == '') {
