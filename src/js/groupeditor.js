@@ -57,7 +57,6 @@ Component.entryPoint = function(NS){
             } else {
                 group = groupList.getById(groupId);
             }
-            console.log(group.toJSON());
             this.set('model', group);
         },
         onSubmitFormAction: function(){

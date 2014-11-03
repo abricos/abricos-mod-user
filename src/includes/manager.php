@@ -199,11 +199,11 @@ class UserManager extends Ab_ModuleManager {
         $userid = intval($userid);
         $user = $this->CacheUser($userid, 'user');
         if (!empty($user)) {
-            if (!empty($classUserItem)){
+            if (!empty($classUserItem)) {
                 // TODO: hack
                 $user = new $classUserItem($user);
                 $tUser = $this->CacheUser($userid, $user->GetType());
-                if (!empty($tUser)){
+                if (!empty($tUser)) {
                     return $tUser;
                 }
             }
@@ -374,7 +374,10 @@ class UserManager extends Ab_ModuleManager {
             if (is_null($roles)) {
                 continue;
             }
-            array_push($rows, array("nm" => $modname, "roles" => $roles));
+            array_push($rows, array(
+                    "nm" => $modname,
+                    "roles" => $roles
+                ));
         }
         return $rows;
     }
@@ -532,7 +535,12 @@ class UserManager extends Ab_ModuleManager {
         $brick = Brick::$builder->LoadBrickS('user', 'templates', null, null);
 
         $subject = Brick::ReplaceVarByData($brick->param->var['pwd_mail_subj'], array("sitename" => $sitename));
-        $body = nl2br(Brick::ReplaceVarByData($brick->param->var['pwd_mail'], array("email" => $email, "link" => $link, "username" => $user['username'], "sitename" => $sitename)));
+        $body = nl2br(Brick::ReplaceVarByData($brick->param->var['pwd_mail'], array(
+                    "email" => $email,
+                    "link" => $link,
+                    "username" => $user['username'],
+                    "sitename" => $sitename
+                )));
 
         Abricos::Notify()->SendMail($email, $subject, $body);
 
@@ -705,7 +713,22 @@ class UserManager extends Ab_ModuleManager {
             return null;
         }
         $lng = $this->module->lang;
-        return array(array("name" => "adminka", "title" => $lng['bosmenu']['adminka'], "icon" => "/modules/user/images/cpanel-24.png", "url" => "user/board/showBoardPanel", "parent" => "controlPanel"), array("name" => "user", "title" => $lng['bosmenu']['users'], "icon" => "/modules/user/images/users-24.png", "url" => "user/wspace/ws", "parent" => "controlPanel"));
+        return array(
+            array(
+                "name" => "adminka",
+                "title" => $lng['bosmenu']['adminka'],
+                "icon" => "/modules/user/images/cpanel-24.png",
+                "url" => "user/board/showBoardPanel",
+                "parent" => "controlPanel"
+            ),
+            array(
+                "name" => "user",
+                "title" => $lng['bosmenu']['users'],
+                "icon" => "/modules/user/images/users-24.png",
+                "url" => "user/wspace/ws",
+                "parent" => "controlPanel"
+            )
+        );
     }
 
 
