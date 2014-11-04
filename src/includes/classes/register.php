@@ -164,7 +164,7 @@ class UserManager_Registration {
             "actcode" => $actinfo["activateid"],
             "username" => $user->username,
             "link" => $link,
-            "sitename" => Brick::$builder->phrase->Get('sys', 'site_name')
+            "sitename" => SystemModule::$instance->GetPhrases()->Get('site_name')
         )));
 
         Abricos::Notify()->SendMail($user->email, $subject, $body);

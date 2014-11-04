@@ -23,24 +23,8 @@ class UserManager extends Ab_ModuleManager {
      */
     public $module = null;
 
-    private $_disableRoles = false;
-
     public function __construct(UserModule $module) {
         parent::__construct($module);
-    }
-
-    /**
-     * Отключить проверку всех ролей в текущей сессии пользователя
-     */
-    public function DisableRoles() {
-        $this->_disableRoles = true;
-    }
-
-    /**
-     * Включить проверку всех ролей в текущей сессии пользователя (по умолчанию - включено)
-     */
-    public function EnableRoles() {
-        $this->_disableRoles = false;
     }
 
     /**
@@ -49,9 +33,6 @@ class UserManager extends Ab_ModuleManager {
      * @return boolean
      */
     public function IsAdminRole() {
-        if ($this->_disableRoles) {
-            return true;
-        }
         return $this->IsRoleEnable(UserAction::USER_ADMIN);
     }
 
@@ -530,7 +511,7 @@ class UserManager extends Ab_ModuleManager {
         $host = $_SERVER['HTTP_HOST'] ? $_SERVER['HTTP_HOST'] : $_ENV['HTTP_HOST'];
         $link = "http://".$host."/user/recpwd/".$hash;
 
-        $sitename = Brick::$builder->phrase->Get('sys', 'site_name');
+        $sitename = SystemModule::$instance->GetPhrases()->Get('site_name');
 
         $brick = Brick::$builder->LoadBrickS('user', 'templates', null, null);
 
@@ -574,8 +555,7 @@ class UserManager extends Ab_ModuleManager {
         $passcrypt = UserManager::UserPasswordCrypt($newpass, $user['salt']);
         UserQuery::PasswordChange($this->db, $userid, $passcrypt);
 
-        $ph = Brick::$builder->phrase;
-        $sitename = $ph->Get('sys', 'site_name');
+        $sitename = SystemModule::$instance->GetPhrases()->Get('site_name');
 
         $brick = Brick::$builder->LoadBrickS('user', 'templates', null, null);
 

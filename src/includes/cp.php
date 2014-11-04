@@ -20,7 +20,7 @@ if (Abricos::$user->id == 0) {
     return;
 }
 Abricos::GetModule('sys')->GetManager();
-if (Ab_CoreSystemManager::$instance->IsAdminRole()) {
+if (SystemManager::$instance->IsAdminRole()) {
     Brick::$modules->RegisterAllModule();
 }
 
