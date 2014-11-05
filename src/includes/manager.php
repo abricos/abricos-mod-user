@@ -19,7 +19,7 @@ class UserManager extends Ab_ModuleManager {
     /**
      * Модуль
      *
-     * @var User
+     * @var UserModule
      */
     public $module = null;
 
@@ -345,8 +345,7 @@ class UserManager extends Ab_ModuleManager {
 
     public function Permission() {
         $rows = array();
-        Abricos::$modules->RegisterAllModule();
-        $mods = Abricos::$modules->GetModules();
+        $mods = Abricos::$modules->RegisterAllModule();
         foreach ($mods as $modname => $module) {
             if (is_null($module->permission)) {
                 continue;
@@ -692,7 +691,7 @@ class UserManager extends Ab_ModuleManager {
         if (!$this->IsAdminRole()) {
             return null;
         }
-        $lng = $this->module->lang;
+        $lng = $this->module->GetI18n();
         return array(
             array(
                 "name" => "adminka",
