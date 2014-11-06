@@ -262,9 +262,7 @@ class UserManager extends Ab_ModuleManager {
                 foreach ($acts as $actid => $actRow) {
                     $role = $roles[$actRow['id']."-".$row['id']];
 
-                    $perms[$modName][$actRow['act']] = array(
-                        "st" => !empty($role) ? intval($role['st']) : 0
-                    );
+                    $perms[$modName][$actRow['act']] = !empty($role) ? intval($role['st']) : 0;
                 }
             }
             $row['permission'] = &$perms;
@@ -355,9 +353,9 @@ class UserManager extends Ab_ModuleManager {
                 continue;
             }
             array_push($rows, array(
-                    "nm" => $modname,
-                    "roles" => $roles
-                ));
+                "nm" => $modname,
+                "roles" => $roles
+            ));
         }
         return $rows;
     }
@@ -516,11 +514,11 @@ class UserManager extends Ab_ModuleManager {
 
         $subject = Brick::ReplaceVarByData($brick->param->var['pwd_mail_subj'], array("sitename" => $sitename));
         $body = nl2br(Brick::ReplaceVarByData($brick->param->var['pwd_mail'], array(
-                    "email" => $email,
-                    "link" => $link,
-                    "username" => $user['username'],
-                    "sitename" => $sitename
-                )));
+            "email" => $email,
+            "link" => $link,
+            "username" => $user['username'],
+            "sitename" => $sitename
+        )));
 
         Abricos::Notify()->SendMail($email, $subject, $body);
 

@@ -6,7 +6,7 @@ var Component = new Brick.Component();
 Component.requires = {
     mod: [
         {name: 'sys', files: ['panel.js', 'form.js', 'widgets.js']},
-        {name: '{C#MODNAME}', files: ['lib.js']}
+        {name: '{C#MODNAME}', files: ['permlist.js', 'lib.js']}
     ]
 };
 Component.entryPoint = function(NS){
@@ -26,6 +26,11 @@ Component.entryPoint = function(NS){
             this.publish('editorSaved', {
                 defaultFn: this._defEditorSaved
             });
+            this.publish('renderEditor', {
+                defaultFn: this._defRenderEditor
+            });
+        },
+        _defRenderEditor: function(){
         },
         buildTData: function(){
             var groupId = this.get('groupId') | 0;
@@ -58,6 +63,14 @@ Component.entryPoint = function(NS){
                 group = groupList.getById(groupId);
             }
             this.set('model', group);
+
+            var instance = this;
+
+            var listWidget = new NS.PermissionListWidget({
+                boundingBox: this.template.gel('permlist'),
+                permissionList: group.get('permission')
+            });
+            this.fire('renderEditor');
         },
         onSubmitFormAction: function(){
             this.set('waiting', true);
@@ -113,7 +126,8 @@ Component.entryPoint = function(NS){
             var widget = new NS.GroupEditorWidget({
                 boundingBox: tp.gel('widget'),
                 groupId: this.get('groupId'),
-                groupList: this.get('groupList')
+                groupList: this.get('groupList'),
+                render: false
             });
             var instance = this;
             widget.on('editorCancel', function(){
@@ -123,6 +137,10 @@ Component.entryPoint = function(NS){
                 instance.fire('editorSaved');
                 instance.hide();
             });
+            widget.on('renderEditor', function(){
+                instance.centered();
+            });
+            widget.render();
         },
         _defEditorSaved: function(){
         }
@@ -141,7 +159,7 @@ Component.entryPoint = function(NS){
                 value: null
             },
             width: {
-                value: 400
+                value: 600
             }
         }
     });
