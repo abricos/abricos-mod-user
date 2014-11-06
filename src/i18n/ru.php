@@ -1,5 +1,6 @@
 <?php
 return array(
+    "title" => "Пользователи",
     "bosmenu" => array(
         "adminka" => "Админка",
         "users" => "Пользователи"
