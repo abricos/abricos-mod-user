@@ -64,9 +64,7 @@ Component.entryPoint = function(NS){
             }
             this.set('model', group);
 
-            var instance = this;
-
-            var listWidget = new NS.PermissionListWidget({
+            this.listWidget = new NS.PermissionListWidget({
                 boundingBox: this.template.gel('permlist'),
                 permissionList: group.get('permission')
             });
@@ -74,6 +72,8 @@ Component.entryPoint = function(NS){
         },
         onSubmitFormAction: function(){
             this.set('waiting', true);
+
+            this.listWidget.fillPermissionList();
 
             var model = this.get('model');
 
@@ -111,7 +111,6 @@ Component.entryPoint = function(NS){
             }
         }
     });
-
 
     NS.GroupEditorDialog = Y.Base.create('groupEditorDialog', SYS.Dialog, [], {
         initializer: function(){
