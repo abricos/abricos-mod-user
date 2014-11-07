@@ -162,9 +162,9 @@ class UserQuery {
     }
 
     public static function PermissionInstall(Ab_Database $db, Ab_UserPermission $permission) {
-        $modname = $permission->module->name;
+        $modName = $permission->module->name;
         $actions = array();
-        $rows = UserQuery::ModuleActionList($db, $modname);
+        $rows = UserQuery::ModuleActionList($db, $modName);
         while (($row = $db->fetch_array($rows))) {
 
             $find = false;
@@ -187,7 +187,7 @@ class UserQuery {
             if (!empty($actions[$role->action])) {
                 continue;
             }
-            array_push($asql, "('".$modname."', ".$role->action.")");
+            array_push($asql, "('".$modName."', ".$role->action.")");
         }
         if (!empty($asql)) {
             $sql = "INSERT IGNORE INTO ".$db->prefix."sys_modaction (`module`, `action`) VALUES ";
@@ -206,7 +206,7 @@ class UserQuery {
 
         require_once 'classes/admin_dbquery.php';
 
-        $rows = UserQuery::ModuleActionList($db, $modname);
+        $rows = UserQuery::ModuleActionList($db, $modName);
         while (($row = $db->fetch_array($rows))) {
 
             foreach ($permission->defRoles as $role) {
@@ -264,10 +264,10 @@ class UserQuery {
      *
      * @param Ab_Database $db
      */
-    public static function ModuleActionList(Ab_Database $db, $modname = '') {
+    public static function ModuleActionList(Ab_Database $db, $modName = '') {
         $where = "";
-        if (!empty($modname)) {
-            $where = "WHERE module='".bkstr($modname)."'";
+        if (!empty($modName)) {
+            $where = "WHERE module='".bkstr($modName)."'";
         }
         $sql = "
 			SELECT
@@ -393,22 +393,7 @@ class UserQuery_old {
         $db->query_write($sql);
     }
 
-    private static function BuildListWhere($filter = '', $notbot = false) {
-        $aw = array();
-        if ($notbot) {
-            array_push($aw, "antibotdetect=0");
-        }
-        if (!empty($filter)) {
-            array_push($aw, "(username LIKE '%".bkstr($filter)."%' OR email LIKE '%".bkstr($filter)."%')");
-        }
-        $where = "";
-        if (count($aw) > 0) {
-            $where = "WHERE ".implode(" AND ", $aw);
-        }
-        return $where;
-    }
-
-    public static function UserGroupList(Ab_Database $db, $page, $limit, $filter = '', $notbot = false) {
+      public static function UserGroupList(Ab_Database $db, $page, $limit, $filter = '', $notbot = false) {
         $from = (($page - 1) * $limit);
 
         $sql = "
@@ -493,16 +478,6 @@ class UserQuery_old {
 			WHERE userid = ".bkint($userid)."
 		");
     }
-
-
-    ////////////////////////////////////////////////////////////////////
-    //                       Общедоступные запросы                    //
-    ////////////////////////////////////////////////////////////////////
-
-
-    ////////////////////////////////////////////////////////////////////
-    //                       Административные запросы                 //
-    ////////////////////////////////////////////////////////////////////
 
 
     public static function RoleAppend(Ab_Database $db, $groupid, $d) {

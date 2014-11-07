@@ -12,35 +12,43 @@ Component.entryPoint = function(NS){
 
     var Y = Brick.YUI;
 
+    NS.User = Y.Base.create('user', Y.Model, [], {}, {
+        ATTRS: {
+            username: {value: ''},
+            firstname: {value: ''},
+            lastname: {value: ''},
+            avatar: {value: ''}
+        }
+    });
+
+    NS.UserCurrent = Y.Base.create('userCurrent', NS.User, [], {
+        isRoleEnable: function(mName, action){
+            var perms = this.get('permission');
+            if (!perms[mName]){
+                return false;
+            }
+
+            return perms[mName][action] | 0 === 1;
+        }
+    }, {
+        ATTRS: {
+            permission: {value: []}
+        }
+    });
+
     NS.Login = Y.Base.create('login', Y.Model, [], {}, {
         ATTRS: {
-            /**
-             * User Name or Email
-             */
-            username: {
-                value: ''
-            },
-            password: {
-                value: ''
-            },
-            autologin: {
-                value: ''
-            }
+            username: {value: ''},
+            password: {value: ''},
+            autologin: {value: ''}
         }
-
     });
 
     NS.RegisterData = Y.Base.create('registerData', Y.Model, [], {}, {
         ATTRS: {
-            username: {
-                value: ''
-            },
-            password: {
-                value: ''
-            },
-            email: {
-                value: ''
-            }
+            username: {value: ''},
+            password: {value: ''},
+            email: {value: ''}
         }
     });
 
@@ -50,16 +58,6 @@ Component.entryPoint = function(NS){
             code: {value: 0},
             email: {value: ''},
             password: {value: ''}
-        }
-    });
-
-    NS.User = Y.Base.create('user', Y.Model, [], {}, {
-        ATTRS: {
-            userid: {value: 0},
-            username: {value: ''},
-            firstname: {value: ''},
-            lastname: {value: ''},
-            avatar: {value: ''}
         }
     });
 
@@ -85,15 +83,6 @@ Component.entryPoint = function(NS){
         }
     });
 
-    // --------------- Personal ------------------
-
-    NS.Personal = NS.Personal || {};
-
-    NS.Personal.User = Y.Base.create('user', NS.User, [], {}, {
-        ATTRS: {
-            email: {value: ''}
-        }
-    });
 
     // --------------- Admin ------------------
 
@@ -121,7 +110,6 @@ Component.entryPoint = function(NS){
     NS.Admin.GroupList = Y.Base.create('groupList', Y.ModelList, [], {
         model: NS.Admin.Group
     });
-
 
 
 };

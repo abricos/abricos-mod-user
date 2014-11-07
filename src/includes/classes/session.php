@@ -1,6 +1,7 @@
 <?php
 
 require_once 'session_dbquery.php';
+require_once 'session_structure.php';
 
 /**
  * Класс работы с сессиями
@@ -44,7 +45,6 @@ class UserManager_Session {
     public $manager;
 
     public function __construct(UserManager $manager) {
-
         $this->manager = $manager;
 
         $cfg = &Abricos::$config['session'];
@@ -80,6 +80,15 @@ class UserManager_Session {
 
         $this->key = session_id();
     }
+
+    public function AJAX($d) {
+        switch ($d->do) {
+            case "userCurrent":
+                return $this->UserCurrentToAJAX();
+        }
+        return null;
+    }
+
 
     public function GetSessionPrivateKey() {
         return md5($_SERVER['REMOTE_ADDR']);
@@ -172,6 +181,14 @@ class UserManager_Session {
 
         return $user;
     }
+
+    public function UserCurrentToAJAX(){
+        $ret = new stdClass();
+        $user = new UserItem_Session(Abricos::$user);
+        $ret->userCurrent = $user->ToAJAX();
+        return $ret;
+    }
+
 }
 
 ?>

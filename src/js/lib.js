@@ -108,6 +108,7 @@ Component.entryPoint = function(NS){
             this.get('initCallback')(null, this);
 
             this._cacheGroupList = null;
+            this._cacheUserCurrent = null;
         },
         onAJAXError: function(err){
             Brick.mod.widget.notice.show(err.msg);
@@ -115,6 +116,12 @@ Component.entryPoint = function(NS){
         _treatAJAXResult: function(data){
             data = data || {};
             var ret = {};
+
+            if (data.userCurrent){
+                var userCurrent = new NS.UserCurrent(data.userCurrent);
+                this._cacheUserCurrent = userCurrent;
+                ret.userCurrent = userCurrent;
+            }
 
             if (data.termsofuse){
                 ret.termsofuse = data.termsofuse;
@@ -145,6 +152,17 @@ Component.entryPoint = function(NS){
             var tRes = this._treatAJAXResult(res.data);
 
             details.callback.apply(details.context, [err, tRes]);
+        },
+
+        userCurrent: function(callback, context){
+            if (this._cacheUserCurrent){
+                return callback.apply(context, [null, {
+                    userCurrent: this._cacheUserCurrent
+                }]);
+            }
+            this.ajax({'do': 'userCurrent'}, this._defaultAJAXCallback, {
+                arguments: {callback: callback, context: context}
+            });
         },
 
         login: function(login, callback, context){

@@ -36,7 +36,7 @@ class UserItem extends AbricosItem {
         $this->_data = $d;
     }
 
-    public function GetType(){
+    public function GetType() {
         return 'user';
     }
 
@@ -70,8 +70,6 @@ class UserItem extends AbricosItem {
         return $this->_isSuperAdmin;
     }
 
-    protected $_permission = null;
-
     public function GetActionRole($module, $action) {
         if ($module instanceof Ab_Module) {
             $module = $module->name;
@@ -81,19 +79,23 @@ class UserItem extends AbricosItem {
             return 1;
         }
 
-        if (is_null($this->_permission)) {
-            $this->_permission = $this->LoadPermission();
-        }
+        $perm = $this->GetPermission();
 
-        if (isset($this->_permission[$module][$action])) {
-            return $this->_permission[$module][$action];
+        if (isset($perm[$module][$action])) {
+            return $perm[$module][$action];
         }
         return -1;
     }
 
-    protected function LoadPermission() {
+    protected $_permission = null;
+
+    protected function GetPermission() {
+        if (!is_null($this->_permission)) {
+            return $this->_permission;
+        }
+
         if ($this->antibotdetect) { // У бота нет ролей
-            return array();
+            return $this->_permission = array();
         }
 
         $db = Abricos::$db;
@@ -109,7 +111,7 @@ class UserItem extends AbricosItem {
             $perm[$mod][$row['act']] = $row['st'];
         }
 
-        return $perm;
+        return $this->_permission = $perm;
     }
 
     protected $_groupList = null;
@@ -128,8 +130,7 @@ class UserItem extends AbricosItem {
         while (($row = $db->fetch_array($rows))) {
             array_push($list, $row['id']);
         }
-        $this->_groupList = $list;
-        return $list;
+        return $this->_groupList = $list;
     }
 }
 
