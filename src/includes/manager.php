@@ -102,6 +102,19 @@ class UserManager extends Ab_ModuleManager {
         return $this->_adminManager;
     }
 
+    private $_personalManager = null;
+
+    /**
+     * @return UserManager_Personal
+     */
+    public function GetPersonalManager() {
+        if (empty($this->_personalManager)) {
+            require_once 'classes/personal.php';
+            $this->_personalManager = new UserManager_Personal($this);
+        }
+        return $this->_personalManager;
+    }
+
     public function TreatResult($res) {
         $ret = new stdClass();
         $ret->err = 0;
@@ -118,6 +131,10 @@ class UserManager extends Ab_ModuleManager {
 
     public function AJAX($d) {
         $ret = $this->GetSessionManager()->AJAX($d);
+
+        if (empty($ret)) {
+            $ret = $this->GetPersonalManager()->AJAX($d);
+        }
 
         if (empty($ret)) {
             $ret = $this->GetAuthManager()->AJAX($d);
@@ -223,37 +240,7 @@ class UserManager extends Ab_ModuleManager {
         UserQuery::UserDomainUpdate($this->db, $userid, Abricos::$DOMAIN);
     }
 
-    public function DSGetData($name, $rows) {
-        switch ($name) {
-            case 'permission':
-                return $this->Permission();
-        }
-        return null;
-    }
 
-
-    ////////////////////////////////////////////////////////////////////
-    //                       Общедоступные запросы                    //
-    ////////////////////////////////////////////////////////////////////
-
-    public function Permission() {
-        $rows = array();
-        $mods = Abricos::$modules->RegisterAllModule();
-        foreach ($mods as $modname => $module) {
-            if (is_null($module->permission)) {
-                continue;
-            }
-            $roles = $module->permission->GetRoles();
-            if (is_null($roles)) {
-                continue;
-            }
-            array_push($rows, array(
-                "nm" => $modname,
-                "roles" => $roles
-            ));
-        }
-        return $rows;
-    }
 
     ////////////////////////////////////////////////////////////////////
     //                      Административные функции                  //
@@ -462,43 +449,6 @@ class UserManager extends Ab_ModuleManager {
         Abricos::Notify()->SendMail($user['email'], $subject, $message);
 
         return $ret;
-    }
-
-    public function UserConfigList($userid, $modname) {
-        if (!$this->IsChangeUserRole($userid)) {
-            return null;
-        }
-
-        return UserQuery::UserConfigList($this->db, $userid, $modname);
-    }
-
-    public function UserConfigValueSave($userid, $modname, $varname, $value) {
-        if (!$this->IsChangeUserRole($userid)) {
-            return null;
-        }
-        UserQuery::UserConfigSave($this->db, $userid, $modname, $varname, $value);
-    }
-
-    /**
-     * @deprecated
-     */
-    public function UserConfigAppend($userid, $modname, $cfgname, $cfgval) {
-        if (!$this->IsChangeUserRole($userid)) {
-            return null;
-        }
-
-        UserQuery::UserConfigAppend($this->db, $userid, $modname, $cfgname, $cfgval);
-    }
-
-    /**
-     * @deprecated
-     */
-    public function UserConfigUpdate($userid, $cfgid, $cfgval) {
-        if (!$this->IsChangeUserRole($userid)) {
-            return null;
-        }
-
-        UserQuery::UserConfigUpdate($this->db, $userid, $cfgid, $cfgval);
     }
 
     private $_userFields = null;

@@ -8,7 +8,7 @@ Component.requires = {
     yahoo: ['connection','container','json','cookie'],
 	mod:[
          {name: 'sys', files: ['container.js']},
-         {name: 'user', files: ['permission.js']}
+         {name: 'user', files: ['lib.js']}
 	]
 };
 Component.entryPoint = function(NS){
@@ -86,10 +86,9 @@ Component.entryPoint = function(NS){
 					E.stopEvent(e);
 				}
 			});
-			Brick.Permission.load(function(){
+            NS.roles.load(function(){
 				__self.initMenu();
 			});
-
 		},
 		
 		initMenu: function(){

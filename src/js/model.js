@@ -83,6 +83,15 @@ Component.entryPoint = function(NS){
         }
     });
 
+    NS.UserOption = Y.Base.create('userOption', Y.Model, [], {}, {
+        ATTRS: {
+            value: {value: ''}
+        }
+    });
+
+    NS.UserOptionList = Y.Base.create('userOptionList', NS.UserList, [], {
+        model: NS.UserOption
+    });
 
     // --------------- Admin ------------------
 

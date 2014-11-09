@@ -105,10 +105,11 @@ Component.entryPoint = function(NS){
     };
     AppBase.prototype = {
         initializer: function(){
-            this.get('initCallback')(null, this);
-
             this._cacheGroupList = null;
             this._cacheUserCurrent = null;
+            this._cacheUserOptionList = {};
+
+            this.get('initCallback')(null, this);
         },
         onAJAXError: function(err){
             Brick.mod.widget.notice.show(err.msg);
@@ -122,7 +123,11 @@ Component.entryPoint = function(NS){
                 this._cacheUserCurrent = userCurrent;
                 ret.userCurrent = userCurrent;
             }
-
+            if (data.userOptionList){
+                var userOptionList = new NS.UserOptionList(data.userOptionList);
+                this._cacheUserOptionList[data.module] = userOptionList;
+                ret.userOptionList = userOptionList;
+            }
             if (data.termsofuse){
                 ret.termsofuse = data.termsofuse;
             }
@@ -161,6 +166,20 @@ Component.entryPoint = function(NS){
                 }]);
             }
             this.ajax({'do': 'userCurrent'}, this._defaultAJAXCallback, {
+                arguments: {callback: callback, context: context}
+            });
+        },
+
+        userOptionList: function(modName, callback, context){
+            if (this._cacheUserOptionList[modName]){
+                return callback.apply(context, [null, {
+                    userOptionList: this._cacheUserOptionList[modName]
+                }]);
+            }
+            this.ajax({
+                'do': 'userOptionList',
+                'module': modName
+            }, this._defaultAJAXCallback, {
                 arguments: {callback: callback, context: context}
             });
         },

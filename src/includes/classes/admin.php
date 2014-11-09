@@ -68,11 +68,11 @@ class UserManager_Admin {
         $rows = UserQuery::UserList($this->db, $list->config);
         while (($row = $this->db->fetch_array($rows))) {
             $user = new UserItem($row);
-            $this->CacheUserAdd($user, $user->GetType());
+            $this->manager->CacheUserAdd($user, $user->GetType());
 
             if (!empty($classUserItem)) {
                 $user = new $classUserItem($user);
-                $this->CacheUserAdd($user, $user->GetType());
+                $this->manager->CacheUserAdd($user, $user->GetType());
             }
             $list->Add($user);
         }
