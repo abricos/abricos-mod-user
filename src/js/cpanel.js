@@ -8,7 +8,7 @@ Component.requires = {
     yahoo: ['connection','container','json','cookie'],
 	mod:[
          {name: 'sys', files: ['container.js']},
-         {name: 'user', files: ['lib.js']}
+         {name: '{C#MODNAME}', files: ['lib.js']}
 	]
 };
 Component.entryPoint = function(NS){

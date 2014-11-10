@@ -14,6 +14,11 @@ Component.requires = {
 };
 Component.entryPoint = function(NS){
 
+    NS.roles = new Brick.AppRoles('{C#MODNAME}', {
+        isAdmin: 50,
+        isRegistration: 10
+    });
+
     var Y = Brick.YUI,
 
         COMPONENT = this,
