@@ -159,10 +159,10 @@ Component.entryPoint = function(NS){
             return ret;
         },
         _defaultAJAXCallback: function(err, res, details){
+            res = res || {};
             var tRes = this._treatAJAXResult(res.data);
 
             details.callback.apply(details.context, [err, tRes]);
-
         },
 
         userCurrent: function(callback, context){

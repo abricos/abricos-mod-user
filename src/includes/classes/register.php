@@ -1,5 +1,6 @@
 <?php
 
+require_once 'admin_dbquery.php';
 require_once 'register_dbquery.php';
 require_once 'auth_structure.php';
 
@@ -86,6 +87,7 @@ class UserManager_Registration {
         if (is_integer($result)) {
             $ret->err = $result;
         } else {
+            $ret->register = new stdClass();
             $ret->register->userid = $result->userid;
         }
 
@@ -94,10 +96,11 @@ class UserManager_Registration {
 
     /**
      * Регистриция пользователя. В случае неудачи вернуть код ошибки:
-     * 1 - пользователь с таким логином уже зарегистрирован,
+     * 1 - пользователь с таким логином уже зарегистрирован
      * 2 - пользователь с таким email уже зарегистрирован
-     * 3 - ошибка в имени пользователя,
-     * 4 - ошибка в emial
+     * 3 - ошибка в имени пользователя
+     * 4 - ошибка в e-mail
+     * 5 - пароль слабый или пустой
      *
      * @param String $username
      * @param String $password
@@ -106,6 +109,10 @@ class UserManager_Registration {
      * @return Integer|Object
      */
     public function Register($username, $password, $email, $sendEMail = true, $checkEMail = true) {
+        $username = trim($username);
+        $password = trim($password);
+        $email = trim($email);
+
         $retCode = $this->RegistrationValidate($username, $email, $checkEMail);
         if ($retCode > 0) {
             return $retCode;
@@ -122,9 +129,12 @@ class UserManager_Registration {
 
         // Добавление пользователя в базу
         if ($this->manager->IsAdminRole()) {
-            $userid = UserQuery_Register::UserAppend($this->manager->db, $ud, UserModule::UG_REGISTERED);
+            $userid = UserQuery_Admin::UserAppend($this->manager->db, $ud, UserModule::UG_REGISTERED);
         } else {
-            $userid = UserQuery_Register::UserAppend($this->manager->db, $ud, UserModule::UG_GUEST, $_SERVER['REMOTE_ADDR'], true);
+            if (strlen($password) < 4){// TODO: реализовать проверку на более стойкий пароль
+                return 5;
+            }
+            $userid = UserQuery_Admin::UserAppend($this->manager->db, $ud, UserModule::UG_GUEST, $_SERVER['REMOTE_ADDR'], true);
             UserModule::$instance->AntibotUserDataUpdate($userid);
             $this->manager->UserDomainUpdate($userid);
         }
@@ -135,7 +145,7 @@ class UserManager_Registration {
             return $ret;
         }
 
-        $this->ConfirmEmailSend($ud);
+        $this->ConfirmEmailSend($userid);
 
         return $ret;
     }

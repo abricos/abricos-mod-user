@@ -363,35 +363,7 @@ class UserQuery_old {
         UserQuery::UserGroupAppend($db, $userid, $group['id']);
     }
 
-    public static function UserGroupAppend(Ab_Database $db, $userid, $groupid) {
-        $sql = "
-			INSERT IGNORE INTO `".$db->prefix."usergroup` (`userid`, `groupid`) VALUES 
-			(".bkint($userid).",".bkint($groupid).")
-		";
-        $db->query_write($sql);
-    }
 
-    public static function UserGroupUpdate(Ab_Database $db, $userid, $groups) {
-        $sql = "
-			DELETE FROM `".$db->prefix."usergroup`
-			WHERE userid=".bkint($userid)."
-		";
-        $db->query_write($sql);
-
-        $arr = array();
-        foreach ($groups as $gp) {
-            array_push($arr, "(".bkint($userid).",".bkint($gp).")");
-        }
-        if (count($arr) < 1) {
-            return;
-        }
-
-        $sql = "
-			INSERT IGNORE INTO `".$db->prefix."usergroup` (`userid`, `groupid`) VALUES 
-			".implode(',', $arr)."
-		";
-        $db->query_write($sql);
-    }
 
       public static function UserGroupList(Ab_Database $db, $page, $limit, $filter = '', $notbot = false) {
         $from = (($page - 1) * $limit);

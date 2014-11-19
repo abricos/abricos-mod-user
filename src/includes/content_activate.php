@@ -1,11 +1,11 @@
 <?php
 /**
  * Активация пользователя
- * 
+ *
  * URL по типу http://mysite.com/user/activate/{userid}/{activeid}, где:
  * {userid} - идентификатор пользователя;
  * {activeid} - идентификатор активации.
- * 
+ *
  * @version $Id$
  * @package Abricos
  * @subpackage User
@@ -16,25 +16,25 @@
  */
 
 $brick = Brick::$builder->brick;
+$v = &$brick->param->var;
 $adress = Abricos::$adress;
 $p_userid = bkint($adress->dir[2]);
-$p_actid =  bkint($adress->dir[3]);
+$p_actid = bkint($adress->dir[3]);
 
-$regManager = Abricos::$user->GetManager()->GetRegistrationManager();
-
+$man = UserModule::$instance->GetManager();
+$regManager = $man->GetRegistrationManager();
 $error = $regManager->Activate($p_userid, $p_actid);
 
-if ($error > 0){
-	$brick->param->var['result'] = Brick::ReplaceVarByData($brick->param->var['err'], array(
-		"err" => $brick->param->var['err'.$error]
-	)); 
-}else{
-    $user = UserQuery::User(Brick::$db, $p_userid);
+if ($error > 0) {
+    $v['result'] = Brick::ReplaceVarByData($v['err'], array(
+        "err" => $v['err'.$error]
+    ));
+} else {
+    $user = $man->User($p_userid);
 
-    $brick->param->var['result'] = Brick::ReplaceVarByData($brick->param->var['ok'], array(
-		"unm" => $user['username']
-	));
+    $v['result'] = Brick::ReplaceVarByData($v['ok'], array(
+        "unm" => $user->username
+    ));
 }
-
 
 ?>
