@@ -12,7 +12,7 @@ class UserQuery_Register {
      * @param boolean $agreement True-согласен с пользовательским соглашением
      * @param boolean $isVirtual True-виртуальный пользователь
      */
-    public static function UserAppend(Ab_Database $db, &$user, $groupid = User::UG_GUEST, $ip='', $agreement = false, $isVirtual = false){
+    public static function UserAppend(Ab_Database $db, &$user, $groupid = UserModule::UG_GUEST, $ip='', $agreement = false, $isVirtual = false){
 
         $db->query_write("
 			INSERT INTO `".$db->prefix."user`
@@ -21,7 +21,7 @@ class UserQuery_Register {
 				'".bkstr($user['username'])."',
 				'".bkstr($user['password'])."',
 				'".bkstr($user['email'])."',
-				".($groupid == User::UG_GUEST ? 0 : 1).",
+				".($groupid == UserModule::UG_GUEST ? 0 : 1).",
 				'".bkstr($user['joindate'])."',
 				'".bkstr($user['salt'])."',
 				'".bkstr($ip)."',
@@ -30,9 +30,10 @@ class UserQuery_Register {
 		)");
         $userid = $db->insert_id();
 
+
         UserQueryExt::UserGroupUpdate($db, $userid, array($groupid));
 
-        if ($groupid != User::UG_GUEST){ return $userid; }
+        if ($groupid != UserModule::UG_GUEST){ return $userid; }
 
         $usernew = UserQuery::User($db, $userid);
 
@@ -96,7 +97,7 @@ class UserQuery_Register {
 			LIMIT 1
 		";
         $db->query_write($sql);
-        UserQueryExt::UserGroupUpdate($db, $userid, array(User::UG_REGISTERED));
+        UserQueryExt::UserGroupUpdate($db, $userid, array(UserModule::UG_REGISTERED));
 
         $db->query_write("
 			DELETE FROM ".$db->prefix."useractivate

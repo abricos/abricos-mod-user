@@ -122,9 +122,9 @@ class UserManager_Registration {
 
         // Добавление пользователя в базу
         if ($this->manager->IsAdminRole()) {
-            $userid = UserQuery_Register::UserAppend($this->manager->db, $ud, User::UG_REGISTERED);
+            $userid = UserQuery_Register::UserAppend($this->manager->db, $ud, UserModule::UG_REGISTERED);
         } else {
-            $userid = UserQuery_Register::UserAppend($this->manager->db, $ud, User::UG_GUEST, $_SERVER['REMOTE_ADDR'], true);
+            $userid = UserQuery_Register::UserAppend($this->manager->db, $ud, UserModule::UG_GUEST, $_SERVER['REMOTE_ADDR'], true);
             UserModule::$instance->AntibotUserDataUpdate($userid);
             $this->manager->UserDomainUpdate($userid);
         }

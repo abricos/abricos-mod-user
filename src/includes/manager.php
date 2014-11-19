@@ -89,6 +89,19 @@ class UserManager extends Ab_ModuleManager {
         return $this->_authManager;
     }
 
+    private $_passwordManager = null;
+
+    /**
+     * @return UserManager_Password
+     */
+    public function GetPasswordManager() {
+        if (empty($this->_passwordManager)) {
+            require_once 'classes/password.php';
+            $this->_passwordManager = new UserManager_Password($this);
+        }
+        return $this->_passwordManager;
+    }
+
     private $_adminManager = null;
 
     /**
@@ -142,6 +155,10 @@ class UserManager extends Ab_ModuleManager {
 
         if (empty($ret)) {
             $ret = $this->GetRegistrationManager()->AJAX($d);
+        }
+
+        if (empty($ret)) {
+            $ret = $this->GetPasswordManager()->AJAX($d);
         }
 
         if (empty($ret)) {
@@ -208,7 +225,7 @@ class UserManager extends Ab_ModuleManager {
         return $user;
     }
 
-    public function UserByName($username, $checkEmail = false) {
+    public function UserByName($username, $checkEmail = false, $classUserItem = null) {
         $row = UserQuery::UserByName($this->db, $username, $checkEmail);
 
         if (empty($row)) {
@@ -216,8 +233,12 @@ class UserManager extends Ab_ModuleManager {
         }
 
         $user = new UserItem($row);
+        $this->CacheUserAdd($user, $user->GetType());
 
-        $this->_cacheUser[$user->id] = $user;
+        if (!empty($classUserItem)) {
+            $user = new $classUserItem($user);
+            $this->CacheUserAdd($user, $user->GetType());
+        }
 
         return $user;
     }
@@ -364,48 +385,7 @@ class UserManager extends Ab_ModuleManager {
     ////////////////////////////////////////////////////////////////////
 
 
-    /**
-     * Запросить систему восстановить пароль и вернуть номер ошибки:
-     * 0 - нет ошибки,
-     * 1 - пользователь не найден,
-     * 2 - письмо подверждения восстановить пароль уже отправлено
-     *
-     * @param string $email E-mail пользователя
-     * @return Integer
-     */
-    public function PasswordRestore($email) {
-        $user = UserQuery::UserByEmail($this->db, $email);
-        if (empty($user)) {
-            return 1;
-        } // пользователь не найден
 
-        $sendcount = UserQuery::PasswordSendCount($this->db, $user['userid']);
-        if ($sendcount > 0) {
-            return 2;
-        } // письмо уже отправлено
-
-        $hash = md5(microtime());
-        UserQuery::PasswordRequestCreate($this->db, $user['userid'], $hash);
-
-        $host = $_SERVER['HTTP_HOST'] ? $_SERVER['HTTP_HOST'] : $_ENV['HTTP_HOST'];
-        $link = "http://".$host."/user/recpwd/".$hash;
-
-        $sitename = SystemModule::$instance->GetPhrases()->Get('site_name');
-
-        $brick = Brick::$builder->LoadBrickS('user', 'templates', null, null);
-
-        $subject = Brick::ReplaceVarByData($brick->param->var['pwd_mail_subj'], array("sitename" => $sitename));
-        $body = nl2br(Brick::ReplaceVarByData($brick->param->var['pwd_mail'], array(
-            "email" => $email,
-            "link" => $link,
-            "username" => $user['username'],
-            "sitename" => $sitename
-        )));
-
-        Abricos::Notify()->SendMail($email, $subject, $body);
-
-        return 0;
-    }
 
     public function TermsOfUseAgreement() {
         if ($this->userid == 0) {

@@ -189,4 +189,41 @@ Component.entryPoint = function(NS){
             }
         }
     });
+
+    NS.PasswordRecoveryFormWidget = Y.Base.create('passwordRecoveryFormWidget', NS.AppWidget, [
+        SYS.Form,
+        SYS.FormAction
+    ], {
+        onSubmitFormAction: function(){
+            this.set('waiting', true);
+            var model = this.get('model');
+
+            NS.appInstance.passwordRecovery(model, function(err, result){
+                this.set('waiting', false);
+                if (err){
+                    return;
+                }
+                /*
+                new NS.RegisterActivateDialog({
+                    userId: result.register.userid,
+                    userEMail: model.get('email'),
+                    userPassword: model.get('password')
+                });
+                /**/
+
+            }, this);
+        }
+    }, {
+        ATTRS: {
+            component: {
+                value: COMPONENT
+            },
+            useExistingWidget: {
+                value: true
+            },
+            model: {
+                value: new NS.PasswordRecovery()
+            }
+        }
+    });
 };

@@ -162,6 +162,7 @@ Component.entryPoint = function(NS){
             var tRes = this._treatAJAXResult(res.data);
 
             details.callback.apply(details.context, [err, tRes]);
+
         },
 
         userCurrent: function(callback, context){
@@ -217,6 +218,14 @@ Component.entryPoint = function(NS){
             var instance = this;
             instance.ajax({
                 'do': 'termsofuse'
+            }, this._defaultAJAXCallback, {
+                arguments: {callback: callback, context: context}
+            });
+        },
+        passwordRecovery: function(passRec, callback, context){
+            this.ajax({
+                'do': 'passwordRecovery',
+                'savedata': passRec.toJSON()
             }, this._defaultAJAXCallback, {
                 arguments: {callback: callback, context: context}
             });

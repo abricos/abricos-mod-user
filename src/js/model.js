@@ -61,6 +61,12 @@ Component.entryPoint = function(NS){
         }
     });
 
+    NS.PasswordRecovery = Y.Base.create('passwordRecovery', Y.Model, [], {}, {
+        ATTRS: {
+            email: {value: ''}
+        }
+    });
+
     NS.ListConfig = Y.Base.create('listConfig', Y.Model, [], {}, {
         ATTRS: {
             page: {value: 0}
