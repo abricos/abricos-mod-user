@@ -213,7 +213,7 @@ class UserQuery {
                 if (intval($row['act']) != intval($role->action)) {
                     continue;
                 }
-                $groupid = intval($groups[$role->groupkey]);
+                $groupid = isset($groups[$role->groupkey]) ? intval($groups[$role->groupkey]) : 0;
                 if (empty($groupid)) {
                     $i18n = $permission->module->GetI18n();
 

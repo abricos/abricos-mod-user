@@ -16,12 +16,22 @@ class UserItem extends AbricosItem {
     public $joindate;
     public $lastvisit;
 
-    public $antibotdetect;
+    public $antibotdetect = false;
 
     protected $_data;
 
     public function __construct($d) {
         parent::__construct($d);
+
+        $d = array_merge(array(
+            'username' => '',
+            'firstname' => '',
+            'lastname' => '',
+            'joindate' => '',
+            'lastvisit' => TIMENOW,
+            'antibotdetect' => false,
+            'agreement' => 0
+        ), $d);
 
         $this->username = strval($d['username']);
         $this->firstname = strval($d['firstname']);
@@ -30,7 +40,9 @@ class UserItem extends AbricosItem {
         $this->joindate = intval($d['joindate']);
         $this->lastvisit = intval($d['lastvisit']);
 
-        $this->antibotdetect = $d['antibotdetect'] > 0;
+        if (array_key_exists('antibotdetect', $d)){
+            $this->antibotdetect = $d['antibotdetect'] > 0;
+        }
         $this->agreement = $d['agreement'] > 0;
 
         $this->_data = $d;
@@ -105,7 +117,7 @@ class UserItem extends AbricosItem {
         $rows = UserQuery::UserRole($db, $this);
         while (($row = $db->fetch_array($rows))) {
             $mod = $row['md'];
-            if (!$perm[$mod]) {
+            if (!isset($perm[$mod])) {
                 $perm[$mod] = array();
             }
             $perm[$mod][$row['act']] = $row['st'];
@@ -135,7 +147,7 @@ class UserItem extends AbricosItem {
 }
 
 class UserList extends AbricosList {
-    public $classConfig = UserListConfig;
+    public $classConfig = 'UserListConfig';
 }
 
 class UserListConfig extends AbricosListConfig {

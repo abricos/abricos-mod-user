@@ -180,6 +180,12 @@ class UserManager extends Ab_ModuleManager {
     }
 
     public function CacheUser($userid, $type) {
+        if (!array_key_exists($type, $this->_cacheUser)) {
+            $this->_cacheUser[$type] = array();
+        }
+        if (!array_key_exists($userid, $this->_cacheUser[$type])) {
+            return null;
+        }
         return $this->_cacheUser[$type][$userid];
     }
 
@@ -385,8 +391,6 @@ class UserManager extends Ab_ModuleManager {
     ////////////////////////////////////////////////////////////////////
 
 
-
-
     public function TermsOfUseAgreement() {
         if ($this->userid == 0) {
             return false;
@@ -395,7 +399,6 @@ class UserManager extends Ab_ModuleManager {
         UserQuery::TermsOfUseAgreement($this->db, $this->userid);
         return true;
     }
-
 
 
     private $_userFields = null;
@@ -419,6 +422,9 @@ class UserManager extends Ab_ModuleManager {
 
     public function UserField($fieldName) {
         $fields = $this->UserFieldList();
+        if (!isset($fields[$fieldName])){
+            return '';
+        }
         return $fields[$fieldName];
     }
 
