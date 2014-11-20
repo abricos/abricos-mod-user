@@ -173,9 +173,9 @@ class UserManager_Session {
 
         if (empty($user)) {
             $user = new UserItem(array(
-                id => 0,
-                username => "Guest",
-                agreement => 1
+                'id' => 0,
+                'username' => "Guest",
+                'agreement' => 1
             ));
         }
 
