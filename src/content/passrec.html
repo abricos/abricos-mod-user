@@ -1,0 +1,54 @@
+<!--[*]
+[tt=main][/tt]
+
+[script]content_passrec.php[/script]
+
+[bkvar=ok]
+	<p>
+		Ваш пароль был переустановлен и выслан на Ваш e-mail: {v#email}. <br />
+		Проверьте вашу почту.
+	</p>
+[/bkvar]
+
+[bkvar=err]
+	<p>
+		Системе не удалось распознать идентификатор восстановления пароля.
+    </p>
+    <p>
+		Возможно это связанно с истечением срока отведенного под
+		его изменение.
+    </p>
+    <p>
+		Если Вы все еще хотите запросить инструкцию по восстановлению пароля,
+        то воспользуйтесь формой ниже.
+	</p>
+
+	<div class="panel panel-default">
+
+	    <div class="panel-body">
+            <form id="{v#brickid}passrecform" role="form" action="/user/passrec/" method="post">
+                <p>
+                    Укажите e-mail, который Вы
+                    использовали при регистрации
+                </p>
+
+                <div class="form-group">
+                    <input class="form-control" name="email" placeholder="Введите e-mail">
+                </div>
+                <div class="form-group">
+                    <button type="submit" class="btn btn-primary">Восстановить</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        Brick.use('user', 'guest', function(err, NS){
+            (new NS.PasswordRecoveryFormWidget({'boundingBox': '#{v#brickid}passrecform'})).render();
+        });
+    </script>
+[/bkvar]
+ 
+[*]-->
+<h3>Восстановление пароля</h3>
+{v#result}

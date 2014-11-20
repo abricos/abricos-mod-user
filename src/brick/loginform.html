@@ -40,29 +40,6 @@
             </form>
         </div>
 
-        <div id="{v#id}passrec" class="panel-collapse collapse">
-            <form id="{v#id}passrecform" role="form" action="/user/passrec/" method="post">
-                <h3>Восстановление&nbsp;доступа</h3>
-
-                <p>
-                    Чтобы восстановить пароль, укажите e-mail, который Вы
-                    использовали при регистрации.
-                </p>
-
-                <div class="form-group">
-                    <input class="form-control" name="email" placeholder="Введите e-mail">
-                </div>
-                <div class="form-group text-right">
-                    <button type="submit" class="btn btn-primary">Восстановить</button>
-                    <button type="button" class="btn btn-default"
-                            data-parent="#{v#id}form"
-                            data-target="#{v#id}loginpanel"
-                            data-toggle="collapse">Отмена
-                    </button>
-                </div>
-            </form>
-        </div>
-
         <div id="{v#id}regpanel" class="panel-collapse collapse">
             <form id="{v#id}regform" role="form" action="/user/register/" method="post">
                 <h3>Регистрация</h3>
@@ -103,14 +80,37 @@
                 </div>
             </form>
         </div>
+
+        <div id="{v#id}passrec" class="panel-collapse collapse">
+            <form id="{v#id}passrecform" role="form" action="/user/passrec/" method="post">
+                <h3>Восстановление&nbsp;доступа</h3>
+
+                <p>
+                    Чтобы восстановить пароль, укажите e-mail, который Вы
+                    использовали при регистрации.
+                </p>
+
+                <div class="form-group">
+                    <input class="form-control" name="email" placeholder="Введите e-mail">
+                </div>
+                <div class="form-group">
+                    <button type="submit" class="btn btn-primary">Восстановить</button>
+                    <button type="button" class="btn btn-default"
+                            data-parent="#{v#id}form"
+                            data-target="#{v#id}loginpanel"
+                            data-toggle="collapse">Отмена
+                    </button>
+                </div>
+            </form>
+        </div>
+
     </div>
 </div>
-<script>
 
+<script>
     Brick.use('user', 'guest', function(err, NS){
         (new NS.LoginFormWidget({'boundingBox': '#{v#id}loginform'})).render();
         (new NS.RegisterFormWidget({'boundingBox': '#{v#id}regform'})).render();
-        (new NS.PasswordRecoveryFormWidget({'boundingBox': '#{v#id}passrec'})).render();
+        (new NS.PasswordRecoveryFormWidget({'boundingBox': '#{v#id}passrecform'})).render();
     });
-
 </script>

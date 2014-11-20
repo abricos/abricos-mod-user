@@ -18,12 +18,6 @@ class UserModule extends Ab_Module {
     public static $instance;
 
     /**
-     * TODO: remove
-     */
-    private $id = 0;
-
-
-    /**
      * Группа пользователей "Гость"
      *
      * @var integer
@@ -98,8 +92,6 @@ class UserModule extends Ab_Module {
         }
         $mod->UserDataUpdate($userid);
     }
-
-
 
     public function Bos_IsMenu(){
         return true;

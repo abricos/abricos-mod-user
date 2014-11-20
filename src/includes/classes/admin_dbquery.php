@@ -37,8 +37,6 @@ class UserQuery_Admin {
             return $userid;
         }
 
-        $usernew = UserQuery::UserById($db, $userid);
-
         $uData["userid"] = $userid;
         $uData['activateid'] = cmsrand(0, 100000000);
         $sql = "
@@ -54,7 +52,7 @@ class UserQuery_Admin {
 
     public static function UserGroupAppend(Ab_Database $db, $userid, $groupid){
         $sql = "
-			INSERT IGNORE INTO `".$db->prefix."usergroup` (`userid`, `groupid`) VALUES
+			INSERT IGNORE INTO ".$db->prefix."usergroup (userid, groupid) VALUES
 			(".bkint($userid).",".bkint($groupid).")
 		";
         $db->query_write($sql);

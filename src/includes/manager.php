@@ -396,40 +396,7 @@ class UserManager extends Ab_ModuleManager {
         return true;
     }
 
-    public function PasswordRequestCheck($hash) {
-        $ret = new stdClass();
-        $ret->error = 0;
 
-        $pwdreq = UserQuery::PasswordRequestCheck($this->db, $hash);
-        if (empty($pwdreq)) {
-            $ret->error = 1;
-            sleep(1);
-            return $ret;
-        }
-        $userid = $pwdreq['userid'];
-        $user = UserQuery::User($this->db, $userid);
-        $ret->email = $user['email'];
-
-        $newpass = cmsrand(100000, 999999);
-        $passcrypt = UserManager::UserPasswordCrypt($newpass, $user['salt']);
-        UserQuery::PasswordChange($this->db, $userid, $passcrypt);
-
-        $sitename = SystemModule::$instance->GetPhrases()->Get('site_name');
-
-        $brick = Brick::$builder->LoadBrickS('user', 'templates', null, null);
-
-        $subject = $brick->param->var['pwdres_changemail_subj'];
-        $subject = str_replace("%1", $sitename, $subject);
-
-        $message = nl2br($brick->param->var['pwdres_changemail']);
-        $message = str_replace("%1", $user['username'], $message);
-        $message = str_replace("%2", $newpass, $message);
-        $message = str_replace("%3", $sitename, $message);
-
-        Abricos::Notify()->SendMail($user['email'], $subject, $message);
-
-        return $ret;
-    }
 
     private $_userFields = null;
 

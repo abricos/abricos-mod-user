@@ -203,14 +203,7 @@ Component.entryPoint = function(NS){
                 if (err){
                     return;
                 }
-                /*
-                new NS.RegisterActivateDialog({
-                    userId: result.register.userid,
-                    userEMail: model.get('email'),
-                    userPassword: model.get('password')
-                });
-                /**/
-
+                new NS.PasswordRecoveryResultDialog();
             }, this);
         }
     }, {
@@ -226,4 +219,25 @@ Component.entryPoint = function(NS){
             }
         }
     });
+
+    NS.PasswordRecoveryResultDialog = Y.Base.create('passwordRecoveryResultDialog', SYS.Dialog, [
+        SYS.WidgetWaiting
+    ], {
+        onClick: function(e){
+            if (e.dataClick === 'ok'){
+                this.close();
+                return true;
+            }
+        }
+    }, {
+        ATTRS: {
+            component: {
+                value: COMPONENT
+            },
+            templateBlockName: {
+                value: 'passrecokdialog'
+            }
+        }
+    });
+
 };
