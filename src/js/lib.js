@@ -129,7 +129,9 @@ Component.entryPoint = function(NS){
                 ret.userCurrent = userCurrent;
             }
             if (data.userOptionList){
-                var userOptionList = new NS.UserOptionList(data.userOptionList);
+                var userOptionList = new NS.UserOptionList({
+                    items: data.userOptionList.list
+                });
                 this._cacheUserOptionList[data.module] = userOptionList;
                 ret.userOptionList = userOptionList;
             }
@@ -162,7 +164,9 @@ Component.entryPoint = function(NS){
             res = res || {};
             var tRes = this._treatAJAXResult(res.data);
 
-            details.callback.apply(details.context, [err, tRes]);
+            if (Y.Lang.isFunction(details.callback)){
+                details.callback.apply(details.context, [err, tRes]);
+            }
         },
 
         userCurrent: function(callback, context){
@@ -185,6 +189,26 @@ Component.entryPoint = function(NS){
             this.ajax({
                 'do': 'userOptionList',
                 'module': modName
+            }, this._defaultAJAXCallback, {
+                arguments: {callback: callback, context: context}
+            });
+        },
+
+        userOptionSave: function(modName, option, callback, context){
+            var sd;
+            if (Y.Lang.isArray(option)){
+                sd = [];
+                for (var i = 0; i < option.length; i++){
+                    sd[sd.length] = option[i].toJSON();
+                }
+            } else {
+                sd = option.toJSON();
+            }
+
+            this.ajax({
+                'do': 'userOptionSave',
+                'module': modName,
+                'savedata': sd
             }, this._defaultAJAXCallback, {
                 arguments: {callback: callback, context: context}
             });

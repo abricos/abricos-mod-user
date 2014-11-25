@@ -95,7 +95,7 @@ Component.entryPoint = function(NS){
         }
     });
 
-    NS.UserOptionList = Y.Base.create('userOptionList', NS.UserList, [], {
+    NS.UserOptionList = Y.Base.create('userOptionList', Y.ModelList, [], {
         model: NS.UserOption
     });
 

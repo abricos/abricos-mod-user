@@ -6,8 +6,7 @@ class UserOptionItem extends AbricosItem {
 
     public function __construct($d) {
         parent::__construct($d);
-        $this->id = strval($d['optname']);
-        $this->value = strval($d['optvalue']);
+        $this->value = isset($d['val']) ? strval($d['val']) : '';
     }
 
     public function ToAJAX() {

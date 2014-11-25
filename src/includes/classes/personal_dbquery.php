@@ -4,7 +4,7 @@ class UserQuery_Personal {
 
     public static function UserOptionList(Ab_Database $db, $userid, $module) {
         $sql = "
-			SELECT  c.userconfigid as id, c.*
+			SELECT  c.optname as id, c.optvalue as val
 			FROM ".$db->prefix."userconfig c
 			WHERE c.userid=".bkint($userid)." AND c.module='".bkstr($module)."'
 		";

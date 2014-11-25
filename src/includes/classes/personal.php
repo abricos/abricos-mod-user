@@ -27,6 +27,8 @@ class UserManager_Personal {
         switch ($d->do) {
             case "userOptionList":
                 return $this->UserOptionListToAJAX($d->module);
+            case "userOptionSave":
+                return $this->UserOptionSaveToAJAX($d->module, $d->savedata);
         }
         return null;
     }
@@ -60,7 +62,11 @@ class UserManager_Personal {
         if (empty($list)) {
             return 403;
         }
-        return $list->ToAJAX();
+
+        $ret = new stdClass();
+        $ret->userOptionList = $list->ToAJAX();
+        $ret->userOptionList->config = null;
+        return $ret;
     }
 
     /**
@@ -78,84 +84,47 @@ class UserManager_Personal {
 
         while (($row = $this->db->fetch_array($rows))) {
             $item = new UserOptionItem($row);
-            if (!$optNames[$item->name]) {
+            if (!$optNames[$item->id]) {
                 continue;
             }
             $list->Add($item);
         }
+
+        foreach ($optNames as $optName => $optCfg) {
+            $option = $list->Get($optName);
+            if (!empty($option)) {
+                continue;
+            }
+            $item = new UserOptionItem(array(
+                "id" => $optName,
+                "val" => ""
+            ));
+            $list->Add($item);
+        }
+
         return $list;
     }
 
-    public function UserOptionUpdate($modName, $sd) {
-        $optList = $this->UserOptionList($modName);
-
-        for ($i = 0; $i < $optList->Count(); $i++) {
-            $opt = $optList->GetByIndex($i);
-
+    public function UserOptionSaveToAJAX($modName, $d) {
+        if (is_array($d)) {
+            for ($i = 0; $i < count($d); $i++) {
+                $this->UserOptionSave($modName, $d[$i]);
+            }
+        }else{
+            $this->UserOptionSave($modName, $d);
         }
-
-        /*
-
-                $rows = $uman->UserOptionList($this->userid, 'botask');
-                $arr = $this->ToArrayById($rows);
-
-                $names = array(
-                    "tasksort",
-                    "tasksortdesc",
-                    "taskviewchild",
-                    "taskviewcmts"
-                );
-
-                foreach ($names as $name) {
-                    $find = null;
-                    foreach ($arr as $cfgid => $crow) {
-                        if ($name == $crow['nm']) {
-                            $find = $crow;
-                            break;
-                        }
-                    }
-                    if (is_null($find)) {
-                        $uman->UserOptionAppend($this->userid, 'botask', $name, $newcfg->$name);
-                    } else {
-                        $uman->UserOptionUpdate($this->userid, $cfgid, $newcfg->$name);
-                    }
-                }
-                return $this->UserOptionList();
-                /**/
+        return $this->UserOptionListToAJAX($modName);
     }
 
-    /*
-        public function UserConfigList($userid, $modname) {
-            if (!$this->IsChangeUserRole($userid)) {
-                return null;
-            }
-
-            return UserQuery::UserConfigList($this->db, $userid, $modname);
+    public function UserOptionSave($modName, $d) {
+        $optNames = $this->UserOptionNames($modName);
+        if (empty($optNames)) {
+            return null;
         }
 
-        public function UserConfigValueSave($userid, $modname, $varname, $value) {
-            if (!$this->IsChangeUserRole($userid)) {
-                return null;
-            }
-            UserQuery::UserConfigSave($this->db, $userid, $modname, $varname, $value);
-        }
+        UserQuery_Personal::UserOptionSave(Abricos::$db, Abricos::$user->id, $modName, $d->id, $d->value);
+    }
 
-        public function UserConfigAppend($userid, $modname, $cfgname, $cfgval) {
-            if (!$this->IsChangeUserRole($userid)) {
-                return null;
-            }
-
-            UserQuery::UserConfigAppend($this->db, $userid, $modname, $cfgname, $cfgval);
-        }
-
-        public function UserConfigUpdate($userid, $cfgid, $cfgval) {
-            if (!$this->IsChangeUserRole($userid)) {
-                return null;
-            }
-
-            UserQuery::UserConfigUpdate($this->db, $userid, $cfgid, $cfgval);
-        }
-    /**/
 
 }
 
