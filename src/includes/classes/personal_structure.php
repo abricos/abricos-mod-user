@@ -19,6 +19,14 @@ class UserOptionItem extends AbricosItem {
 class UserOptionList extends AbricosList {
 
     /**
+     * @param string $optionName
+     * @return UserOptionItem
+     */
+    public function Get($optionName) {
+        return parent::Get($optionName);
+    }
+
+    /**
      * @param int $i
      * @return UserOptionItem
      */

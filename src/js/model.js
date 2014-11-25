@@ -96,7 +96,61 @@ Component.entryPoint = function(NS){
     });
 
     NS.UserOptionList = Y.Base.create('userOptionList', Y.ModelList, [], {
-        model: NS.UserOption
+        model: NS.UserOption,
+        getValue: function(name, defValue){
+            var opt = this.getById(name);
+            if (opt){
+                return opt.get('value');
+            }
+            return defValue;
+        },
+        _getNames: function(names){
+            if (Y.Lang.isString(names)){
+                names = names.split(',');
+            }
+            var ret = [];
+            if (!Y.Lang.isArray(names)){
+                return ret;
+            }
+            for (var i = 0; i < names.length; i++){
+                names[i] = Y.Lang.trim(names[i]);
+            }
+            return names;
+        },
+        getValues: function(names){
+            names = this._getNames(names);
+            var ret = {};
+
+            var name;
+            for (var i = 0; i < names.length; i++){
+                name = Y.Lang.trim(names[i]);
+                ret[name] = this.getValue(name);
+            }
+            return ret;
+        },
+        getOptions: function(names){
+            names = this._getNames(names);
+            var ret = [], opt;
+            for (var i = 0; i < names.length; i++){
+                opt = this.getById(names[i]);
+                if (opt){
+                    ret[ret.length] = opt;
+                }
+            }
+            return ret;
+        },
+        setValue: function(name, value){
+            var opt = this.getById(name);
+            if (opt){
+                opt.set('value', value);
+            } else {
+                this.add({
+                    id: name,
+                    value: value
+                });
+            }
+            return this.getById(name);
+        }
     });
 
     // --------------- Admin ------------------
