@@ -33,7 +33,7 @@ class UserManager_Personal {
         return null;
     }
 
-    private function UserOptionNames($modName) {
+    private function UserOptionNames($modName, $userid = 0) {
         $mod = Abricos::GetModule($modName);
         if (empty($mod)) {
             return null;
@@ -42,10 +42,18 @@ class UserManager_Personal {
         if (empty($man)) {
             return null;
         }
-        if (!method_exists($man, 'User_OptionNames')) {
+
+        $methodName = 'User_OptionNames';
+        if (empty($userid)) {
+            $userid = Abricos::$user->id;
+        } else {
+            $methodName = 'User_OptionNamesOtherUser';
+        }
+
+        if (!method_exists($man, $methodName)) {
             return null;
         }
-        $optNames = $man->User_OptionNames();
+        $optNames = $man->$methodName($userid);
         if (!is_array($optNames)) {
             return null;
         }
@@ -74,13 +82,18 @@ class UserManager_Personal {
      * @param $varNames
      * @return UserOptionList
      */
-    public function UserOptionList($modName) {
-        $optNames = $this->UserOptionNames($modName);
+    public function UserOptionList($modName, $userid = 0) {
+        $optNames = $this->UserOptionNames($modName, $userid);
         if (empty($optNames)) {
             return null;
         }
+
+        if (empty($userid)) {
+            $userid = Abricos::$user->id;
+        }
+
         $list = new UserOptionList();
-        $rows = UserQuery_Personal::UserOptionList(Abricos::$db, Abricos::$user->id, $modName);
+        $rows = UserQuery_Personal::UserOptionList(Abricos::$db, $userid, $modName);
 
         while (($row = $this->db->fetch_array($rows))) {
             $item = new UserOptionItem($row);
@@ -110,7 +123,7 @@ class UserManager_Personal {
             for ($i = 0; $i < count($d); $i++) {
                 $this->UserOptionSave($modName, $d[$i]);
             }
-        }else{
+        } else {
             $this->UserOptionSave($modName, $d);
         }
         return $this->UserOptionListToAJAX($modName);
