@@ -33,7 +33,7 @@ class UserManager_Auth {
     public function AJAX($d) {
         switch ($d->do) {
             case "login":
-                return $this->LoginToAJAX($d->savedata);
+                return $this->LoginToAJAX($d->login);
             case "logout":
                 return $this->LogoutToAJAX();
         }

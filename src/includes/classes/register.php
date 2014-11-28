@@ -27,12 +27,12 @@ class UserManager_Registration {
     public function AJAX($d) {
         switch ($d->do) {
             case "register":
-                return $this->RegisterToAJAX($d->savedata);
+                return $this->RegisterToAJAX($d->register);
             case "activate":
                 return $this->ActivateToAJAX($d->savedata);
             case "useremailcnfsend":
                 return $this->ConfirmEmailSendAgain($d->userid);
-            case "termsofuse":
+            case "termsOfUse":
                 return $this->TermsOfUseToAJAX();
         }
         return null;
@@ -244,7 +244,7 @@ class UserManager_Registration {
 
     public function TermsOfUseToAJAX() {
         $ret = new stdClass();
-        $ret->termsofuse = $this->TermsOfUse();
+        $ret->termsOfUse = $this->TermsOfUse();
         return $ret;
     }
 

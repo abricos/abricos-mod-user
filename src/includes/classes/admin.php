@@ -29,9 +29,9 @@ class UserManager_Admin {
 
     public function AJAX($d) {
         switch ($d->do) {
-            case "userlist":
-                return $this->UserListToAJAX($d->userlistconfig);
-            case "grouplist":
+            case "userList":
+                return $this->UserListToAJAX($d->userListConfig);
+            case "groupList":
                 return $this->GroupListToAJAX();
             case "groupsave":
                 return $this->GroupSaveToAJAX($d->groupdata);
@@ -50,7 +50,7 @@ class UserManager_Admin {
         }
 
         $ret = new stdClass();
-        $ret->users = $list->ToAJAX();
+        $ret->userList = $list->ToAJAX();
         return $ret;
     }
 
@@ -86,7 +86,7 @@ class UserManager_Admin {
         }
 
         $ret = new stdClass();
-        $ret->groups = $list->ToAJAX();
+        $ret->groupList = $list->ToAJAX();
         return $ret;
     }
 

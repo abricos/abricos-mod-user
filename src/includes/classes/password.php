@@ -25,7 +25,7 @@ class UserManager_Password {
     public function AJAX($d) {
         switch ($d->do) {
             case "passwordRecovery":
-                return $this->PasswordRecoveryToAJAX($d->savedata);
+                return $this->PasswordRecoveryToAJAX($d->passwordRecovery);
         }
         return null;
     }
@@ -37,6 +37,7 @@ class UserManager_Password {
         if (is_integer($result)) {
             $ret->err = $result;
         } else {
+            $ret->passwordRecovery = new stdClass();
             $ret->passwordRecovery->msg = 'ok';
         }
 
