@@ -23,6 +23,9 @@ Component.entryPoint = function(NS){
 
         SYS = Brick.mod.sys;
 
+    /**
+     * @deprecated
+     */
     NS.AppWidget = SYS.AppWidget;
 
     NS.URL = {
