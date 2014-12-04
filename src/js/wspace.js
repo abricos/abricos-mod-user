@@ -17,7 +17,7 @@ Component.entryPoint = function(NS){
 
         SYS = Brick.mod.sys;
 
-    NS.WorkspaceWidget = Y.Base.create('workspaceWidget', SYS.AppWidget, [
+    NS.WorkspaceWidget = Y.Base.create('userWorkspaceWidget', SYS.AppWidget, [
         SYS.AppWorkspace
     ], {}, {
         ATTRS: {
