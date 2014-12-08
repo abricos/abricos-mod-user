@@ -4,6 +4,7 @@
 
 var Component = new Brick.Component();
 Component.requires = {
+    yui: ['aui-pagination'],
     mod: [
         {name: 'sys', files: ['form.js']},
         {name: '{C#MODNAME}', files: ['usereditor.js']}
@@ -72,6 +73,20 @@ Component.entryPoint = function(NS){
             tp.gel('list').innerHTML = tp.replace('list', {
                 'rows': lst
             });
+
+            var listConfig = userList.get('listConfig').getAttrs(),
+                offset = listConfig.total / listConfig.limit;
+
+            new Y.Pagination({
+                boundingBox: tp.gel('pagination'),
+                offset: offset,
+                page: listConfig.page,
+                total: 5,
+                strings: {
+                    next: '»',
+                    prev: '«'
+                }
+            }).render();
         },
         onClick: function(e){
             var userId = e.target.getData('id') | 0;
