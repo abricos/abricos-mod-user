@@ -162,22 +162,14 @@ Component.entryPoint = function(NS){
             var tp = this.template, lstSelect = "", lstGroup = "";
 
             groupList.each(function(group){
-                var attrs = group.toJSON(),
-                    isFind = false;
+                var attrs = group.toJSON();
 
-                for (var i = 0; i < userGroups.length; i++){
-                    if ((attrs.id | 0) === (userGroups[i] | 0)){
-                        isFind = true;
-                        break;
-                    }
-                }
-
-                if (isFind){
+                if (this.userGroupExists(attrs.id)){
                     lstGroup += tp.replace('grouprow', attrs);
                 } else {
                     lstSelect += tp.replace('option', attrs);
                 }
-            });
+            }, this);
 
             tp.gel('select').innerHTML = tp.replace('select', {
                 'rows': lstSelect
@@ -187,14 +179,48 @@ Component.entryPoint = function(NS){
                 'rows': lstGroup
             });
         },
-        onClick: function(e){
-            var groupId = e.target.getData('id') | 0;
-            if (groupId === 0){
+        userGroupExists: function(groupId){
+            var userGroups = this.get('userGroups');
+
+            for (var i = 0; i < userGroups.length; i++){
+                if ((groupId | 0) === (userGroups[i] | 0)){
+                    return true;
+                }
+            }
+            return false;
+        },
+        addUserGroup: function(groupId){
+            if (this.userGroupExists(groupId)){
                 return;
             }
+            var userGroups = this.get('userGroups');
+            userGroups[userGroups.length] = groupId;
+            this.set('userGroups', userGroups);
+            this.renderGroupList();
+        },
+        removeUserGroup: function(groupId){
+            var userGroups = this.get('userGroups'),
+                arr = [];
 
+            for (var i = 0; i < userGroups.length; i++){
+                if ((groupId | 0) !== (userGroups[i] | 0)){
+                    arr[arr.length] = userGroups[i];
+                }
+            }
+            this.set('userGroups', arr);
+            this.renderGroupList();
+        },
+        _addUserGroupFromSelect: function(){
+            var groupId = this.template.gel('select.id').value;
+            this.addUserGroup(groupId);
+        },
+        onClick: function(e){
             switch (e.dataClick) {
+                case 'group-add':
+                    this._addUserGroupFromSelect();
+                    return true;
                 case 'group-remove':
+                    this.removeUserGroup(e.target.getData('id'));
                     return true;
             }
         }
