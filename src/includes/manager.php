@@ -10,7 +10,7 @@ require_once 'classes/structure.php';
 require_once 'dbquery.php';
 
 /**
- * Менеджер управления пользователями
+ * Менеджер пользователей
  *
  * @package Abricos
  */

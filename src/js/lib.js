@@ -23,11 +23,6 @@ Component.entryPoint = function(NS){
 
         SYS = Brick.mod.sys;
 
-    /**
-     * @deprecated
-     */
-    NS.AppWidget = SYS.AppWidget;
-
     NS.URL = {
         ws: "#app={C#MODNAMEURI}/wspace/ws/",
         user: {
@@ -62,6 +57,12 @@ Component.entryPoint = function(NS){
             cache: 'userCurrent',
             response: function(d){
                 return new NS.UserCurrent(d);
+            }
+        },
+        user: {
+            args: ['userid'],
+            response: function(d){
+                return new NS.Admin.User(d);
             }
         },
         userList: {

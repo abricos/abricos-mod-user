@@ -5,7 +5,7 @@
 var Component = new Brick.Component();
 Component.requires = {
     mod: [
-        {name: 'sys', files: ['panel.js', 'form.js', 'widgets.js']},
+        {name: 'sys', files: ['panel.js', 'widgets.js']},
         {name: '{C#MODNAME}', files: ['permlist.js', 'lib.js']}
     ]
 };
@@ -15,7 +15,7 @@ Component.entryPoint = function(NS){
         COMPONENT = this,
         SYS = Brick.mod.sys;
 
-    NS.GroupEditorWidget = Y.Base.create('groupEditorWidget', NS.AppWidget, [
+    NS.GroupEditorWidget = Y.Base.create('groupEditorWidget', SYS.AppWidget, [
         SYS.Form,
         SYS.FormAction
     ], {

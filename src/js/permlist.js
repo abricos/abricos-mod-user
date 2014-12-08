@@ -22,7 +22,7 @@ Component.entryPoint = function(NS){
         reloadModuleList: function(){
             this.set('waiting', true);
 
-            this.get('appInstance').moduleList(function(err, result){
+            Brick.appFunc('sys', 'moduleList', function(err, result){
                 this.set('waiting', false);
                 if (!err){
                     this.set('moduleList', result.moduleList);

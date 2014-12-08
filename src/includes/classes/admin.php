@@ -29,6 +29,8 @@ class UserManager_Admin {
 
     public function AJAX($d) {
         switch ($d->do) {
+            case "user":
+                return $this->UserToAJAX($d->userid);
             case "userList":
                 return $this->UserListToAJAX($d->userListConfig);
             case "groupList":
@@ -38,6 +40,36 @@ class UserManager_Admin {
 
         }
         return null;
+    }
+
+    public function UserToAJAX($userId) {
+        $user = $this->User($userId, 'UserItem_Admin');
+
+        if (empty($user)) {
+            return 403;
+        }
+
+        $ret = new stdClass();
+        $ret->user = $user->ToAJAX();
+        return $ret;
+    }
+
+    public function User($userId, $classUserItem = null) {
+        if (!$this->IsAdminRole()) {
+            return null;
+        }
+
+        $d = UserQuery::UserById($this->db, $userId);
+        if (empty($d)){
+            return null;
+        }
+        $user = new UserItem($d);
+        if (!empty($classUserItem)) {
+            $user = new $classUserItem($user);
+            $this->manager->CacheUserAdd($user, $user->GetType());
+        }
+
+        return $user;
     }
 
     public function UserListToAJAX($configData) {

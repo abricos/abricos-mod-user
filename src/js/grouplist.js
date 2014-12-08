@@ -11,9 +11,10 @@ Component.requires = {
 Component.entryPoint = function(NS){
 
     var Y = Brick.YUI,
-        COMPONENT = this;
+        COMPONENT = this,
+        SYS = Brick.mod.sys;
 
-    NS.GroupListWidget = Y.Base.create('managerWidget', NS.AppWidget, [], {
+    NS.GroupListWidget = Y.Base.create('groupListWidget', SYS.AppWidget, [], {
         onInitAppWidget: function(err, appInstance, options){
             this.reloadGroupList();
         },

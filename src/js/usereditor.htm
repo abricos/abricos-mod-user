@@ -1,0 +1,78 @@
+<!--{widget}-->
+<form id="{i#id}" class="editor" role="form">
+    <div class="{v#status}">
+        <div class="form-group">
+            <label for="{i#title}">Имя пользователя</label>
+            <input id="{i#title}" name="username" type="text" class="form-control" disabled="disabled">
+        </div>
+        <div class="form-group">
+            <label for="{i#email}">E-mail</label>
+            <input id="{i#email}" name="email" type="text" class="form-control">
+        </div>
+        <div class="form-group">
+            <label>Группы пользователя</label>
+
+            <div id="{i#usergroups}"></div>
+        </div>
+        <div class="btn-toolbar text-right">
+            <span data-wait="show"> <img src="/images/loading.gif"/> Загрузка...</span>
+            <button type="submit" class="btn btn-primary" data-wait="disable">
+                Сохранить
+            </button>
+            <button type="button" class="btn btn-default" data-click="cancel" data-wait="disable">
+                Отмена
+            </button>
+        </div>
+    </div>
+</form>
+
+<!--{dialog}-->
+<div class='hd'>Редактор пользователя&nbsp;</div>
+<div class='bd aw-user'>
+    <div id="{i#widget}" class="usereditor"></div>
+</div>
+
+
+<!--{groupwidget}-->
+<div class="panel panel-default">
+    <div class="panel-heading">
+        <div class="row">
+            <div class="col-md-7">
+                <div id="{i#select}"></div>
+            </div>
+            <div class="col-md-5">
+                <div class="btn-toolbar text-left">
+                    <button type="button" class="btn btn-default btn-sm" data-click="group-add">
+                        Добавить
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="panel-body">
+        <div id="{i#list}"></div>
+    </div>
+</div>
+
+<!--{select}-->
+<select id="{i#id}" class="form-control input-sm">{v#rows}</select>
+
+<!--{option}-->
+<option value="{v#id}">{v#title}</option>
+
+<!--{grouplist}-->
+<table class="table table-striped table-hover">
+    <tbody>
+    {v#rows}
+    </tbody>
+</table>
+
+<!--{grouprow}-->
+<tr>
+    <td>{v#title}</td>
+    <td class="text-right">
+        <button type="button" class="btn btn-default btn-xs" data-click="group-remove" data-id="{v#id}">
+            Удалить из списка
+        </button>
+    </td>
+</tr>
