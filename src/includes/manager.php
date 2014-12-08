@@ -298,57 +298,6 @@ class UserManager extends Ab_ModuleManager {
         return $user;
     }
 
-    public function UserUpdate($d) {
-
-        if (!$this->IsChangeUserRole($d->userid)) {
-            // haker?
-            return -1;
-        }
-
-        if ($d->userid == 0) {
-            if (!$this->IsAdminRole()) {
-                return -1;
-            }
-            // зарегистрировать пользователя
-            $err = $this->Register($d->unm, $d->pass, $d->eml, false, false);
-            if ($err > 0) {
-                return $err;
-            }
-            $user = UserQuery::UserByName($this->db, $d->unm);
-            $d->userid = $user['userid'];
-        } else {
-
-            $user = UserQuery::User($this->db, $d->userid, true);
-
-            // данные для внесения в бд
-            $data = array();
-
-            // смена пароля
-            if (!empty($d->pass)) {
-                if ($this->IsAdminRole()) {
-                    $data['password'] = UserManager::UserPasswordCrypt($d->pass, $user['salt']);
-                } else {
-                    $passcrypt = UserManager::UserPasswordCrypt($d->oldpass, $user["salt"]);
-                    if ($passcrypt == $user["password"]) {
-                        $data['password'] = UserManager::UserPasswordCrypt($d->pass, $user['salt']);
-                    }
-                }
-            }
-
-            // смена емайл
-            if ($this->IsAdminRole()) {
-                $data['email'] = $d->eml;
-            }
-
-            UserQuery::UserUpdate($this->db, $d->userid, $data);
-        }
-        if (!$this->IsAdminRole()) {
-            return;
-        }
-        UserQuery::UserGroupUpdate($this->db, $d->userid, explode(',', $d->gp));
-        return 0;
-    }
-
     public function UserPasswordChange($userid, $newpassword, $oldpassword = '') {
         if (!$this->IsChangeUserRole($userid)) {
             return 1; // нет доступа на изменение пароля

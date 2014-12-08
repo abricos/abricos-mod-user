@@ -31,6 +31,8 @@ class UserManager_Admin {
         switch ($d->do) {
             case "user":
                 return $this->UserToAJAX($d->userid);
+            case "userSave":
+                return $this->UserSaveToAJAX($d->userData);
             case "userList":
                 return $this->UserListToAJAX($d->userListConfig);
             case "groupList":
@@ -42,8 +44,8 @@ class UserManager_Admin {
         return null;
     }
 
-    public function UserToAJAX($userId) {
-        $user = $this->User($userId, 'UserItem_Admin');
+    public function UserSaveToAJAX($d) {
+        $user = $this->UserSave($d, 'UserItem_Admin');
 
         if (empty($user)) {
             return 403;
@@ -54,22 +56,69 @@ class UserManager_Admin {
         return $ret;
     }
 
+    public function UserSave($d, $classUserItem = null) {
+        if (!$this->IsAdminRole()) {
+            return 403;
+        }
+
+        $userId = isset($d->id) ? intval($d->id) : 0;
+
+        if ($userId === 0) {
+
+            $regMan = $this->manager->GetRegistrationManager();
+            $err = $regMan->Register($d->username, $d->password, $d->email, false, false);
+            if ($err > 0) {
+                return $err;
+            }
+
+            $user = $this->manager->UserByName($d->username, false, $classUserItem);
+            $userId = $user->id;
+
+        } else {
+
+            $user = $this->User($userId);
+
+            if (!empty($d->password)){
+                $passwordCrypt = UserManager::UserPasswordCrypt($d->password, $user->salt);
+                UserQuery_Admin::UserPasswordUpdate($this->db, $userId, $passwordCrypt);
+            }
+
+            UserQuery_Admin::UserUpdate($this->db, $userId, $d);
+        }
+
+        UserQuery_Admin::UserGroupUpdate($this->db, $userId, $d->groups);
+        $this->manager->CacheUserClear();
+
+        return $this->User($userId);
+    }
+
+    public function UserToAJAX($userId) {
+        $user = $this->User($userId);
+
+        if (empty($user)) {
+            return 403;
+        }
+
+        $ret = new stdClass();
+        $ret->user = $user->ToAJAX();
+        return $ret;
+    }
+
+    /**
+     * @param $userId
+     * @param null $classUserItem
+     * @return UserItem_Admin
+     */
     public function User($userId, $classUserItem = null) {
         if (!$this->IsAdminRole()) {
             return null;
         }
 
-        $d = UserQuery::UserById($this->db, $userId);
-        if (empty($d)){
-            return null;
-        }
-        $user = new UserItem($d);
-        if (!empty($classUserItem)) {
-            $user = new $classUserItem($user);
-            $this->manager->CacheUserAdd($user, $user->GetType());
+        if (empty($classUserItem)){
+            $classUserItem = 'UserItem_Admin';
         }
 
-        return $user;
+        return $this->manager->User($userId, $classUserItem);
     }
 
     public function UserListToAJAX($configData) {

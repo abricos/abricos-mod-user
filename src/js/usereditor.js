@@ -66,17 +66,32 @@ Component.entryPoint = function(NS){
         onSubmitFormAction: function(){
             this.set('waiting', true);
 
-            var model = this.get('model');
+            var userGroups = this.userGroupListWidget.get('userGroups'),
+                password = Y.one(this.template.gel('password')).get('value'),
+                user = this.get('model');
 
-            this.get('appInstance').userSave(model, function(err, result){
+            user.set('groups', userGroups);
+            user.set('password', password);
+
+            this.get('appInstance').userSave(user, function(err, result){
                 this.set('waiting', false);
                 if (!err){
                     this.fire('editorSaved');
                 }
             }, this);
         },
+        _showPasswordForm: function(){
+            var tp = this.template;
+
+            Y.one(tp.gel('passwordchange')).addClass('hide');
+            Y.one(tp.gel('password')).removeClass('hide').focus();
+        },
+
         onClick: function(e){
             switch (e.dataClick) {
+                case 'password-change':
+                    this._showPasswordForm();
+                    return true;
                 case 'cancel':
                     this.fire('editorCancel');
                     return true;

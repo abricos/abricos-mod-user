@@ -21,7 +21,7 @@ Component.entryPoint = function(NS){
 
         SYS = Brick.mod.sys;
 
-    NS.LoginFormWidget = Y.Base.create('loginFormWidget', NS.AppWidget, [
+    NS.LoginFormWidget = Y.Base.create('loginFormWidget', SYS.AppWidget, [
         Y.FormValidator,
         SYS.Form,
         SYS.FormAction
@@ -54,7 +54,7 @@ Component.entryPoint = function(NS){
         }
     });
 
-    NS.RegisterFormWidget = Y.Base.create('registerFormWidget', NS.AppWidget, [
+    NS.RegisterFormWidget = Y.Base.create('registerFormWidget', SYS.AppWidget, [
         SYS.Form,
         SYS.FormAction
     ], {
@@ -190,7 +190,7 @@ Component.entryPoint = function(NS){
         }
     });
 
-    NS.PasswordRecoveryFormWidget = Y.Base.create('passwordRecoveryFormWidget', NS.AppWidget, [
+    NS.PasswordRecoveryFormWidget = Y.Base.create('passwordRecoveryFormWidget', SYS.AppWidget, [
         SYS.Form,
         SYS.FormAction
     ], {

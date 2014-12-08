@@ -7,7 +7,15 @@
         </div>
         <div class="form-group">
             <label for="{i#email}">E-mail</label>
-            <input id="{i#email}" name="email" type="text" class="form-control">
+            <input id="{i#email}" name="email" type="text" class="form-control" data-wait="disable">
+        </div>
+        <div class="form-group">
+            <label>Пароль</label>
+            <button id="{i#passwordchange}" class="btn btn-default form-control" data-click="password-change" data-wait="disable">
+                Сменить пароль
+            </button>
+            <input id="{i#password}" name="password" type="password" class="hide form-control" data-wait="disable"
+                    placeholder="Введите пароль">
         </div>
         <div class="form-group">
             <label>Группы пользователя</label>
@@ -42,7 +50,7 @@
             </div>
             <div class="col-md-5">
                 <div class="btn-toolbar text-left">
-                    <button data-click="group-add" class="btn btn-default btn-sm" type="button">
+                    <button data-click="group-add" class="btn btn-default btn-sm" type="button" data-wait="disable">
                         Добавить
                     </button>
                 </div>
@@ -55,7 +63,7 @@
 </div>
 
 <!--{select}-->
-<select id="{i#id}" class="form-control input-sm">{v#rows}</select>
+<select id="{i#id}" class="form-control input-sm" data-wait="disable">{v#rows}</select>
 
 <!--{option}-->
 <option value="{v#id}">{v#title}</option>
@@ -71,7 +79,7 @@
 <tr>
     <td>{v#title}</td>
     <td class="text-right">
-        <button type="button" class="btn btn-default btn-xs" data-click="group-remove" data-id="{v#id}">
+        <button type="button" class="btn btn-default btn-xs" data-click="group-remove" data-id="{v#id}" data-wait="disable">
             Удалить из списка
         </button>
     </td>

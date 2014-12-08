@@ -15,7 +15,7 @@ class UserQuery_Admin {
     public static function UserAppend(Ab_Database $db, &$uData, $groupid = UserModule::UG_GUEST, $ip = '', $agreement = false, $isVirtual = false) {
 
         $db->query_write("
-			INSERT INTO `".$db->prefix."user`
+			INSERT INTO ".$db->prefix."user
 				(language, username, password, email, emailconfirm, joindate, salt, ipadress, agreement, isvirtual) VALUES (
 				'".Abricos::$LNG."',
 				'".bkstr($uData['username'])."',
@@ -50,7 +50,28 @@ class UserQuery_Admin {
         return $userid;
     }
 
-    public static function UserGroupAppend(Ab_Database $db, $userid, $groupid){
+    public static function UserUpdate(Ab_Database $db, $userId, $d) {
+        $sql = "
+			UPDATE ".$db->prefix."user
+			SET email='".strval($d->email)."'
+			WHERE userid=".intval($userId)."
+			LIMIT 1
+		";
+        $db->query_write($sql);
+    }
+
+    public static function UserPasswordUpdate(Ab_Database $db, $userId, $passwordCrypt) {
+        $sql = "
+			UPDATE ".$db->prefix."user
+			SET password='".strval($passwordCrypt)."'
+			WHERE userid=".intval($userId)."
+			LIMIT 1
+		";
+        $db->query_write($sql);
+    }
+
+
+    public static function UserGroupAppend(Ab_Database $db, $userid, $groupid) {
         $sql = "
 			INSERT IGNORE INTO ".$db->prefix."usergroup (userid, groupid) VALUES
 			(".bkint($userid).",".bkint($groupid).")

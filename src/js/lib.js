@@ -65,6 +65,12 @@ Component.entryPoint = function(NS){
                 return new NS.Admin.User(d);
             }
         },
+        userSave: {
+            args: ['userData'],
+            response: function(d){
+                return new NS.Admin.User(d);
+            }
+        },
         userList: {
             args: ['userListConfig'],
             response: function(d){
