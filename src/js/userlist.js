@@ -74,21 +74,45 @@ Component.entryPoint = function(NS){
                 'rows': lst
             });
 
-            var listConfig = userList.get('listConfig').getAttrs(),
-                offset = listConfig.total / listConfig.limit;
+            /*
+             var listConfig = userList.get('listConfig').getAttrs(),
+             pageCount = listConfig.total / listConfig.limit;
 
-            new Y.Pagination({
-                boundingBox: tp.gel('pagination'),
-                offset: offset,
-                page: listConfig.page,
-                total: 5,
-                strings: {
-                    next: '»',
-                    prev: '«'
-                }
-            }).render();
+             new Y.Pagination({
+             after: {
+             changeRequest: function(event) {
+
+             console.log(
+             'page:', event.state.page,
+             'getOffsetPageNumber:', this.getOffsetPageNumber()
+             );
+             }
+             },
+             boundingBox: tp.gel('pagination'),
+             offset: 1,
+             circular: false,
+             page: listConfig.page,
+             total: 10,
+             strings: {
+             next: '»',
+             prev: '«'
+             }
+             }).render();
+             /**/
         },
         onClick: function(e){
+            switch (e.dataClick) {
+                case 'filter-set':
+                    this._setFilterFromInput();
+                    return true;
+                case 'filter-clear':
+                    this.clearUserFilter();
+                    return true;
+                case 'reload':
+                    this.reloadUserList();
+                    return true;
+            }
+
             var userId = e.target.getData('id') | 0;
             if (userId === 0){
                 return;
@@ -106,6 +130,20 @@ Component.entryPoint = function(NS){
             dialog.on('editorSaved', function(){
                 this.reloadUserList();
             }, this);
+        },
+        _setFilterFromInput: function(){
+            var filter = this.template.gel('filter').value;
+            this.setUserFilter(filter);
+        },
+        setUserFilter: function(filter){
+            filter = filter || "";
+            this.template.gel('filter').value = filter;
+            var listConfig = this.get('listConfig');
+            listConfig.set('filter', filter);
+            this.reloadUserList();
+        },
+        clearUserFilter: function(){
+            this.setUserFilter("");
         }
     }, {
         ATTRS: {
@@ -116,7 +154,7 @@ Component.entryPoint = function(NS){
                 value: 'widget,list,row'
             },
             listConfig: {
-                value: new NS.ListConfig()
+                value: new NS.UserListConfig()
             },
             groupList: {
                 value: null

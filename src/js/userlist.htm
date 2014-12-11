@@ -3,14 +3,36 @@
     <div class="panel panel-default">
         <div class="panel-heading">
             <div class="row">
-                <div class="col-md-7">
-                    <h3 class="panel-title">Список пользователей</h3>
-                </div>
-                <div class="col-md-5">
-                    <div class="btn-toolbar text-right">
+                <div class="col-xs-6">
+                    <h3 class="panel-title">
+                        Список пользователей
                         <span data-wait="show">
                             <img src="/images/loading.gif"/> Загрузка...
                         </span>
+                    </h3>
+
+                </div>
+                <div class="col-xs-6">
+                    <div class="input-group">
+                        <input id="{i#filter}" type="text"
+                               data-wait="disable"
+                               class="input-sm form-control"
+                               placeholder="Введите фильтр"/>
+
+                        <div class="input-group-btn">
+                            <button class=" btn btn-sm btn-default"
+                                    data-wait="disable"
+                                    data-click="filter-set">Установить
+                            </button>
+                            <button class="btn btn-sm btn-default"
+                                    data-wait="disable"
+                                    data-click="filter-clear">Сбросить
+                            </button>
+                            <button class="btn btn-sm btn-default"
+                                    data-wait="disable"
+                                    data-click="reload">Обновить
+                            </button>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -49,7 +71,9 @@
     <td>{v#lastvisit}</td>
     <td>{v#groups}</td>
     <td>
-        <button type="button" class="btn btn-default btn-xs" data-click="user-edit" data-id="{v#id}">
+        <button type="button" class="btn btn-default btn-xs"
+                data-wait="disable"
+                data-click="user-edit" data-id="{v#id}">
             Править
         </button>
     </td>

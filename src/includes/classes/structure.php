@@ -40,7 +40,7 @@ class UserItem extends AbricosItem {
         $this->joindate = intval($d['joindate']);
         $this->lastvisit = intval($d['lastvisit']);
 
-        if (array_key_exists('antibotdetect', $d)){
+        if (array_key_exists('antibotdetect', $d)) {
             $this->antibotdetect = $d['antibotdetect'] > 0;
         }
         $this->agreement = $d['agreement'] > 0;
@@ -158,9 +158,8 @@ class UserListConfig extends AbricosListConfig {
 
     public function __construct($d = null) {
         parent::__construct($d);
-        if (is_array($d)) {
-            $this->filter = strval($d['filter']);
-        }
+        $d = array_to_object($d);
+        $this->filter = isset($d->filter) ? strval($d->filter) : "";
 
         $this->limit = 10;
 
