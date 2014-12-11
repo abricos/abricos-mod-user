@@ -55,6 +55,7 @@
         <th>Визит</th>
         <th>Группа</th>
         <th></th>
+        {v#antibot}
     </tr>
     </thead>
     <tbody>
@@ -77,4 +78,17 @@
             Править
         </button>
     </td>
+    {v#antibot}
 </tr>
+
+<!--{antibotth}-->
+<th></th>
+
+<!--{antibottd}-->
+<td>
+    <button type="button" class="btn btn-default btn-xs"
+            data-wait="disable"
+            data-click="user-bot" data-id="{v#id}">
+        Бот?
+    </button>
+</td>

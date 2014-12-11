@@ -36,16 +36,20 @@ Component.entryPoint = function(NS){
                 this.set('waiting', false);
                 if (!err){
                     this.set('userList', result.userList);
+                    this.set('listConfig', result.userList.get('listConfig'));
                 }
                 this.renderUserList();
             }, this);
         },
         renderUserList: function(){
-            var userList = this.get('userList');
-            var groupList = this.get('groupList');
+            var userList = this.get('userList'),
+                listConfig = this.get('listConfig'),
+                groupList = this.get('groupList');
+
             if (!userList || !groupList){
                 return;
             }
+
             var tp = this.template, lst = "";
 
             userList.each(function(user){
@@ -64,14 +68,16 @@ Component.entryPoint = function(NS){
                     {
                         joindate: Brick.dateExt.convert(attrs.joindate),
                         lastvisit: Brick.dateExt.convert(attrs.lastvisit),
-                        groups: aGroup.join(', ')
+                        groups: aGroup.join(', '),
+                        antibot: listConfig.get('antibot') ? tp.replace('antibottd') : ""
                     },
                     attrs
                 ]);
             });
 
             tp.gel('list').innerHTML = tp.replace('list', {
-                'rows': lst
+                'rows': lst,
+                'antibot': listConfig.get('antibot') ? tp.replace('antibotth') : ""
             });
 
             /*
@@ -122,6 +128,9 @@ Component.entryPoint = function(NS){
                 case 'user-edit':
                     this.showUserEditorDialog(userId);
                     return true;
+                case 'user-bot':
+                    this.showAntiBotDialog(userId);
+                    return true;
             }
         },
         showUserEditorDialog: function(userId){
@@ -144,6 +153,16 @@ Component.entryPoint = function(NS){
         },
         clearUserFilter: function(){
             this.setUserFilter("");
+        },
+        showAntiBotDialog: function(userId){
+            this.set('waiting', true);
+            var instance = this;
+            Brick.use('antibot', 'bot', function(err, ns){
+                instance.set('waiting', false);
+                new ns.BotEditorPanel(userId, function(){
+                    instance.reloadUserList();
+                });
+            });
         }
     }, {
         ATTRS: {
@@ -151,7 +170,7 @@ Component.entryPoint = function(NS){
                 value: COMPONENT
             },
             templateBlockName: {
-                value: 'widget,list,row'
+                value: 'widget,list,row,antibotth,antibottd'
             },
             listConfig: {
                 value: new NS.UserListConfig()

@@ -75,7 +75,9 @@ Component.entryPoint = function(NS){
 
     NS.UserListConfig = Y.Base.create('userListConfig', NS.ListConfig, [], {}, {
         ATTRS: {
-            filter: {value: ''}
+            filter: {value: ''},
+            antibot: {value: false},
+            uprofile: {value: false}
         }
     });
 

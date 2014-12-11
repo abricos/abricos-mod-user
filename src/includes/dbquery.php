@@ -36,7 +36,7 @@ class UserQuery {
      */
     public static function UserList(Ab_Database $db, $config) {
         $aw = array();
-        if ($config->isAntiBot) {
+        if ($config->antibot) {
             array_push($aw, "antibotdetect=0");
         }
         if (!empty($config->filter)) {

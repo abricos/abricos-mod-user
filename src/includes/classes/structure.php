@@ -154,7 +154,9 @@ class UserListConfig extends AbricosListConfig {
 
     public $filter;
 
-    public $isAntiBot = false;
+    public $antibot = false;
+
+    public $uprofile = false;
 
     public function __construct($d = null) {
         parent::__construct($d);
@@ -164,12 +166,17 @@ class UserListConfig extends AbricosListConfig {
         $this->limit = 10;
 
         $modAntibot = Abricos::GetModule('antibot');
-        $this->isAntiBot = !empty($modAntibot);
+        $this->antibot = !empty($modAntibot);
+
+        $modUProfile = Abricos::GetModule('uprofile');
+        $this->uprofile = !empty($modUProfile);
     }
 
     public function ToAJAX() {
         $ret = parent::ToAJAX();
         $ret->filter = $this->filter;
+        $ret->antibot = $this->antibot;
+        $ret->uprofile = $this->uprofile;
         return $ret;
     }
 
