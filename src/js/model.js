@@ -48,7 +48,9 @@ Component.entryPoint = function(NS){
         ATTRS: {
             username: {value: ''},
             password: {value: ''},
-            email: {value: ''}
+            passwordconfirm: {value: ''},
+            email: {value: ''},
+            termsofuse: {value: false}
         }
     });
 

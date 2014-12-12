@@ -27,18 +27,34 @@ Component.entryPoint = function(NS){
         SYS.FormAction
     ], {
         onSubmitFormAction: function(){
+            var model = this.get('model'),
+                err;
+
+            if (this.hasErrors()){
+                err = "empty";
+            }
+
+            if (err){
+                err = this.language.get('login.error.' + err);
+                Brick.mod.widget.notice.show(err);
+                return;
+            }
+
             this.set('waiting', true);
-            var model = this.get('model');
 
             NS.appInstance.login(model, function(err, result){
-                this.set('waiting', false);
                 if (!err){
                     Brick.Page.reload();
+                }else{
+                    this.set('waiting', false);
                 }
             }, this);
         }
     }, {
         ATTRS: {
+            showMessages: {
+                value: false
+            },
             component: {
                 value: COMPONENT
             },
@@ -55,12 +71,32 @@ Component.entryPoint = function(NS){
     });
 
     NS.RegisterFormWidget = Y.Base.create('registerFormWidget', SYS.AppWidget, [
+        Y.FormValidator,
         SYS.Form,
         SYS.FormAction
     ], {
         onSubmitFormAction: function(){
+            var model = this.get('model'),
+                attrs = model.getAttrs(),
+                err;
+
+            if (this.hasErrors()){
+                err = "empty";
+            } else if (attrs.password != attrs.passwordconfirm){
+                err = "password";
+            } else if (!attrs.termsofuse){
+                err = "termsofuse";
+            }
+
+            if (err){
+                err = this.language.get('register.error.' + err);
+                Brick.mod.widget.notice.show(err);
+                return;
+            }
+
+            model.set('passwordconfirm', '');
+
             this.set('waiting', true);
-            var model = this.get('model');
 
             NS.appInstance.register(model, function(err, result){
                 this.set('waiting', false);
@@ -85,6 +121,9 @@ Component.entryPoint = function(NS){
         }
     }, {
         ATTRS: {
+            showMessages: {
+                value: false
+            },
             component: {
                 value: COMPONENT
             },
@@ -111,7 +150,7 @@ Component.entryPoint = function(NS){
             NS.appInstance.termsOfUse(function(err, result){
                 var text = "error";
                 if (!err){
-                    text = result.termsofuse;
+                    text = result.termsOfUse;
                 }
                 instance.setTermsOfUseText(text);
             }, this);

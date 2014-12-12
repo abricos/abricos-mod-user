@@ -12,17 +12,20 @@
 
                 <div class="form-group">
                     <label for="{v#id}in-username" class="control-label">Имя пользователя или email</label>
-                    <input id="{v#id}in-username" type="text" class="form-control" name="username"
+                    <input id="{v#id}in-username" type="text"
+                           name="username" class="form-control field-required"
                            placeholder="Имя пользователя или email">
                 </div>
                 <div class="form-group">
                     <label for="{v#id}in-pass" class="control-label">Пароль</label>
-                    <input id="{v#id}in-pass" type="password" class="form-control" name="password"
+                    <input id="{v#id}in-pass" type="password"
+                           name="password" class="form-control field-required"
                            placeholder="Пароль">
                 </div>
                 <div class="form-group">
                     <div class="checkbox">
-                        <label> <input type="checkbox" name="autologin" data-form="autologin"> Запомнить меня </label>
+                        <label> <input type="checkbox" name="autologin"
+                                       data-form="autologin"> Запомнить меня </label>
                     </div>
                 </div>
                 <div class="form-group">
@@ -46,32 +49,40 @@
 
                 <div class="form-group">
                     <label for="{v#id}reg-login" class="control-label">Имя пользователя</label>
-                    <input id="{v#id}reg-login" type="text" class="form-control" name="username"
+                    <input id="{v#id}reg-login" type="text"
+                           class="form-control field-required" name="username"
                            placeholder="Имя пользователя">
                 </div>
                 <div class="form-group">
                     <label for="{v#id}reg-email" class="control-label">Email</label>
-                    <input id="{v#id}reg-email" type="email" class="form-control" name="email"
+                    <input id="{v#id}reg-email" type="email"
+                           class="form-control field-required" name="email"
                            placeholder="Email">
                 </div>
                 <div class="form-group">
                     <label for="{v#id}reg-pass" class="control-label">Пароль</label>
-                    <input id="{v#id}reg-pass" type="password" class="form-control" name="password"
+                    <input id="{v#id}reg-pass" type="password"
+                           class="form-control field-required"
+                           name="password"
                            placeholder="Пароль">
                 </div>
                 <div class="form-group">
                     <label for="{v#id}reg-passconf" class="control-label">Подвердите пароль</label>
-                    <input id="{v#id}reg-passconf" type="password" class="form-control"
+                    <input id="{v#id}reg-passconf" type="password"
+                           class="form-control field-required"
+                           name="passwordconfirm"
                            placeholder="Подвердите пароль">
                 </div>
                 <div class="form-group">
                     <div class="checkbox">
-                        <label> <input type="checkbox"> Я согласен с
-                            <a href="/user/termofuse/" data-click="termofuse">пользовательским соглашением</a></label>
+                        <label> <input type="checkbox" name="termsofuse" data-form="termsofuse"/> Я согласен с
+                            <a href="/user/termsofuse/" data-click="termofuse">пользовательским соглашением</a></label>
                     </div>
                 </div>
                 <div class="form-group text-right">
-                    <button type="submit" class="btn btn-primary">Зарегистрироваться</button>
+                    <button type="submit" class="btn btn-primary">
+                        Зарегистрироваться
+                    </button>
                     <button type="button" class="btn btn-default"
                             data-parent="#{v#id}form"
                             data-target="#{v#id}loginpanel"
