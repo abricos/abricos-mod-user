@@ -69,6 +69,7 @@ Component.entryPoint = function(NS){
                         joindate: Brick.dateExt.convert(attrs.joindate),
                         lastvisit: Brick.dateExt.convert(attrs.lastvisit),
                         groups: aGroup.join(', '),
+                        uprofile: listConfig.get('uprofile') ? tp.replace('uprofiletd') : "",
                         antibot: listConfig.get('antibot') ? tp.replace('antibottd') : ""
                     },
                     attrs
@@ -77,6 +78,7 @@ Component.entryPoint = function(NS){
 
             tp.gel('list').innerHTML = tp.replace('list', {
                 'rows': lst,
+                'uprofile': listConfig.get('uprofile') ? tp.replace('uprofileth') : "",
                 'antibot': listConfig.get('antibot') ? tp.replace('antibotth') : ""
             });
 
@@ -170,7 +172,7 @@ Component.entryPoint = function(NS){
                 value: COMPONENT
             },
             templateBlockName: {
-                value: 'widget,list,row,antibotth,antibottd'
+                value: 'widget,list,row,uprofileth,uprofiletd,antibotth,antibottd'
             },
             listConfig: {
                 value: new NS.UserListConfig()

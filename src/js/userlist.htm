@@ -55,6 +55,7 @@
         <th>Визит</th>
         <th>Группа</th>
         <th></th>
+        {v#uprofile}
         {v#antibot}
     </tr>
     </thead>
@@ -78,8 +79,21 @@
             Править
         </button>
     </td>
+    {v#uprofile}
     {v#antibot}
 </tr>
+
+<!--{uprofileth}-->
+<th></th>
+
+<!--{uprofiletd}-->
+<td>
+    <a href="#app=uprofile/ws/showws/{v#id}/" class="btn btn-default btn-xs"
+            data-wait="disable"
+            data-click="user-profile" data-id="{v#id}">
+        Профиль
+    </a>
+</td>
 
 <!--{antibotth}-->
 <th></th>
