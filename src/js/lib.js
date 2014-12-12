@@ -71,6 +71,12 @@ Component.entryPoint = function(NS){
                 return new NS.Admin.User(d);
             }
         },
+        userActivateCustom: {
+            args: ['userid']
+        },
+        userActivateSendEMail: {
+            args: ['userid']
+        },
         userList: {
             args: ['userListConfig'],
             response: function(d){

@@ -62,6 +62,10 @@ Component.entryPoint = function(NS){
             });
 
             this.fire('renderEditor');
+
+            if (!user.get('emailconfirm')){
+                Y.one(tp.gel('activate')).removeClass('hide');
+            }
         },
         onSubmitFormAction: function(){
             this.set('waiting', true);
@@ -93,13 +97,37 @@ Component.entryPoint = function(NS){
                     this._showPasswordForm();
                     return true;
                 case 'cancel':
-                    this.fire('editorCancel');
+                    this.fire('editorCancel', this.get('isUserChange'));
+                    return true;
+                case 'activate-custom':
+                    this.activateCustom();
+                    return true;
+                case 'activate-sendemail':
+                    this.activateEMailSendAgain();
                     return true;
             }
         },
         _defEditorSaved: function(){
         },
         _defEditorCancel: function(){
+        },
+        activateCustom: function(){
+            this.set('waiting', true);
+            this.get('appInstance').userActivateCustom(this.get('userId'), function(err, result){
+                this.set('waiting', false);
+
+                if (!err){
+                    this.set('isUserChange', true);
+                    Y.one(this.template.gel('activate')).addClass('hide');
+                }
+                this.onLoadUser();
+            }, this);
+        },
+        activateEMailSendAgain: function(){
+            this.set('waiting', true);
+            this.get('appInstance').userActivateSendEMail(this.get('userId'), function(err, result){
+                this.set('waiting', false);
+            }, this);
         }
     }, {
         ATTRS: {
@@ -114,6 +142,9 @@ Component.entryPoint = function(NS){
             },
             user: {
                 value: null
+            },
+            isUserChange: function(){
+                value: false
             }
         }
     });
@@ -123,6 +154,7 @@ Component.entryPoint = function(NS){
             this.publish('editorSaved', {
                 defaultFn: this._defEditorSaved
             });
+            this.publish('editorCancel');
             Y.after(this._syncUIUserEditorDialog, this, 'syncUI');
         },
         _syncUIUserEditorDialog: function(){
@@ -134,7 +166,8 @@ Component.entryPoint = function(NS){
                 render: false
             });
             var instance = this;
-            widget.on('editorCancel', function(){
+            widget.on('editorCancel', function(evt, isUserChange){
+                instance.fire('editorCancel', isUserChange);
                 instance.hide();
             });
             widget.on('editorSaved', function(){

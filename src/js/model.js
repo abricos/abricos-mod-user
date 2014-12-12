@@ -164,7 +164,8 @@ Component.entryPoint = function(NS){
     NS.Admin.User = Y.Base.create('user', NS.User, [], {}, {
         ATTRS: {
             email: {value: ''},
-            groups: {value: []}
+            groups: {value: []},
+            emailconfirm: {value: false}
         }
     });
 

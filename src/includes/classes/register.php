@@ -178,13 +178,14 @@ class UserManager_Registration {
         )));
 
         Abricos::Notify()->SendMail($user->email, $subject, $body);
+        return true;
     }
 
     public function ConfirmEmailSendAgain($userid) {
         if (!$this->manager->IsAdminRole()) {
             return;
         }
-        $this->ConfirmEmailSend($userid);
+        return $this->ConfirmEmailSend($userid);
     }
 
     public function ActivateToAJAX($d) {
@@ -225,7 +226,7 @@ class UserManager_Registration {
             return 2;
         }
         if ($code === 0) {
-            if (!$this->IsAdminRole()) {
+            if (!$this->manager->IsAdminRole()) {
                 return 0;
             }
             $row = UserQuery_Register::RegistrationActivateInfo($this->db, $userid);

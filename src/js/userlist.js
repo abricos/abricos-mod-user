@@ -148,6 +148,12 @@ Component.entryPoint = function(NS){
             dialog.on('editorSaved', function(){
                 this.reloadUserList();
             }, this);
+
+            dialog.on('editorCancel', function(evt, isUserChange){
+                if (isUserChange){
+                    this.reloadUserList();
+                }
+            }, this);
         },
         _setFilterFromInput: function(){
             var filter = this.template.gel('filter').value;

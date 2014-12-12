@@ -33,6 +33,10 @@ class UserManager_Admin {
                 return $this->UserToAJAX($d->userid);
             case "userSave":
                 return $this->UserSaveToAJAX($d->userData);
+            case "userActivateCustom":
+                return $this->UserActivateCustomToAJAX($d->userid);
+            case "userActivateSendEMail":
+                return $this->UserActivateSendEMailToAJAX($d->userid);
             case "userList":
                 return $this->UserListToAJAX($d->userListConfig);
             case "groupList":
@@ -42,6 +46,62 @@ class UserManager_Admin {
 
         }
         return null;
+    }
+
+    public function UserActivateCustomToAJAX($userId) {
+        $user = $this->UserActivateCustom($userId);
+
+        if (empty($user)) {
+            return 403;
+        }
+
+        $ret = new stdClass();
+        $ret->user = $user->ToAJAX();
+        return $ret;
+
+    }
+
+    public function UserActivateCustom($userId) {
+        if (!$this->IsAdminRole()) {
+            return null;
+        }
+
+        $userId = intval($userId);
+
+        $this->manager->GetRegistrationManager()->Activate($userId);
+
+        $this->manager->CacheUserClear();
+
+        return $this->User($userId);
+    }
+
+    public function UserActivateSendEMailToAJAX($userId){
+        $user = $this->UserActivateSendEMail($userId);
+
+        if (empty($user)) {
+            return 403;
+        }
+
+        $ret = new stdClass();
+        $ret->user = $user->ToAJAX();
+        return $ret;
+    }
+
+    public function UserActivateSendEMail($userId){
+        if (!$this->IsAdminRole()) {
+            return null;
+        }
+
+        $userId = intval($userId);
+
+        $result = $this->manager->GetRegistrationManager()->ConfirmEmailSendAgain($userId);
+        if (!$result){
+            return null;
+        }
+
+        $this->manager->CacheUserClear();
+
+        return $this->User($userId);
     }
 
     public function UserSaveToAJAX($d) {
@@ -58,7 +118,7 @@ class UserManager_Admin {
 
     public function UserSave($d, $classUserItem = null) {
         if (!$this->IsAdminRole()) {
-            return 403;
+            return null;
         }
 
         $userId = isset($d->id) ? intval($d->id) : 0;
@@ -78,7 +138,7 @@ class UserManager_Admin {
 
             $user = $this->User($userId);
 
-            if (!empty($d->password)){
+            if (!empty($d->password)) {
                 $passwordCrypt = UserManager::UserPasswordCrypt($d->password, $user->salt);
                 UserQuery_Admin::UserPasswordUpdate($this->db, $userId, $passwordCrypt);
             }
@@ -114,7 +174,7 @@ class UserManager_Admin {
             return null;
         }
 
-        if (empty($classUserItem)){
+        if (empty($classUserItem)) {
             $classUserItem = 'UserItem_Admin';
         }
 
