@@ -82,6 +82,10 @@ Component.entryPoint = function(NS){
                 'antibot': listConfig.get('antibot') ? tp.replace('antibotth') : ""
             });
 
+            if (listConfig.get('antibot')){
+                Y.all('.btn-stopspam').removeClass('hide');
+            }
+
             /*
              var listConfig = userList.get('listConfig').getAttrs(),
              pageCount = listConfig.total / listConfig.limit;
@@ -118,6 +122,9 @@ Component.entryPoint = function(NS){
                     return true;
                 case 'reload':
                     this.reloadUserList();
+                    return true;
+                case 'stopspam':
+                    this.showStopSpamDialog();
                     return true;
             }
 
@@ -162,6 +169,16 @@ Component.entryPoint = function(NS){
             Brick.use('antibot', 'bot', function(err, ns){
                 instance.set('waiting', false);
                 new ns.BotEditorPanel(userId, function(){
+                    instance.reloadUserList();
+                });
+            });
+        },
+        showStopSpamDialog: function(userId){
+            this.set('waiting', true);
+            var instance = this;
+            Brick.use('antibot', 'stopspam', function(err, ns){
+                instance.set('waiting', false);
+                new ns.StopSpamPanel(function(){
                     instance.reloadUserList();
                 });
             });

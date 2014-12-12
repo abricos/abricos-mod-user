@@ -2,40 +2,46 @@
 <div id="{i#id}" class="manager">
     <div class="panel panel-default">
         <div class="panel-heading">
-            <div class="row">
-                <div class="col-xs-6">
-                    <h3 class="panel-title">
-                        Список пользователей
-                        <span data-wait="show">
-                            <img src="/images/loading.gif"/> Загрузка...
-                        </span>
-                    </h3>
 
-                </div>
-                <div class="col-xs-6">
-                    <div class="input-group">
-                        <input id="{i#filter}" type="text"
-                               data-wait="disable"
-                               class="input-sm form-control"
-                               placeholder="Введите фильтр"/>
+            <div class="panel-title pull-left">
+                Пользователи
+                <span data-wait="show">
+                    <img src="/images/loading.gif"/> Загрузка...
+                </span>
+            </div>
 
-                        <div class="input-group-btn">
-                            <button class=" btn btn-sm btn-default"
-                                    data-wait="disable"
-                                    data-click="filter-set">Установить
-                            </button>
-                            <button class="btn btn-sm btn-default"
-                                    data-wait="disable"
-                                    data-click="filter-clear">Сбросить
-                            </button>
-                            <button class="btn btn-sm btn-default"
-                                    data-wait="disable"
-                                    data-click="reload">Обновить
-                            </button>
-                        </div>
+            <div class="pull-right btn-toolbar">
+                <button class="btn btn-sm btn-default btn-stopspam hide"
+                        data-wait="disable"
+                        data-click="stopspam">Анализ StopSpam
+                </button>
+
+                <button class="btn btn-sm btn-default"
+                        data-wait="disable"
+                        data-click="reload">Обновить
+                </button>
+            </div>
+
+            <div class="pull-right col-xs-6">
+                <div class="input-group ">
+                    <input id="{i#filter}" type="text"
+                           data-wait="disable"
+                           class="input-sm form-control"
+                           placeholder="Введите фильтр"/>
+
+                    <div class="input-group-btn">
+                        <button class=" btn btn-sm btn-default"
+                                data-wait="disable"
+                                data-click="filter-set">Установить
+                        </button>
+                        <button class="btn btn-sm btn-default"
+                                data-wait="disable"
+                                data-click="filter-clear">Сбросить
+                        </button>
                     </div>
                 </div>
             </div>
+            <div class="clearfix"></div>
         </div>
         <div class="panel-body">
             <div id="{i#list}"></div>
