@@ -29,7 +29,7 @@ class UserManager_Registration {
             case "register":
                 return $this->RegisterToAJAX($d->register);
             case "activate":
-                return $this->ActivateToAJAX($d->savedata);
+                return $this->ActivateToAJAX($d->activate);
             case "useremailcnfsend":
                 return $this->ConfirmEmailSendAgain($d->userid);
             case "termsOfUse":
