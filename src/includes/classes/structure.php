@@ -11,6 +11,8 @@ class UserItem extends AbricosItem {
     public $firstname;
     public $lastname;
 
+    public $email;
+
     public $agreement;
 
     public $joindate;
@@ -27,6 +29,7 @@ class UserItem extends AbricosItem {
             'username' => '',
             'firstname' => '',
             'lastname' => '',
+            'email' => '',
             'joindate' => '',
             'lastvisit' => TIMENOW,
             'antibotdetect' => false,
@@ -36,6 +39,7 @@ class UserItem extends AbricosItem {
         $this->username = strval($d['username']);
         $this->firstname = strval($d['firstname']);
         $this->lastname = strval($d['lastname']);
+        $this->email = strval($d['email']);
 
         $this->joindate = intval($d['joindate']);
         $this->lastvisit = intval($d['lastvisit']);
@@ -46,6 +50,10 @@ class UserItem extends AbricosItem {
         $this->agreement = $d['agreement'] > 0;
 
         $this->_data = $d;
+    }
+
+    public function FullName() {
+        return (!empty($this->firstname) && !empty($this->lastname)) ? $this->firstname." ".$this->lastname : $this->username;
     }
 
     public function GetType() {
