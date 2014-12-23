@@ -1,0 +1,24 @@
+{
+  "name": "abricos-mod-user",
+  "description": "User Module for Abricos Platform",
+  "version": "0.3.0",
+  "author": {
+    "name": "Alexander Kuzmin",
+    "email": "roosit@abricos.org",
+    "web": "http://abricos.org",
+    "twitter": "roositab"
+  },
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/abricos/abricos-mod-user.git"
+  },
+  "keywords": [
+    "abricos",
+    "user"
+  ],
+  "bugs": {
+    "url": "https://github.com/abricos/abricos-mod-user/issues"
+  },
+  "homepage": "http://abricos.org/mods/user/"
+}
