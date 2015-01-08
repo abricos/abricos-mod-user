@@ -441,14 +441,14 @@ class UserManager extends Ab_ModuleManager {
             array(
                 "name" => "adminka",
                 "title" => $lng['bosmenu']['adminka'],
-                "icon" => "/modules/user/images/cpanel-24.png",
+                "icon" => "{C#ASSETS}/images/cpanel-24.png",
                 "url" => "user/board/showBoardPanel",
                 "parent" => "controlPanel"
             ),
             array(
                 "name" => "user",
                 "title" => $lng['bosmenu']['users'],
-                "icon" => "/modules/user/images/users-24.png",
+                "icon" => "{C#ASSETS}/images/users-24.png",
                 "url" => "user/wspace/ws",
                 "parent" => "controlPanel"
             )

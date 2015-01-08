@@ -1,7 +1,9 @@
+@modUserAssets: '{C#ASSETS:M:user}';
+
 .mod-user-cp {
   .header {
     height: 60px;
-    background: #0094D6 url(/modules/user/css/images/brick.gif) no-repeat right;
+    background: #0094D6 url('@{modUserAssets}/images/brick.gif') no-repeat right;
     border-bottom: 1px solid #666666;
 
     a {
@@ -89,7 +91,7 @@
       white-space: nowrap;
       padding: 1px 8px;
       margin-top: 0px;
-      background: #149BD7 url(/modules/user/css/images/bg_h.gif) repeat-x;
+      background: #149BD7 url('@{modUserAssets}/images/bg_h.gif') repeat-x;
       height: 20px;
       color: #fff;
       font-size: 8pt;
