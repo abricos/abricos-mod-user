@@ -78,14 +78,14 @@ class UserManager_Auth {
         $username = trim($username);
         $password = trim($password);
 
+        if (empty($username) || empty($password)){
+            return 3;
+        }
+
         if ((strpos($username, '@') > 0 && !UserManager::EmailValidate($username))
             || !UserManager::UserNameValidate($username)
         ){
             return 1;
-        }
-
-        if (empty($username) || empty($password)){
-            return 3;
         }
 
         $user = $this->manager->UserByName($username, true);
