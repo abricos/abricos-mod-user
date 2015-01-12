@@ -120,7 +120,7 @@
 
 <script>
     Brick.use('user', 'guest', function(err, NS){
-        (new NS.LoginFormWidget({'boundingBox': '#{v#id}loginform'})).render();
+        (new NS.AuthFormWidget({'boundingBox': '#{v#id}loginform'})).render();
         (new NS.RegisterFormWidget({'boundingBox': '#{v#id}regform'})).render();
         (new NS.PasswordRecoveryFormWidget({'boundingBox': '#{v#id}passrecform'})).render();
     });

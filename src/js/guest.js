@@ -21,7 +21,7 @@ Component.entryPoint = function(NS){
 
         SYS = Brick.mod.sys;
 
-    NS.LoginFormWidget = Y.Base.create('loginFormWidget', SYS.AppWidget, [
+    NS.AuthFormWidget = Y.Base.create('authFormWidget', SYS.AppWidget, [
         Y.FormValidator,
         SYS.Form,
         SYS.FormAction
@@ -42,7 +42,7 @@ Component.entryPoint = function(NS){
 
             this.set('waiting', true);
 
-            NS.appInstance.login(model, function(err, result){
+            NS.appInstance.auth(model, function(err, result){
                 if (!err){
                     Brick.Page.reload();
                 }else{
@@ -65,7 +65,7 @@ Component.entryPoint = function(NS){
                 value: false
             },
             model: {
-                value: new NS.Login()
+                value: new NS.AuthData()
             }
         }
     });

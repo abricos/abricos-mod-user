@@ -36,7 +36,7 @@ Component.entryPoint = function(NS){
         }
     });
 
-    NS.Login = Y.Base.create('login', Y.Model, [], {}, {
+    NS.AuthData = Y.Base.create('authData', Y.Model, [], {}, {
         ATTRS: {
             username: {value: ''},
             password: {value: ''},

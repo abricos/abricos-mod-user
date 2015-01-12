@@ -38,7 +38,7 @@ Component.entryPoint = function(NS){
     };
 
     SYS.Application.build(COMPONENT, {
-        login: {args: ['login']},
+        auth: {args: ['authData']},
         logout: {},
         register: {
             args: ['register'],

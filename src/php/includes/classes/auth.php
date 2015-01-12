@@ -24,33 +24,39 @@ class UserManager_Auth {
      */
     public $db;
 
-    public function __construct(UserManager $manager) {
+    public function __construct(UserManager $manager){
         $this->module = $manager->module;
         $this->manager = $manager;
         $this->db = $manager->db;
     }
 
-    public function AJAX($d) {
-        switch ($d->do) {
-            case "login":
-                return $this->LoginToAJAX($d->login);
+    public function AJAX($d){
+        switch ($d->do){
+            case "auth":
+                $d->authData = isset($d->authData) ? $d->authData : new stdClass();
+                return $this->LoginToAJAX($d->authData);
             case "logout":
                 return $this->LogoutToAJAX();
         }
         return null;
     }
 
-    private $_usercache = null;
+    public function LoginToAJAX($d){
 
-    public function LoginToAJAX($d) {
+        $d->username = isset($d->username) ? $d->username : '';
+        $d->password = isset($d->password) ? $d->password : '';
+        $d->autologin = isset($d->autologin) ? $d->autologin : false;
+
         $res = $this->Login($d->username, $d->password, $d->autologin);
 
         $ret = $this->manager->TreatResult($res);
 
-        $user = $this->_usercache;
-        if ($ret->err === 0 && !empty($user)) {
-            $ret->user = array("id" => $user['userid'], "agr" => $user['agreement']);
+        if ($ret->err !== 0){
+            return $ret;
         }
+
+        $retUser = $this->manager->GetSessionManager()->UserCurrentToAJAX();
+        $ret->userCurrent = $retUser->userCurrent;
 
         return $ret;
     }
@@ -68,27 +74,33 @@ class UserManager_Auth {
      * @param String $password пароль
      * @return Integer
      */
-    public function Login($username, $password, $autologin = false) {
+    public function Login($username, $password, $autologin = false){
         $username = trim($username);
         $password = trim($password);
 
-        if (empty($username) || empty($password)) {
+        if ((strpos($username, '@') > 0 && !UserManager::EmailValidate($username))
+            || !UserManager::UserNameValidate($username)
+        ){
+            return 1;
+        }
+
+        if (empty($username) || empty($password)){
             return 3;
         }
 
         $user = $this->manager->UserByName($username, true);
 
-        if (empty($user)) {
+        if (empty($user)){
             return 2;
         }
         $user = new UserItem_Auth($user);
 
-        if (!$user->emailconfirm) {
+        if (!$user->emailconfirm){
             return 5;
         }
 
         $passcrypt = UserManager::UserPasswordCrypt($password, $user->salt);
-        if ($passcrypt != $user->password) {
+        if ($passcrypt != $user->password){
             return 2;
         }
 
@@ -97,10 +109,12 @@ class UserManager_Auth {
         return 0;
     }
 
-    public function LoginMethod($user, $autologin = false) {
-        if ($user instanceof UserItem) {
+    private function LoginMethod($user, $autologin = false){
+        if ($user instanceof UserItem){
             $user = new UserItem_Auth($user);
         }
+
+        Abricos::$user = $user;
 
         $session = $this->manager->GetSessionManager();
         $session->Set('userid', $user->id);
@@ -109,10 +123,10 @@ class UserManager_Auth {
         $session->Set('guserid', $user->id);
 
         // зашел тот же человек, но под другой учеткой
-        if ($guserid > 0 && $guserid != $user->id) {
+        if ($guserid > 0 && $guserid != $user->id){
             UserQuery_Auth::UserDoubleLogAppend($this->db, $guserid, $user->id, $_SERVER['REMOTE_ADDR']);
         }
-        if ($autologin) {
+        if ($autologin){
             // установить куки для автологина
             $privateKey = $session->GetSessionPrivateKey();
             $sessionKey = md5(TIMENOW.$privateKey.cmsrand(1, 1000000));
@@ -128,14 +142,14 @@ class UserManager_Auth {
         $this->manager->UserDomainUpdate($user->id);
     }
 
-    public function LogoutToAJAX() {
+    public function LogoutToAJAX(){
         $this->Logout();
         $ret = new stdClass();
         $ret->err = 0;
         return $ret;
     }
 
-    public function Logout() {
+    public function Logout(){
 
         $session = $this->manager->GetSessionManager();
         $sessionKey = Abricos::CleanGPC('c', $session->cookieName, TYPE_STR);
