@@ -38,47 +38,42 @@ describe('Abricos.API', function(){
 
         describe('Registration:', function(){
 
-            describe('Process', function(){
+            var registerData = {
+                username: 'user' + helper.randomInt(),
+                password: 'pass' + helper.randomInt(),
+                email: 'user' + helper.randomInt() + '@example.com'
+            };
 
-                var registerData = {
-                    username: 'user' + helper.randomInt(),
-                    password: 'pass' + helper.randomInt(),
-                    email: 'user' + helper.randomInt() + '@localhost.ru'
-                };
+            describe('Process', function(){
 
                 it('New user registration', function(done){
                     api.config.set('log.console.level', 'debug');
 
-                    userModule.register(registerData, function(err, userCurrnet){
+                    userModule.register(registerData, function(err, registerInfo){
+                        api.config.set('log.console.level', 'info');
+
                         should.not.exist(err);
+                        should.exist(registerInfo);
+                        registerInfo.should.have.property('userid');
 
                         done();
                     });
                 });
             });
 
-            /*
-             describe('Errors', function(){
+            describe('Errors', function(){
 
-             it('Username already registered, error code 1', function(done){
+                it('Username already registered, error code 1', function(done){
 
-             var registerData = {
-             username: 'admin',
-             password: 'admin',
-             email: 'admin@'
-             };
+                    userModule.register(registerData, function(err, registerInfo){
+                        should.exist(err);
+                        should.not.exist(registerInfo);
 
-             userModule.register(registerData, function(err, userCurrnet){
-             should.not.exist(err);
+                        done();
+                    });
+                });
 
-             done();
-             });
-             });
-
-             });
-
-             /*
-             /**/
+            });
 
         });
 
@@ -127,8 +122,6 @@ describe('Abricos.API', function(){
             });
 
             it('Admin user authorization', function(done){
-                api.config.set('log.console.level', 'info');
-
                 var authData = {
                     username: 'admin',
                     password: 'admin',

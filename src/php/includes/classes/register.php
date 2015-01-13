@@ -92,8 +92,7 @@ class UserManager_Registration {
         if (is_integer($result)) {
             $ret->err = $result;
         } else {
-            $ret->register = new stdClass();
-            $ret->register->userid = $result->userid;
+            $ret->register = $result;
         }
 
         return $ret;
@@ -150,7 +149,11 @@ class UserManager_Registration {
             return $ret;
         }
 
-        $this->ConfirmEmailSend($userid);
+        $isSend = $this->ConfirmEmailSend($userid);
+
+        if (!$isSend && Abricos::$config['Misc']['develop_mode']){
+            $ret->sendEMailError = Abricos::Notify()->errorInfo;
+        }
 
         return $ret;
     }
@@ -182,8 +185,7 @@ class UserManager_Registration {
             "sitename" => SystemModule::$instance->GetPhrases()->Get('site_name')
         )));
 
-        Abricos::Notify()->SendMail($user->email, $subject, $body);
-        return true;
+        return Abricos::Notify()->SendMail($user->email, $subject, $body);
     }
 
     public function ConfirmEmailSendAgain($userid) {
