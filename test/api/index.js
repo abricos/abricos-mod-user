@@ -2,8 +2,6 @@
 
 var Abricos = require('abricos-rest');
 var should = require('should');
-// console.log(should);
-// should.extend('should', Object.prototype);
 
 describe('Abricos.API', function(){
 
