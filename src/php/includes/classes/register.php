@@ -27,6 +27,7 @@ class UserManager_Registration {
     public function AJAX($d) {
         switch ($d->do) {
             case "register":
+                $d->register = isset($d->register) ? $d->register : new stdClass();
                 return $this->RegisterToAJAX($d->register);
             case "activate":
                 return $this->ActivateToAJAX($d->activate);
@@ -81,6 +82,10 @@ class UserManager_Registration {
     }
 
     public function RegisterToAJAX($d) {
+        $d->username = isset($d->username) ? $d->username : '';
+        $d->password = isset($d->password) ? $d->password : '';
+        $d->email = isset($d->email) ? $d->email : '';
+
         $result = $this->Register($d->username, $d->password, $d->email, true, true);
 
         $ret = new stdClass();
