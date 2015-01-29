@@ -36,7 +36,7 @@ describe('Abricos.API', function(){
             });
         });
 
-        describe.only('Registration', function(){
+        describe('Registration', function(){
 
             var registerData = {
                 username: 'user' + helper.randomInt(),
@@ -197,7 +197,8 @@ describe('Abricos.API', function(){
                     });
                 });
 
-                // TODO: test error code 3 and 4
+                it('should be authorization error code 3');
+                it('should be authorization error code 4');
 
             });
 
