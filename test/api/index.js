@@ -16,7 +16,7 @@ describe('Abricos.API', function(){
         done();
     });
 
-    describe('User Module API: ', function(){
+    describe('User Module API ', function(){
 
         describe('Guest', function(){
 
@@ -36,7 +36,7 @@ describe('Abricos.API', function(){
             });
         });
 
-        describe('Registration:', function(){
+        describe.only('Registration', function(){
 
             var registerData = {
                 username: 'user' + helper.randomInt(),
@@ -47,24 +47,98 @@ describe('Abricos.API', function(){
 
             describe('Process', function(){
 
-                it('New user registration', function(done){
-
+                it('should be registered new user', function(done){
                     userModule.register(registerData, function(err, registerInfo){
-
                         should.not.exist(err);
                         should.exist(registerInfo);
                         registerInfo.should.have.property('userid');
 
                         newUserInfo = registerInfo;
 
+                        registerInfo.should.have.property('emailInfo');
+
+                        var emailInfo = registerInfo.emailInfo;
+
+                        should.not.exist(emailInfo.error, 'run SMTPeshka for email testing');
+
                         done();
                     });
                 });
 
+                var activateEmail;
+
                 it('should be get message from SMTPeshka', function(done){
+                    var messageId = newUserInfo.emailInfo.messageId;
+                    api.smtpeshka.email(messageId, function(err, email){
+                        should.not.exist(err);
+                        should.exist(email);
+
+                        email.should.have.property('html');
+                        email.should.have.property('messageId', messageId);
+
+                        activateEmail = email;
+                        done();
+                    });
+                });
+
+                var activationCode;
+
+                it('should be activate code in HTML email', function(done){
+                    var $ = api.jsDOM.load(activateEmail.html);
+                    var code = $('#activate-code').html();
+                    should.exist(code);
+                    activationCode = code;
                     done();
                 });
 
+                it('should be activated error, code 1 (`User not found`)', function(done){
+                    var activateData = {
+                        userid: 84681354
+                    };
+                    userModule.activate(activateData, function(err, result){
+                        should.exist(err);
+                        err.should.have.property('code', 1);
+                        should.not.exist(result);
+                        done();
+                    });
+                });
+
+                it('should be activated error, code 3 (`Bad activation code`)', function(done){
+                    var activateData = {
+                        userid: newUserInfo.userid
+                    };
+                    userModule.activate(activateData, function(err, result){
+                        should.exist(err);
+                        err.should.have.property('code', 3);
+                        should.not.exist(result);
+                        done();
+                    });
+                });
+
+                it('should be activated user', function(done){
+                    var activateData = {
+                        userid: newUserInfo.userid,
+                        code: activationCode
+                    };
+                    userModule.activate(activateData, function(err, result){
+                        should.not.exist(err);
+                        should.exist(result);
+                        done();
+                    });
+                });
+
+                it('should be activated error, code 2 (`User is already activated`)', function(done){
+                    var activateData = {
+                        userid: newUserInfo.userid,
+                        code: activationCode
+                    };
+                    userModule.activate(activateData, function(err, result){
+                        should.exist(err);
+                        err.should.have.property('code', 2);
+                        should.not.exist(result);
+                        done();
+                    });
+                });
             });
 
             describe('Errors', function(){
