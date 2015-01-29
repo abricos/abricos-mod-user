@@ -43,22 +43,28 @@ describe('Abricos.API', function(){
                 password: 'pass' + helper.randomInt(),
                 email: 'user' + helper.randomInt() + '@example.com'
             };
+            var newUserInfo;
 
             describe('Process', function(){
 
                 it('New user registration', function(done){
-                    api.config.set('log.console.level', 'debug');
 
                     userModule.register(registerData, function(err, registerInfo){
-                        api.config.set('log.console.level', 'info');
 
                         should.not.exist(err);
                         should.exist(registerInfo);
                         registerInfo.should.have.property('userid');
 
+                        newUserInfo = registerInfo;
+
                         done();
                     });
                 });
+
+                it('should be get message from SMTPeshka', function(done){
+                    done();
+                });
+
             });
 
             describe('Errors', function(){

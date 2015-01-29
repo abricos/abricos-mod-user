@@ -151,9 +151,14 @@ class UserManager_Registration {
 
         $isSend = $this->ConfirmEmailSend($userid);
 
-        if (!$isSend && Abricos::$config['Misc']['develop_mode']){
-            $ret->sendEMailError = Abricos::Notify()->errorInfo;
+        if (Abricos::$isDevelopMode){
+            $ret->emailInfo = new stdClass();
+            $ret->emailInfo->messageId = Abricos::Notify()->messageId;
+            if (!$isSend){
+                $ret->emailInfo->error = Abricos::Notify()->errorInfo;
+            }
         }
+
 
         return $ret;
     }
