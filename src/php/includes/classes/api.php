@@ -22,6 +22,7 @@ class UserAPIv1 extends AbricosAPIMethods {
         $this->manager = $manager;
 
         $this->AddGetRoute('current', 'Current');
+        $this->AddGetRoute('termsofuse', 'TermsOfUse');
         $this->AddGetRoute('logout', 'Logout');
         $this->AddPostRoute('auth', 'Auth');
         $this->AddPostRoute('registration', 'Registration');
@@ -324,6 +325,22 @@ class UserAPIv1 extends AbricosAPIMethods {
             $response->SetError($error);
         }
         return $response;
+    }
+
+    /**
+     * @api {get} /api/user/v1/termsofuse Terms Of Use
+     * @apiName TermsOfUse
+     * @apiGroup User
+     * @apiVersion 0.1.0
+     *
+     * @apiSuccess {Integer} text Terms Of Use text in HTML
+     */
+    public function TermsOfUse(){
+        $regMan = $this->manager->GetRegistrationManager();
+
+        $ret = new stdClass();
+        $ret->text = $regMan->TermsOfUse();
+        return $ret;
     }
 }
 

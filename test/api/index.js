@@ -45,6 +45,18 @@ describe('User Module API', function(){
 
         describe('Process', function(){
 
+            it.only('should get terms of use', function(done){
+                userModule.termsOfUse(function(err, result){
+
+                    should.not.exist(err);
+                    should.exist(result);
+
+                    result.should.have.property('text');
+
+                    done();
+                });
+            });
+
             it('should registered new user', function(done){
                 userModule.registration(registerData, function(err, registerInfo){
                     should.not.exist(err);
@@ -227,4 +239,5 @@ describe('User Module API', function(){
         });
 
     });
+
 });

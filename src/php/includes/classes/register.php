@@ -177,23 +177,6 @@ class UserManager_Registration {
         return $this->ConfirmEmailSend($userid);
     }
 
-    public function ActivateToAJAX($d){
-        $d->userid = isset($d->userid) ? $d->userid : 0;
-        $d->code = isset($d->code) ? $d->code : '';
-        $d->email = isset($d->email) ? $d->email : '';
-        $d->password = isset($d->password) ? $d->password : '';
-
-        $result = $this->Activate($d->userid, $d->code, $d->email, $d->password);
-
-        $ret = new stdClass();
-        if (is_integer($result)){
-            $ret->err = $result;
-        } else {
-            $ret->activate = $result;
-        }
-        return $ret;
-    }
-
     /**
      * Активировать нового пользователя.
      * В случае неудачи вернуть код ошибки:
@@ -249,12 +232,6 @@ class UserManager_Registration {
         $ret = new stdClass();
         $ret->userid = $userid;
 
-        return $ret;
-    }
-
-    public function TermsOfUseToAJAX(){
-        $ret = new stdClass();
-        $ret->termsOfUse = $this->TermsOfUse();
         return $ret;
     }
 
