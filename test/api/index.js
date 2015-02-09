@@ -16,7 +16,7 @@ describe('User Module API', function(){
         done();
     });
 
-    describe('Guest', function(){
+    describe('Guest functions', function(){
 
         it('Guest user info', function(done){
             userModule.userCurrent(function(err, userCurrnet){
@@ -45,8 +45,8 @@ describe('User Module API', function(){
 
         describe('Process', function(){
 
-            it('should be registered new user', function(done){
-                userModule.register(registerData, function(err, registerInfo){
+            it('should registered new user', function(done){
+                userModule.registration(registerData, function(err, registerInfo){
                     should.not.exist(err);
                     should.exist(registerInfo);
                     registerInfo.should.have.property('userid');
@@ -65,7 +65,7 @@ describe('User Module API', function(){
 
             var activateEmail;
 
-            it('should be get message from SMTPeshka', function(done){
+            it('should get message from SMTPeshka', function(done){
                 var messageId = newUserInfo.emailInfo.messageId;
                 api.smtpeshka.email(messageId, function(err, email){
                     should.not.exist(err);
@@ -81,7 +81,7 @@ describe('User Module API', function(){
 
             var activationCode;
 
-            it('should be activate code in HTML email', function(done){
+            it('should activate code in HTML email', function(done){
                 var $ = api.jsDOM.load(activateEmail.html);
                 var code = $('#activate-code').html();
                 should.exist(code);
@@ -89,50 +89,50 @@ describe('User Module API', function(){
                 done();
             });
 
-            it('should be activated error, code 1 (`User not found`)', function(done){
+            it('should activated error `USER_NOT_FOUND`', function(done){
                 var activateData = {
                     userid: 84681354
                 };
-                userModule.activate(activateData, function(err, result){
+                userModule.activation(activateData, function(err, result){
                     should.exist(err);
-                    err.should.have.property('code', 1);
+                    err.should.have.property('code', 'USER_NOT_FOUND');
                     should.not.exist(result);
                     done();
                 });
             });
 
-            it('should be activated error, code 3 (`Bad activation code`)', function(done){
+            it('should activated error `BAD_CODE`', function(done){
                 var activateData = {
                     userid: newUserInfo.userid
                 };
-                userModule.activate(activateData, function(err, result){
+                userModule.activation(activateData, function(err, result){
                     should.exist(err);
-                    err.should.have.property('code', 3);
+                    err.should.have.property('code', 'BAD_CODE');
                     should.not.exist(result);
                     done();
                 });
             });
 
-            it('should be activated user', function(done){
+            it('should activated user', function(done){
                 var activateData = {
                     userid: newUserInfo.userid,
                     code: activationCode
                 };
-                userModule.activate(activateData, function(err, result){
+                userModule.activation(activateData, function(err, result){
                     should.not.exist(err);
                     should.exist(result);
                     done();
                 });
             });
 
-            it('should be activated error, code 2 (`User is already activated`)', function(done){
+            it('should activated error `ALREADY_ACTIVATED`', function(done){
                 var activateData = {
                     userid: newUserInfo.userid,
                     code: activationCode
                 };
-                userModule.activate(activateData, function(err, result){
+                userModule.activation(activateData, function(err, result){
                     should.exist(err);
-                    err.should.have.property('code', 2);
+                    err.should.have.property('code', 'ALREADY_ACTIVATED');
                     should.not.exist(result);
                     done();
                 });
@@ -140,17 +140,14 @@ describe('User Module API', function(){
         });
 
         describe('Errors', function(){
-
             it('Username already registered, error code 1', function(done){
-
-                userModule.register(registerData, function(err, registerInfo){
+                userModule.registration(registerData, function(err, registerInfo){
                     should.exist(err);
                     should.not.exist(registerInfo);
 
                     done();
                 });
             });
-
         });
 
     });
@@ -200,7 +197,7 @@ describe('User Module API', function(){
 
         });
 
-        describe.only('Authorization process', function(){
+        describe('Authorization process', function(){
 
             it('should admin authorization', function(done){
                 var authData = {

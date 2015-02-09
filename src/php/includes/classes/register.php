@@ -26,12 +26,6 @@ class UserManager_Registration {
 
     public function AJAX($d){
         switch ($d->do){
-            case "register":
-                $d->register = isset($d->register) ? $d->register : new stdClass();
-                return $this->RegisterToAJAX($d->register);
-            case "activate":
-                $d->activate = isset($d->activate) ? $d->activate : new stdClass();
-                return $this->ActivateToAJAX($d->activate);
             case "useremailcnfsend":
                 return $this->ConfirmEmailSendAgain($d->userid);
             case "termsOfUse":
@@ -80,23 +74,6 @@ class UserManager_Registration {
             $salt .= chr(rand(32, 126));
         }
         return $salt;
-    }
-
-    public function RegisterToAJAX($d){
-        $d->username = isset($d->username) ? $d->username : '';
-        $d->password = isset($d->password) ? $d->password : '';
-        $d->email = isset($d->email) ? $d->email : '';
-
-        $result = $this->Register($d->username, $d->password, $d->email, true, true);
-
-        $ret = new stdClass();
-        if (is_integer($result)){
-            $ret->err = $result;
-        } else {
-            $ret->register = $result;
-        }
-
-        return $ret;
     }
 
     /**
@@ -159,7 +136,6 @@ class UserManager_Registration {
                 $ret->emailInfo->error = Abricos::Notify()->errorInfo;
             }
         }
-
 
         return $ret;
     }
@@ -227,11 +203,11 @@ class UserManager_Registration {
      *
      * @param $userid
      * @param int $code
-     * @param string $email
+     * @param string $login
      * @param string $password
      * @return int || Object
      */
-    public function Activate($userid, $code = 0, $email = '', $password = ''){
+    public function Activate($userid, $code = 0, $login = '', $password = ''){
         if (empty($userid)){
             $row = UserQueryExt::RegistrationActivateInfoByCode($this->db, $code);
             if (empty($row)){
@@ -265,9 +241,9 @@ class UserManager_Registration {
         }
 
 
-        if ($ret === 0 && !empty($email) && !empty($password)){
+        if ($ret === 0 && !empty($login) && !empty($password)){
             $auth = $this->manager->GetAuthManager();
-            $auth->Login($email, $password);
+            $auth->Login($login, $password);
         }
 
         $ret = new stdClass();

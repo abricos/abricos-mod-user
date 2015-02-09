@@ -24,6 +24,8 @@ class UserAPIv1 extends AbricosAPIMethods {
         $this->AddGetRoute('current', 'Current');
         $this->AddGetRoute('logout', 'Logout');
         $this->AddPostRoute('auth', 'Auth');
+        $this->AddPostRoute('registration', 'Registration');
+        $this->AddPostRoute('activation', 'Activation');
     }
 
     /**
@@ -94,7 +96,7 @@ class UserAPIv1 extends AbricosAPIMethods {
      *
      * @apiUse UserCurrentSuccess
      *
-     * @apiError (Error 403 Forbidden) {String} err Error Code:
+     * @apiError (Error 401 Unauthorized) {String} err Error Code:
      * <table>
      * <tr><td>BAD_USERNAME</td><td>Error in the username</td></tr>
      * <tr><td>INVALID_USERNAME_PASSWORD</td><td>Invalid user name or password</td></tr>
@@ -104,10 +106,10 @@ class UserAPIv1 extends AbricosAPIMethods {
      * <tr><td>UNKNOW</td><td>Unknown authorization error</td></tr>
      * </table>
      *
-     * @apiError (Error 403 Forbidden) {String} msg Error Description
+     * @apiError (Error 401 Unauthorized) {String} msg Error Description
      *
      * @apiErrorExample {json} Error Response Exmaple:
-     *  HTTP/1.1 403 Forbidden
+     *  HTTP/1.1 401 Unauthorized
      *  {
      *      "err": "NOT_ACTIVATE",
      *      "msg": "User has not passed the activation procedure"
@@ -124,7 +126,7 @@ class UserAPIv1 extends AbricosAPIMethods {
         $error = $authMan->Login($username, $password, $autologin);
         if ($error > 0){
             $response = new AbricosAPIResponse();
-            $response->headers['status'] = 'HTTP/1.1 403 Forbidden';
+            $response->headers['status'] = 'HTTP/1.1 401 Unauthorized';
             switch ($error){
                 case 1:
                     $response->errorCode = 'BAD_USERNAME';
@@ -157,6 +159,14 @@ class UserAPIv1 extends AbricosAPIMethods {
         return $this->Current();
     }
 
+    /**
+     * @api {get} /api/user/v1/logout User Logout
+     * @apiName Logout
+     * @apiGroup User
+     * @apiVersion 0.1.0
+     *
+     * @apiUse UserCurrentSuccess
+     */
     public function Logout(){
         $authMan = $this->manager->GetAuthManager();
         $authMan->Logout();
@@ -164,6 +174,157 @@ class UserAPIv1 extends AbricosAPIMethods {
         return $this->Current();
     }
 
+    /**
+     * @api {post} /api/user/v1/registration User Registration
+     * @apiName Registration
+     * @apiGroup User
+     * @apiVersion 0.1.0
+     *
+     * @apiParam {String} username User Name
+     * @apiParam {String} password User Password
+     * @apiParam {String} email User Email
+     *
+     * @apiParamExample {json} Request Example:
+     *  {
+     *      "username": "Stepashka",
+     *      "password": "mysuperpass",
+     *      "email": "stepashka@example.com"
+     *  }
+     *
+     * @apiSuccess {Integer} userid UserID
+     * @apiSuccess {Object} [emailInfo] User activation sent email, if server is debug mode
+     * @apiSuccess {String} emailInfo.messageId Sent Email ID
+     * @apiSuccess {String} emailInfo.error Sent Email Error info
+     *
+     * @apiSuccessExample {json} Success Response Example:
+     *  HTTP/1.1 200 OK
+     *  {
+     *      "userid": 265,
+     *      "emailInfo": {
+     *          "messageId": "98ca52f5b3737a349ea597d7e53e2529",
+     *          "error": "SMTP connect() failed."
+     *      }
+     *  }
+     *
+     * @apiError (Error 422 Unprocesable entity) {String} err Error Code:
+     * <table>
+     * <tr><td> ALREADY_REGISTERED </td><td> Username already registered </td></tr>
+     * <tr><td> ALREADY_REGISTERED_EMAIL </td><td> User with the email is already registered </td></tr>
+     * <tr><td> BAD_USERNAME </td><td> Error in the username </td></tr>
+     * <tr><td> BAD_EMAIL </td><td> Error in email </td></tr>
+     * <tr><td> BAD_PASSWORD </td><td> Weak or blank password </td></tr>
+     * <tr><td>UNKNOW</td><td>Unknown authorization error</td></tr>
+     * </table>
+     *
+     * @apiError (Error 422 Unprocesable entity) {String} msg Error Description
+     *
+     * @apiErrorExample {json} Error Response Exmaple:
+     *  HTTP/1.1 422 Unprocesable entity
+     *  {
+     *      "err": "ALREADY_REGISTERED",
+     *      "msg": "Username already registered"
+     *  }
+     */
+    public function Registration(){
+        $regMan = $this->manager->GetRegistrationManager();
+
+        $username = $this->GetPostParam('username');
+        $password = $this->GetPostParam('password');
+        $email = $this->GetPostParam('email');
+
+        $result = $regMan->Register($username, $password, $email);
+
+        if (is_object($result)){
+            return $result;
+        }
+
+        $error = $result;
+
+        $response = new AbricosAPIResponseError(array(
+            1 => array("ALREADY_REGISTERED", "Username already registered"),
+            2 => array("ALREADY_REGISTERED_EMAIL", "User with the email is already registered"),
+            3 => array("BAD_USERNAME", "Error in the username"),
+            4 => array("BAD_EMAIL", "Error in email"),
+            5 => array("BAD_PASSWORD", "Weak or blank password"),
+            "unknow" => array("UNKNOW", "Unknown registration error"),
+        ));
+
+        if (is_integer($error) && $error > 0){
+            $response->SetError($error);
+        }
+        return $response;
+    }
+
+    /**
+     * @api {post} /api/user/v1/activation User Activation
+     * @apiName Activation
+     * @apiGroup User
+     * @apiVersion 0.1.0
+     *
+     * @apiParam {String} userid UserID
+     * @apiParam {String} code Activation Code
+     * @apiParam {String} [login] Username or Email for authorization
+     * @apiParam {String} [password] Password for authorization
+     *
+     * @apiParamExample {json} Request Example:
+     *  {
+     *      "userid": 256,
+     *      "code": 5784651
+     *  }
+     *
+     * @apiSuccess {Integer} userid UserID
+     *
+     * @apiSuccessExample {json} Success Response Example:
+     *  HTTP/1.1 200 OK
+     *  {
+     *      "userid": 265
+     *  }
+     *
+     * @apiError (Error 422 Unprocesable entity) {String} err Error Code:
+     * <table>
+     * <tr><td> USER_NOT_FOUND </td><td> User not found </td></tr>
+     * <tr><td> ALREADY_ACTIVATED </td><td> User is already activated </td></tr>
+     * <tr><td> BAD_CODE </td><td> Bad activation code </td></tr>
+     * <tr><td> UNKNOW </td><td> Unknown activation error </td></tr>
+     * </table>
+     *
+     * @apiError (Error 422 Unprocesable entity) {String} msg Error Description
+     *
+     * @apiErrorExample {json} Error Response Exmaple:
+     *  HTTP/1.1 422 Unprocesable entity
+     *  {
+     *      "err": "BAD_CODE",
+     *      "msg": "Bad activation code"
+     *  }
+     */
+    public function Activation(){
+        $regMan = $this->manager->GetRegistrationManager();
+
+        $userid = $this->GetPostParam('userid');
+        $code = $this->GetPostParam('code');
+        $login = $this->GetPostParam('login');
+        $password = $this->GetPostParam('password');
+
+        $result = $regMan->Activate($userid, $code, $login, $password);
+
+        if (is_object($result)){
+            return $result;
+        }
+
+        $error = $result;
+
+        $response = new AbricosAPIResponseError(array(
+            1 => array("USER_NOT_FOUND", "User not found"),
+            2 => array("ALREADY_ACTIVATED", "User is already activated"),
+            3 => array("BAD_CODE", "Bad activation code"),
+            "unknow" => array("UNKNOW", "Unknown activation error"),
+        ));
+
+        if (is_integer($error) && $error > 0){
+            $response->SetError($error);
+        }
+        return $response;
+    }
 }
 
 ?>

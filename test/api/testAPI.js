@@ -15,24 +15,21 @@ describe('User Test API functions', function(){
         done();
     });
 
-    describe('User Module API ', function(){
 
-        var testAPI;
+    var testAPI;
 
-        it('testAPI instance', function(done){
-            testAPI = userModule.testAPI();
-            should.exist(testAPI);
+    it('testAPI instance', function(done){
+        testAPI = userModule.testAPI();
+        should.exist(testAPI);
 
+        done();
+    });
+
+    it('registration()', function(done){
+        testAPI.registration(function(err, user){
+            should.not.exist(err);
+            should.exist(user);
             done();
         });
-
-        it('registration()', function(done){
-            testAPI.registration(function(err, user){
-                should.not.exist(err);
-                should.exist(user);
-                done();
-            });
-        });
-
     });
 });
