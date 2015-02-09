@@ -60,8 +60,15 @@ class UserItem extends AbricosItem {
         return 'user';
     }
 
+    /**
+     * @deprecated
+     */
     public function ToAJAX(){
-        $ret = parent::ToAJAX();
+        return $this->ToJSON();
+    }
+
+    public function ToJSON(){
+        $ret = parent::ToJSON();
         $ret->username = $this->username;
         if ($this->id > 0){
             $ret->joindate = $this->joindate;
@@ -130,7 +137,7 @@ class UserItem extends AbricosItem {
             if (!isset($perm[$mod])){
                 $perm[$mod] = array();
             }
-            $perm[$mod][$row['act']] = $row['st'];
+            $perm[$mod][$row['act']] = intval($row['st']);
         }
 
         return $this->_permission = $perm;

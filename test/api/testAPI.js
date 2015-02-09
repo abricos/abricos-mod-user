@@ -26,8 +26,8 @@ describe('User Test API functions', function(){
             done();
         });
 
-        it('registerUser()', function(done){
-            testAPI.registerUser(function(err, user){
+        it('registration()', function(done){
+            testAPI.registration(function(err, user){
                 should.not.exist(err);
                 should.exist(user);
                 done();

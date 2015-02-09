@@ -30,37 +30,6 @@ class UserManager_Auth {
         $this->db = $manager->db;
     }
 
-    public function AJAX($d){
-        switch ($d->do){
-            case "auth":
-                $d->authData = isset($d->authData) ? $d->authData : new stdClass();
-                return $this->LoginToAJAX($d->authData);
-            case "logout":
-                return $this->LogoutToAJAX();
-        }
-        return null;
-    }
-
-    public function LoginToAJAX($d){
-
-        $d->username = isset($d->username) ? $d->username : '';
-        $d->password = isset($d->password) ? $d->password : '';
-        $d->autologin = isset($d->autologin) ? $d->autologin : false;
-
-        $res = $this->Login($d->username, $d->password, $d->autologin);
-
-        $ret = $this->manager->TreatResult($res);
-
-        if ($ret->err !== 0){
-            return $ret;
-        }
-
-        $retUser = $this->manager->GetSessionManager()->UserCurrentToAJAX();
-        $ret->userCurrent = $retUser->userCurrent;
-
-        return $ret;
-    }
-
     /**
      * Проверить данные авторизации и вернуть номер ошибки:
      * 0 - нет ошибки,
@@ -140,13 +109,6 @@ class UserManager_Auth {
         UserQuery_Register::RegistrationActivateClear($this->db);
 
         $this->manager->UserDomainUpdate($user->id);
-    }
-
-    public function LogoutToAJAX(){
-        $this->Logout();
-        $ret = new stdClass();
-        $ret->err = 0;
-        return $ret;
     }
 
     public function Logout(){

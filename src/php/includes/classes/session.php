@@ -44,34 +44,34 @@ class UserManager_Session {
      */
     public $manager;
 
-    public function __construct(UserManager $manager) {
+    public function __construct(UserManager $manager){
         $this->manager = $manager;
 
         $cfg = &Abricos::$config['session'];
 
-        if (isset($cfg['phpname'])) {
+        if (isset($cfg['phpname'])){
             $this->phpSessionName = $cfg['phpname'];
         }
 
-        if (isset($cfg['timeout'])) {
+        if (isset($cfg['timeout'])){
             $this->sessionTimeOut = $cfg['timeout'];
         }
 
-        if (isset($cfg['host'])) {
+        if (isset($cfg['host'])){
             $this->sessionHost = $cfg['host'];
         }
 
-        if (isset($cfg['path'])) {
+        if (isset($cfg['path'])){
             $this->sessionPath = $cfg['path'];
         }
 
         $cookiePrefix = '';
-        if (isset($cfg['cookie_prefix'])) {
+        if (isset($cfg['cookie_prefix'])){
             $cookiePrefix = $cfg['cookie_prefix'];
         }
 
         $cookieName = 'skey';
-        if (isset($cfg['cookie_name'])) {
+        if (isset($cfg['cookie_name'])){
             $cookieName = $cfg['cookie_name'];
         }
         $this->cookieName = $cookiePrefix.$cookieName;
@@ -81,26 +81,52 @@ class UserManager_Session {
         $this->key = session_id();
     }
 
-    public function AJAX($d) {
-        switch ($d->do) {
-            case "userCurrent":
-                return $this->UserCurrentToAJAX();
+    private function ParseRequestHeaders(){
+
+        if (function_exists('getallheaders')){
+            return getallheaders();
         }
-        return null;
+
+        $headers = array();
+        foreach ($_SERVER as $key => $value){
+            if (substr($key, 0, 5) <> 'HTTP_'){
+                continue;
+            }
+            $header = str_replace(' ', '-', ucwords(str_replace('_', ' ', strtolower(substr($key, 5)))));
+            $headers[$header] = $value;
+        }
+        return $headers;
     }
 
+    public function GetRequestHeader($hName){
+        $headers = $this->ParseRequestHeaders();
+        foreach ($headers as $key => $value){
+            if (strtolower($hName) === strtolower($key)){
+                return $value;
+            }
+        }
+    }
 
-    public function GetSessionPrivateKey() {
+    public function GetSessionPrivateKey(){
         return md5($_SERVER['REMOTE_ADDR']);
     }
 
     /**
      * Старт сессии
      */
-    public function Start() {
+    public function Start(){
         $sessionIDG = Abricos::CleanGPC('g', 'session', TYPE_STR);
-        if (!empty($sessionIDG)) {
+        if (!empty($sessionIDG)){
             session_id($sessionIDG);
+        } else {
+            $hSession = $this->GetRequestHeader('Authorization');
+            if (!empty($hSession)){
+                $aSession = explode(" ", $hSession);
+                if (count($aSession) === 2 && strtolower($aSession[0]) === 'session'){
+                    session_id($aSession[1]);
+
+                }
+            }
         }
 
         session_name($this->phpSessionName);
@@ -108,23 +134,23 @@ class UserManager_Session {
         session_start();
     }
 
-    public function Get($name) {
+    public function Get($name){
         return isset($_SESSION[$name]) ? $_SESSION[$name] : null;
     }
 
-    public function GetData() {
+    public function GetData(){
         return $_SESSION;
     }
 
-    public function Set($name, $value) {
+    public function Set($name, $value){
         $_SESSION[$name] = $value;
     }
 
-    public function Drop($name) {
+    public function Drop($name){
         unset($_SESSION[$name]);
     }
 
-    public function DropSession() {
+    public function DropSession(){
         unset($_SESSION);
         session_destroy();
     }
@@ -132,19 +158,19 @@ class UserManager_Session {
     /**
      * @return null|UserItem
      */
-    public function Update() {
+    public function Update(){
         $db = $this->manager->db;
 
         $userid = $this->Get('userid');
         $flag = $this->Get('flag');
 
-        if (empty($userid) && empty($flag)) {
+        if (empty($userid) && empty($flag)){
             // сессия на пользователя не установлена, проверка на автологин
             $sessionKey = Abricos::CleanGPC('c', $this->cookieName, TYPE_STR);
-            if (!empty($sessionKey)) {
+            if (!empty($sessionKey)){
                 $privateKey = $this->GetSessionPrivateKey();
                 $sessionDB = UserQuery_Session::Session($db, $this->sessionTimeOut, $sessionKey, $privateKey);
-                if (!empty($sessionDB)) {
+                if (!empty($sessionDB)){
                     $userid = $sessionDB['userid'];
                 }
             }
@@ -152,13 +178,13 @@ class UserManager_Session {
 
         $user = null;
 
-        if ($userid > 0) {
+        if ($userid > 0){
             $user = $this->manager->User($userid);
 
-            if (empty($user)) { // Гость
+            if (empty($user)){ // Гость
                 $this->Drop('userid');
             } else {
-                if ($user->IsSuperAdmin()) {
+                if ($user->IsSuperAdmin()){
                     $db->readonly = false;
                 }
 
@@ -171,7 +197,7 @@ class UserManager_Session {
         $this->Set('userid', $userid);
         $this->Set('flag', 1); // флаг установки сессии
 
-        if (empty($user)) {
+        if (empty($user)){
             $user = new UserItem(array(
                 'id' => 0,
                 'username' => "Guest",
@@ -180,13 +206,6 @@ class UserManager_Session {
         }
 
         return $user;
-    }
-
-    public function UserCurrentToAJAX(){
-        $ret = new stdClass();
-        $user = new UserItem_Session(Abricos::$user);
-        $ret->userCurrent = $user->ToAJAX();
-        return $ret;
     }
 
 }
