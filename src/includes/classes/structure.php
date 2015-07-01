@@ -76,7 +76,7 @@ class UserItem extends AbricosItem {
         }
         $this->_isSuperAdmin = false;
 
-        $superAdmin = Abricos::$config['superadmin'];
+        $superAdmin = isset(Abricos::$config['superadmin']) ? Abricos::$config['superadmin'] : "";
 
         if (!empty($superAdmin)) {
             $ids = explode(',', $superAdmin);
