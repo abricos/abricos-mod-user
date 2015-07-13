@@ -33,20 +33,26 @@ Component.entryPoint = function(NS){
         _defRenderEditor: function(){
         },
         onInitAppWidget: function(err, appInstance){
-            var userId = this.get('userId');
+            var userId = this.get('userId') | 0;
             this.set('waiting', true);
 
             appInstance.groupList(function(err, result){
                 if (!err){
                     this.set('groupList', result.groupList);
                 }
-                appInstance.user(userId, function(err, result){
+                if (userId === 0){
                     this.set('waiting', false);
-                    if (!err){
-                        this.set('user', result.user);
-                    }
+                    this.set('user', new NS.Admin.User());
                     this.onLoadUser();
-                }, this);
+                } else {
+                    appInstance.user(userId, function(err, result){
+                        this.set('waiting', false);
+                        if (!err){
+                            this.set('user', result.user);
+                        }
+                        this.onLoadUser();
+                    }, this);
+                }
             }, this);
         },
         onLoadUser: function(){
@@ -61,11 +67,16 @@ Component.entryPoint = function(NS){
                 userGroups: user.get('groups')
             });
 
-            this.fire('renderEditor');
-
-            if (!user.get('emailconfirm')){
-                Y.one(tp.gel('activate')).removeClass('hide');
+            if (user.get('id') > 0){
+                if (!user.get('emailconfirm')){
+                    Y.one(tp.gel('activate')).removeClass('hide');
+                }
+            } else {
+                Y.one(tp.gel('username')).set('disabled', '');
+                this._showPasswordForm();
             }
+
+            this.fire('renderEditor');
         },
         onSubmitFormAction: function(){
             this.set('waiting', true);

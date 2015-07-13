@@ -112,7 +112,11 @@ class UserManager_Admin {
         }
 
         $ret = new stdClass();
-        $ret->user = $user->ToAJAX();
+        if (is_integer($user)){
+            $ret->err = $user;
+        }else{
+            $ret->user = $user->ToAJAX();
+        }
         return $ret;
     }
 
@@ -127,7 +131,7 @@ class UserManager_Admin {
 
             $regMan = $this->manager->GetRegistrationManager();
             $err = $regMan->Register($d->username, $d->password, $d->email, false, false);
-            if ($err > 0) {
+            if (is_integer($err) && $err > 0) {
                 return $err;
             }
 

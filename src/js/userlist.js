@@ -85,32 +85,6 @@ Component.entryPoint = function(NS){
             if (listConfig.get('antibot')){
                 Y.all('.btn-stopspam').removeClass('hide');
             }
-
-            /*
-             var listConfig = userList.get('listConfig').getAttrs(),
-             pageCount = listConfig.total / listConfig.limit;
-
-             new Y.Pagination({
-             after: {
-             changeRequest: function(event) {
-
-             console.log(
-             'page:', event.state.page,
-             'getOffsetPageNumber:', this.getOffsetPageNumber()
-             );
-             }
-             },
-             boundingBox: tp.gel('pagination'),
-             offset: 1,
-             circular: false,
-             page: listConfig.page,
-             total: 10,
-             strings: {
-             next: '»',
-             prev: '«'
-             }
-             }).render();
-             /**/
         },
         onClick: function(e){
             switch (e.dataClick) {
@@ -125,6 +99,9 @@ Component.entryPoint = function(NS){
                     return true;
                 case 'stopspam':
                     this.showStopSpamDialog();
+                    return true;
+                case 'add-user':
+                    this.showUserEditorDialog();
                     return true;
             }
 
@@ -143,6 +120,7 @@ Component.entryPoint = function(NS){
             }
         },
         showUserEditorDialog: function(userId){
+            userId = userId | 0;
             var dialog = new NS.UserEditorDialog({userId: userId});
 
             dialog.on('editorSaved', function(){

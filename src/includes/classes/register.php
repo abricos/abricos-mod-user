@@ -54,9 +54,11 @@ class UserManager_Registration {
             return 3;
         }
 
-        $user = $this->manager->UserByName($email, true);
-        if (!empty($user)) {
-            return 2;
+        if ($checkEMail){
+            $user = $this->manager->UserByName($email, true);
+            if (!empty($user)) {
+                return 2;
+            }
         }
 
         $user = $this->manager->UserByName($username, false);
@@ -141,11 +143,9 @@ class UserManager_Registration {
         $ret = new stdClass();
         $ret->userid = $userid;
 
-        if (!$sendEMail) {
-            return $ret;
+        if ($sendEMail) {
+            $this->ConfirmEmailSend($userid);
         }
-
-        $this->ConfirmEmailSend($userid);
 
         return $ret;
     }
