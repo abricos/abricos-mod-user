@@ -304,9 +304,6 @@ class UserQuery {
 }
 
 
-/**
- * Внешнии запросы
- */
 class UserQuery_old {
 
 

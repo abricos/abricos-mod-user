@@ -1,7 +1,3 @@
-/*
- * @license http://www.gnu.org/copyleft/gpl.html GNU/GPL, see LICENSE.php
- */
-
 var Component = new Brick.Component();
 Component.requires = {
     mod: [
@@ -49,6 +45,13 @@ Component.entryPoint = function(NS){
             });
         },
         onClick: function(e){
+
+            switch (e.dataClick) {
+                case 'add-group':
+                    this.showGroupEditorDialog();
+                    return true;
+            }
+
             var groupId = e.target.getData('id') | 0;
             if (groupId === 0){
                 return;
@@ -61,7 +64,7 @@ Component.entryPoint = function(NS){
             }
         },
         showGroupEditorDialog: function(groupId){
-            var dialog = new NS.GroupEditorDialog({groupId: groupId});
+            var dialog = new NS.GroupEditorDialog({groupId: groupId | 0});
 
             dialog.on('editorSaved', function(){
                 this.reloadGroupList();

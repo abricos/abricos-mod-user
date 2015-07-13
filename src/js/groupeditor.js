@@ -1,7 +1,3 @@
-/*
- * @license http://www.gnu.org/copyleft/gpl.html GNU/GPL, see LICENSE.php
- */
-
 var Component = new Brick.Component();
 Component.requires = {
     mod: [
@@ -58,7 +54,7 @@ Component.entryPoint = function(NS){
                 group;
 
             if (groupId === 0){
-                group = new NS.Group();
+                group = new NS.Admin.Group();
             } else {
                 group = groupList.getById(groupId);
             }

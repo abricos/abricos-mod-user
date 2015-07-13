@@ -22,7 +22,7 @@ class UserItem extends AbricosItem {
 
     protected $_data;
 
-    public function __construct($d) {
+    public function __construct($d){
         parent::__construct($d);
 
         $d = array_merge(array(
@@ -44,7 +44,7 @@ class UserItem extends AbricosItem {
         $this->joindate = intval($d['joindate']);
         $this->lastvisit = intval($d['lastvisit']);
 
-        if (array_key_exists('antibotdetect', $d)) {
+        if (array_key_exists('antibotdetect', $d)){
             $this->antibotdetect = $d['antibotdetect'] > 0;
         }
         $this->agreement = $d['agreement'] > 0;
@@ -52,15 +52,15 @@ class UserItem extends AbricosItem {
         $this->_data = $d;
     }
 
-    public function FullName() {
+    public function FullName(){
         return (!empty($this->firstname) && !empty($this->lastname)) ? $this->firstname." ".$this->lastname : $this->username;
     }
 
-    public function GetType() {
+    public function GetType(){
         return 'user';
     }
 
-    public function ToAJAX() {
+    public function ToAJAX(){
         $ret = parent::ToAJAX();
         $ret->username = $this->username;
         $ret->joindate = $this->joindate;
@@ -70,18 +70,18 @@ class UserItem extends AbricosItem {
 
     private $_isSuperAdmin = null;
 
-    public function IsSuperAdmin() {
-        if (!is_null($this->_isSuperAdmin)) {
+    public function IsSuperAdmin(){
+        if (!is_null($this->_isSuperAdmin)){
             return $this->_isSuperAdmin;
         }
         $this->_isSuperAdmin = false;
 
         $superAdmin = isset(Abricos::$config['superadmin']) ? Abricos::$config['superadmin'] : "";
 
-        if (!empty($superAdmin)) {
+        if (!empty($superAdmin)){
             $ids = explode(',', $superAdmin);
-            foreach ($ids as $id) {
-                if (intval($id) === intval($this->id)) {
+            foreach ($ids as $id){
+                if (intval($id) === intval($this->id)){
                     $this->_isSuperAdmin = true;
                     break;
                 }
@@ -90,18 +90,18 @@ class UserItem extends AbricosItem {
         return $this->_isSuperAdmin;
     }
 
-    public function GetActionRole($module, $action) {
-        if ($module instanceof Ab_Module) {
+    public function GetActionRole($module, $action){
+        if ($module instanceof Ab_Module){
             $module = $module->name;
         }
 
-        if ($this->IsSuperAdmin()) {
+        if ($this->IsSuperAdmin()){
             return 1;
         }
 
         $perm = $this->GetPermission();
 
-        if (isset($perm[$module][$action])) {
+        if (isset($perm[$module][$action])){
             return $perm[$module][$action];
         }
         return -1;
@@ -109,12 +109,12 @@ class UserItem extends AbricosItem {
 
     protected $_permission = null;
 
-    protected function GetPermission() {
-        if (!is_null($this->_permission)) {
+    protected function GetPermission(){
+        if (!is_null($this->_permission)){
             return $this->_permission;
         }
 
-        if ($this->antibotdetect) { // У бота нет ролей
+        if ($this->antibotdetect){ // У бота нет ролей
             return $this->_permission = array();
         }
 
@@ -123,9 +123,9 @@ class UserItem extends AbricosItem {
         $perm = array();
 
         $rows = UserQuery::UserRole($db, $this);
-        while (($row = $db->fetch_array($rows))) {
+        while (($row = $db->fetch_array($rows))){
             $mod = $row['md'];
-            if (!isset($perm[$mod])) {
+            if (!isset($perm[$mod])){
                 $perm[$mod] = array();
             }
             $perm[$mod][$row['act']] = $row['st'];
@@ -139,15 +139,15 @@ class UserItem extends AbricosItem {
     /**
      * @return array
      */
-    public function GetGroupList() {
-        if (!is_null($this->_groupList)) {
+    public function GetGroupList(){
+        if (!is_null($this->_groupList)){
             return $this->_groupList;
         }
         $db = Abricos::$db;
         $list = array();
 
         $rows = UserQuery::UserGroupList($db, $this->id);
-        while (($row = $db->fetch_array($rows))) {
+        while (($row = $db->fetch_array($rows))){
             array_push($list, $row['id']);
         }
         return $this->_groupList = $list;
@@ -166,7 +166,7 @@ class UserListConfig extends AbricosListConfig {
 
     public $uprofile = false;
 
-    public function __construct($d = null) {
+    public function __construct($d = null){
         parent::__construct($d);
         $d = array_to_object($d);
         $this->filter = isset($d->filter) ? strval($d->filter) : "";
@@ -180,7 +180,7 @@ class UserListConfig extends AbricosListConfig {
         $this->uprofile = !empty($modUProfile);
     }
 
-    public function ToAJAX() {
+    public function ToAJAX(){
         $ret = parent::ToAJAX();
         $ret->filter = $this->filter;
         $ret->antibot = $this->antibot;
@@ -195,7 +195,7 @@ class UserGroup extends AbricosItem {
     public $sysname;
     public $permission;
 
-    public function __construct($d) {
+    public function __construct($d){
         parent::__construct($d);
 
         $this->title = strval($d['title']);
@@ -203,7 +203,7 @@ class UserGroup extends AbricosItem {
         $this->permission = $d['permission'];
     }
 
-    public function ToAJAX() {
+    public function ToAJAX(){
         $ret = parent::ToAJAX();
         $ret->title = $this->title;
         $ret->sysname = $this->sysname;
@@ -213,6 +213,13 @@ class UserGroup extends AbricosItem {
 }
 
 class UserGroupList extends AbricosList {
+    /**
+     * @param mixed $id
+     * @return UserGroup
+     */
+    public function Get($id){
+        return parent::Get($id);
+    }
 }
 
 

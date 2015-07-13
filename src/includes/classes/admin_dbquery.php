@@ -120,6 +120,16 @@ class UserQuery_Admin {
 		";
         $db->query_write($sql);
     }
+
+    public static function GroupRoleActionUpdate(Ab_Database $db, $modActionId, $groupId, $action){
+        $sql = "
+            INSERT INTO ".$db->prefix."userrole
+            (modactionid, usertype, userid, status) VALUES
+            ('".intval($modActionId)."', 0, ".intval($groupId).", ".intval($action).")
+            ON DUPLICATE KEY UPDATE status=".intval($action)."
+        ";
+        $db->query_write($sql);
+    }
 }
 
 ?>

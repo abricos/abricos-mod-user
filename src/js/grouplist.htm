@@ -2,18 +2,19 @@
 <div id="{i#id}" class="manager">
     <div class="panel panel-default">
         <div class="panel-heading">
-            <div class="row">
-                <div class="col-md-7">
-                    <h3 class="panel-title">Список групп</h3>
-                </div>
-                <div class="col-md-5">
-                    <div class="btn-toolbar text-right">
-                        <span data-wait="show">
-                            <img src="/images/loading.gif"/> Загрузка...
-                        </span>
-                    </div>
-                </div>
+            <div class="panel-title pull-left">
+                Список групп
+                <span data-wait="show">
+                    <img src="/images/loading.gif"/> Загрузка...
+                </span>
             </div>
+            <div class="pull-right">
+                <button class="btn btn-sm btn-default"
+                        data-wait="disable"
+                        data-click="add-group">Добавить группу
+                </button>
+            </div>
+            <div class="clearfix"></div>
         </div>
         <div class="panel-body">
             <div id="{i#list}"></div>

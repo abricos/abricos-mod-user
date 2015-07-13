@@ -18,17 +18,17 @@ class UserManager_Admin {
      */
     public $db;
 
-    public function __construct(UserManager $manager) {
+    public function __construct(UserManager $manager){
         $this->manager = $manager;
         $this->db = $manager->db;
     }
 
-    public function IsAdminRole() {
+    public function IsAdminRole(){
         return $this->manager->IsAdminRole();
     }
 
-    public function AJAX($d) {
-        switch ($d->do) {
+    public function AJAX($d){
+        switch ($d->do){
             case "user":
                 return $this->UserToAJAX($d->userid);
             case "userSave":
@@ -48,10 +48,10 @@ class UserManager_Admin {
         return null;
     }
 
-    public function UserActivateCustomToAJAX($userId) {
+    public function UserActivateCustomToAJAX($userId){
         $user = $this->UserActivateCustom($userId);
 
-        if (empty($user)) {
+        if (empty($user)){
             return 403;
         }
 
@@ -61,8 +61,8 @@ class UserManager_Admin {
 
     }
 
-    public function UserActivateCustom($userId) {
-        if (!$this->IsAdminRole()) {
+    public function UserActivateCustom($userId){
+        if (!$this->IsAdminRole()){
             return null;
         }
 
@@ -78,7 +78,7 @@ class UserManager_Admin {
     public function UserActivateSendEMailToAJAX($userId){
         $user = $this->UserActivateSendEMail($userId);
 
-        if (empty($user)) {
+        if (empty($user)){
             return 403;
         }
 
@@ -88,7 +88,7 @@ class UserManager_Admin {
     }
 
     public function UserActivateSendEMail($userId){
-        if (!$this->IsAdminRole()) {
+        if (!$this->IsAdminRole()){
             return null;
         }
 
@@ -104,34 +104,34 @@ class UserManager_Admin {
         return $this->User($userId);
     }
 
-    public function UserSaveToAJAX($d) {
+    public function UserSaveToAJAX($d){
         $user = $this->UserSave($d, 'UserItem_Admin');
 
-        if (empty($user)) {
+        if (empty($user)){
             return 403;
         }
 
         $ret = new stdClass();
         if (is_integer($user)){
             $ret->err = $user;
-        }else{
+        } else {
             $ret->user = $user->ToAJAX();
         }
         return $ret;
     }
 
-    public function UserSave($d, $classUserItem = null) {
-        if (!$this->IsAdminRole()) {
+    public function UserSave($d, $classUserItem = null){
+        if (!$this->IsAdminRole()){
             return null;
         }
 
         $userId = isset($d->id) ? intval($d->id) : 0;
 
-        if ($userId === 0) {
+        if ($userId === 0){
 
             $regMan = $this->manager->GetRegistrationManager();
             $err = $regMan->Register($d->username, $d->password, $d->email, false, false);
-            if (is_integer($err) && $err > 0) {
+            if (is_integer($err) && $err > 0){
                 return $err;
             }
 
@@ -142,7 +142,7 @@ class UserManager_Admin {
 
             $user = $this->User($userId);
 
-            if (!empty($d->password)) {
+            if (!empty($d->password)){
                 $passwordCrypt = UserManager::UserPasswordCrypt($d->password, $user->salt);
                 UserQuery_Admin::UserPasswordUpdate($this->db, $userId, $passwordCrypt);
             }
@@ -156,10 +156,10 @@ class UserManager_Admin {
         return $this->User($userId);
     }
 
-    public function UserToAJAX($userId) {
+    public function UserToAJAX($userId){
         $user = $this->User($userId);
 
-        if (empty($user)) {
+        if (empty($user)){
             return 403;
         }
 
@@ -173,24 +173,24 @@ class UserManager_Admin {
      * @param null $classUserItem
      * @return UserItem_Admin
      */
-    public function User($userId, $classUserItem = null) {
-        if (!$this->IsAdminRole()) {
+    public function User($userId, $classUserItem = null){
+        if (!$this->IsAdminRole()){
             return null;
         }
 
-        if (empty($classUserItem)) {
+        if (empty($classUserItem)){
             $classUserItem = 'UserItem_Admin';
         }
 
         return $this->manager->User($userId, $classUserItem);
     }
 
-    public function UserListToAJAX($configData) {
+    public function UserListToAJAX($configData){
         $config = new UserListConfig($configData);
 
         $list = $this->UserList($config, 'UserItem_Admin');
 
-        if (empty($list)) {
+        if (empty($list)){
             return 403;
         }
 
@@ -203,19 +203,19 @@ class UserManager_Admin {
      * @param UserListConfig $config
      * @return UserList
      */
-    public function UserList($config, $classUserItem = null) {
-        if (!$this->IsAdminRole()) {
+    public function UserList($config, $classUserItem = null){
+        if (!$this->IsAdminRole()){
             return null;
         }
 
         $list = new UserList($config);
 
         $rows = UserQuery::UserList($this->db, $list->config);
-        while (($row = $this->db->fetch_array($rows))) {
+        while (($row = $this->db->fetch_array($rows))){
             $user = new UserItem($row);
             $this->manager->CacheUserAdd($user, $user->GetType());
 
-            if (!empty($classUserItem)) {
+            if (!empty($classUserItem)){
                 $user = new $classUserItem($user);
                 $this->manager->CacheUserAdd($user, $user->GetType());
             }
@@ -224,9 +224,9 @@ class UserManager_Admin {
         return $list;
     }
 
-    public function GroupListToAJAX() {
+    public function GroupListToAJAX(){
         $list = $this->GroupList();
-        if (empty($list)) {
+        if (empty($list)){
             return 403;
         }
 
@@ -238,18 +238,18 @@ class UserManager_Admin {
     /**
      * @return UserGroupList
      */
-    public function GroupList() {
-        if (!$this->IsAdminRole()) {
+    public function GroupList(){
+        if (!$this->IsAdminRole()){
             return null;
         }
         $list = new UserGroupList();
 
         $rows = UserQuery::ModuleActionList($this->db);
         $mods = array();
-        while (($row = $this->db->fetch_array($rows))) {
+        while (($row = $this->db->fetch_array($rows))){
 
             $modName = $row['md'];
-            if (!isset($mods[$modName])) {
+            if (!isset($mods[$modName])){
                 $mods[$modName] = array();
             }
 
@@ -258,17 +258,17 @@ class UserManager_Admin {
 
         $rows = UserQuery::GroupRoleList($this->db);
         $roles = array();
-        while (($row = $this->db->fetch_array($rows))) {
+        while (($row = $this->db->fetch_array($rows))){
             $roles[$row['maid']."-".$row['gid']] = $row;
         }
 
         $rows = UserQuery::GroupList($this->db);
-        while (($row = $this->db->fetch_array($rows))) {
+        while (($row = $this->db->fetch_array($rows))){
             $perms = array();
-            foreach ($mods as $modName => $acts) {
+            foreach ($mods as $modName => $acts){
                 $perms[$modName] = array();
 
-                foreach ($acts as $actid => $actRow) {
+                foreach ($acts as $actid => $actRow){
                     $rkey = $actRow['id']."-".$row['id'];
                     $role = isset($roles[$rkey]) ? $roles[$rkey] : null;
 
@@ -284,13 +284,13 @@ class UserManager_Admin {
         return $list;
     }
 
-    public function GroupSaveToAJAX($sd) {
-        if (!$this->IsAdminRole()) {
+    public function GroupSaveToAJAX($sd){
+        if (!$this->IsAdminRole()){
             return 403;
         }
 
         $res = $this->GroupSave($sd);
-        if (empty($res)) {
+        if (empty($res)){
             return 500;
         }
         $ret = $this->GroupListToAJAX();
@@ -299,20 +299,36 @@ class UserManager_Admin {
         return $ret;
     }
 
-    public function GroupSave($d) {
-        if (!$this->IsAdminRole()) {
+    public function GroupSave($d){
+        if (!$this->IsAdminRole()){
             return null;
         }
 
         $utmf = Abricos::TextParser(true);
 
-        $d->id = intval($d->id);
+        $d->id = isset($d->id) ? intval($d->id) : 0;
         $d->title = $utmf->Parser($d->title);
 
-        if ($d->id === 0) {
+        if ($d->id === 0){
             $d->id = UserQuery_Admin::GroupAppend($this->db, $d->title);
         } else {
             UserQuery_Admin::GroupUpdate($this->db, $d);
+        }
+
+        $rows = UserQuery::ModuleActionList($this->db);
+        $maList = array();
+        while (($row = $this->db->fetch_array($rows))){
+            if (!isset($maList[$row['md']])){
+                $maList[$row['md']] = array();
+            }
+            $maList[$row['md']][$row['act']] = $row['id'];
+        }
+
+        foreach ($d->permission as $modName => $roles){
+            foreach ($roles as $role => $action){
+                $modActionId = $maList[$modName][$role];
+                UserQuery_Admin::GroupRoleActionUpdate($this->db, $modActionId, $d->id, $action);
+            }
         }
 
         $ret = new stdClass();
