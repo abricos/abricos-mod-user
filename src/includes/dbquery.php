@@ -215,9 +215,9 @@ class UserQuery {
                 }
                 $groupid = isset($groups[$role->groupkey]) ? intval($groups[$role->groupkey]) : 0;
                 if (empty($groupid)) {
-                    $i18n = $permission->module->GetI18n();
+                    $i18n = $permission->module->I18n();
 
-                    $groupname = $i18n['groups'][$role->groupkey];
+                    $groupname = $i18n->Translate('groups.'.$role->groupkey);
                     if (empty($groupname)) {
                         $groupname = $role->groupkey;
                     }
