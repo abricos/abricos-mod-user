@@ -1,17 +1,19 @@
 <?php
 /**
+ * @package Abricos
+ * @subpackage User
+ * @copyright 2008-2015 Alexander Kuzmin
+ * @license http://opensource.org/licenses/mit-license.php MIT License (MIT)
+ * @author Alexander Kuzmin <roosit@abricos.org>
+ */
+
+/**
  * Активация пользователя
  *
  * URL по типу http://mysite.com/user/activate/{userid}/{activeid}, где:
  * {userid} - идентификатор пользователя;
  * {activeid} - идентификатор активации.
  *
- * @version $Id$
- * @package Abricos
- * @subpackage User
- * @copyright Copyright (C) 2008 Abricos. All rights reserved.
- * @license http://www.gnu.org/copyleft/gpl.html GNU/GPL, see LICENSE.php
- * @author Alexander Kuzmin (roosit@abricos.org)
  * @ignore
  */
 
@@ -25,7 +27,7 @@ $man = UserModule::$instance->GetManager();
 $regManager = $man->GetRegistrationManager();
 $error = $regManager->Activate($p_userid, $p_actid);
 
-if ($error > 0) {
+if ($error > 0){
     $v['result'] = Brick::ReplaceVarByData($v['err'], array(
         "err" => $v['err'.$error]
     ));

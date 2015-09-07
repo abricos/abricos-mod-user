@@ -1,4 +1,11 @@
 <?php
+/**
+ * @package Abricos
+ * @subpackage User
+ * @copyright 2008-2015 Alexander Kuzmin
+ * @license http://opensource.org/licenses/mit-license.php MIT License (MIT)
+ * @author Alexander Kuzmin <roosit@abricos.org>
+ */
 
 require_once 'auth_structure.php';
 require_once 'auth_dbquery.php';
@@ -24,14 +31,14 @@ class UserManager_Auth {
      */
     public $db;
 
-    public function __construct(UserManager $manager) {
+    public function __construct(UserManager $manager){
         $this->module = $manager->module;
         $this->manager = $manager;
         $this->db = $manager->db;
     }
 
-    public function AJAX($d) {
-        switch ($d->do) {
+    public function AJAX($d){
+        switch ($d->do){
             case "login":
                 return $this->LoginToAJAX($d->login);
             case "logout":
@@ -42,14 +49,17 @@ class UserManager_Auth {
 
     private $_usercache = null;
 
-    public function LoginToAJAX($d) {
+    public function LoginToAJAX($d){
         $res = $this->Login($d->username, $d->password, $d->autologin);
 
         $ret = $this->manager->TreatResult($res);
 
         $user = $this->_usercache;
-        if ($ret->err === 0 && !empty($user)) {
-            $ret->user = array("id" => $user['userid'], "agr" => $user['agreement']);
+        if ($ret->err === 0 && !empty($user)){
+            $ret->user = array(
+                "id" => $user['userid'],
+                "agr" => $user['agreement']
+            );
         }
 
         return $ret;
@@ -68,27 +78,27 @@ class UserManager_Auth {
      * @param String $password пароль
      * @return Integer
      */
-    public function Login($username, $password, $autologin = false) {
+    public function Login($username, $password, $autologin = false){
         $username = trim($username);
         $password = trim($password);
 
-        if (empty($username) || empty($password)) {
+        if (empty($username) || empty($password)){
             return 3;
         }
 
         $user = $this->manager->UserByName($username, true);
 
-        if (empty($user)) {
+        if (empty($user)){
             return 2;
         }
         $user = new UserItem_Auth($user);
 
-        if (!$user->emailconfirm) {
+        if (!$user->emailconfirm){
             return 5;
         }
 
         $passcrypt = UserManager::UserPasswordCrypt($password, $user->salt);
-        if ($passcrypt != $user->password) {
+        if ($passcrypt != $user->password){
             return 2;
         }
 
@@ -97,8 +107,8 @@ class UserManager_Auth {
         return 0;
     }
 
-    public function LoginMethod($user, $autologin = false) {
-        if ($user instanceof UserItem) {
+    public function LoginMethod($user, $autologin = false){
+        if ($user instanceof UserItem){
             $user = new UserItem_Auth($user);
         }
 
@@ -109,10 +119,10 @@ class UserManager_Auth {
         $session->Set('guserid', $user->id);
 
         // зашел тот же человек, но под другой учеткой
-        if ($guserid > 0 && $guserid != $user->id) {
+        if ($guserid > 0 && $guserid != $user->id){
             UserQuery_Auth::UserDoubleLogAppend($this->db, $guserid, $user->id, $_SERVER['REMOTE_ADDR']);
         }
-        if ($autologin) {
+        if ($autologin){
             // установить куки для автологина
             $privateKey = $session->GetSessionPrivateKey();
             $sessionKey = md5(TIMENOW.$privateKey.cmsrand(1, 1000000));
@@ -128,14 +138,14 @@ class UserManager_Auth {
         $this->manager->UserDomainUpdate($user->id);
     }
 
-    public function LogoutToAJAX() {
+    public function LogoutToAJAX(){
         $this->Logout();
         $ret = new stdClass();
         $ret->err = 0;
         return $ret;
     }
 
-    public function Logout() {
+    public function Logout(){
 
         $session = $this->manager->GetSessionManager();
         $sessionKey = Abricos::CleanGPC('c', $session->cookieName, TYPE_STR);

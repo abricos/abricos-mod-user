@@ -1,15 +1,18 @@
 <?php
 /**
- * Восстановление пароля пользователя
- * 
- * URL по типу http://mysite.com/user/passrec/{hash}, где:
- * {hash} - идентификатор восстановления пароля.
- * 
  * @package Abricos
  * @subpackage User
- * @copyright Copyright (C) 2008 Abricos. All rights reserved.
- * @license http://www.gnu.org/copyleft/gpl.html GNU/GPL, see LICENSE.php
+ * @copyright 2008-2015 Alexander Kuzmin
+ * @license http://opensource.org/licenses/mit-license.php MIT License (MIT)
  * @author Alexander Kuzmin <roosit@abricos.org>
+ */
+
+/**
+ * Восстановление пароля пользователя
+ *
+ * URL по типу http://mysite.com/user/passrec/{hash}, где:
+ * {hash} - идентификатор восстановления пароля.
+ *
  * @ignore
  */
 
@@ -24,8 +27,8 @@ $ret = $passMan->PasswordRequestCheck($p_hash);
 $result = $v['err'];
 if ($ret->error === 0){
     $result = Brick::ReplaceVarByData($v['ok'], array(
-		"email" => $ret->email
-	));
+        "email" => $ret->email
+    ));
 }
 $brick->content = Brick::ReplaceVarByData($brick->content, array(
     "result" => $result,

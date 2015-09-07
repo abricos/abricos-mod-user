@@ -2,13 +2,14 @@
 /**
  * @package Abricos
  * @subpackage User
- * @license http://www.gnu.org/copyleft/gpl.html GNU/GPL, see LICENSE.php
+ * @copyright 2008-2015 Alexander Kuzmin
+ * @license http://opensource.org/licenses/mit-license.php MIT License (MIT)
  * @author Alexander Kuzmin <roosit@abricos.org>
  */
 
 $brick = Brick::$builder->brick;
-$p = & $brick->param->param;
-$v = & $brick->param->var;
+$p = &$brick->param->param;
+$v = &$brick->param->var;
 
 $brick->content = Brick::ReplaceVarByData($brick->content, array(
     "id" => $brick->id

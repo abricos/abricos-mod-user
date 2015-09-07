@@ -1,9 +1,3 @@
-/*!
- * Module for Abricos Platform (http://abricos.org)
- * Copyright 2008-2014 Alexander Kuzmin <roosit@abricos.org>
- * Licensed under the MIT license
- */
-
 var Component = new Brick.Component();
 Component.requires = {
     yui: ['aui-form-validator'],
@@ -45,7 +39,7 @@ Component.entryPoint = function(NS){
             NS.appInstance.login(model, function(err, result){
                 if (!err){
                     Brick.Page.reload();
-                }else{
+                } else {
                     this.set('waiting', false);
                 }
             }, this);

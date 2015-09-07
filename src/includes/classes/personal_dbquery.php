@@ -1,5 +1,15 @@
 <?php
+/**
+ * @package Abricos
+ * @subpackage User
+ * @copyright 2008-2015 Alexander Kuzmin
+ * @license http://opensource.org/licenses/mit-license.php MIT License (MIT)
+ * @author Alexander Kuzmin <roosit@abricos.org>
+ */
 
+/**
+ * Class UserQuery_Personal
+ */
 class UserQuery_Personal {
 
     public static function UserOptionList(Ab_Database $db, $userid, $module) {
