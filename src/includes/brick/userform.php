@@ -18,7 +18,8 @@ if (!empty($bosModule)){
     $modBrick = Brick::$builder->LoadBrickS("bos", "menu", $brick, array(
         "p" => array(
             "noWrap" => true,
-            "noChild" => true
+            "noChild" => true,
+            "noBosUI" => true
         )
     ));
     $tplBosMenu = Brick::ReplaceVarByData($v["bosmenu"], array(
@@ -29,7 +30,7 @@ if (!empty($bosModule)){
 $brick->content = Brick::ReplaceVarByData($brick->content, array(
     "id" => $brick->id,
     "bosmenu" => $tplBosMenu,
-    "username" => Abricos::$user->login
+    "username" => Abricos::$user->username
 ));
 
 ?>
