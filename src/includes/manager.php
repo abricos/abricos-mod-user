@@ -24,7 +24,7 @@ class UserManager extends Ab_ModuleManager {
      */
     public $module = null;
 
-    public function __construct(UserModule $module) {
+    public function __construct(UserModule $module){
         parent::__construct($module);
     }
 
@@ -33,7 +33,7 @@ class UserManager extends Ab_ModuleManager {
      *
      * @return boolean
      */
-    public function IsAdminRole() {
+    public function IsAdminRole(){
         return $this->IsRoleEnable(UserAction::USER_ADMIN);
     }
 
@@ -43,7 +43,7 @@ class UserManager extends Ab_ModuleManager {
      * @param integer $userid
      * @return boolean
      */
-    public function IsChangeUserRole($userid) {
+    public function IsChangeUserRole($userid){
         return $this->userid == $userid || $this->IsAdminRole();
     }
 
@@ -52,8 +52,8 @@ class UserManager extends Ab_ModuleManager {
     /**
      * @return UserManager_Session
      */
-    public function GetSessionManager() {
-        if (empty($this->_sessionManager)) {
+    public function GetSessionManager(){
+        if (empty($this->_sessionManager)){
             require_once 'classes/session.php';
             $this->_sessionManager = new UserManager_Session($this);
         }
@@ -67,8 +67,8 @@ class UserManager extends Ab_ModuleManager {
      *
      * @return UserManager_Registration
      */
-    public function GetRegistrationManager() {
-        if (empty($this->_registrationManager)) {
+    public function GetRegistrationManager(){
+        if (empty($this->_registrationManager)){
             require_once 'classes/register.php';
             $this->_registrationManager = new UserManager_Registration($this);
         }
@@ -82,8 +82,8 @@ class UserManager extends Ab_ModuleManager {
      *
      * @return UserManager_Auth
      */
-    public function GetAuthManager() {
-        if (empty($this->_authManager)) {
+    public function GetAuthManager(){
+        if (empty($this->_authManager)){
             require_once 'classes/auth.php';
             $this->_authManager = new UserManager_Auth($this);
         }
@@ -95,8 +95,8 @@ class UserManager extends Ab_ModuleManager {
     /**
      * @return UserManager_Password
      */
-    public function GetPasswordManager() {
-        if (empty($this->_passwordManager)) {
+    public function GetPasswordManager(){
+        if (empty($this->_passwordManager)){
             require_once 'classes/password.php';
             $this->_passwordManager = new UserManager_Password($this);
         }
@@ -108,8 +108,8 @@ class UserManager extends Ab_ModuleManager {
     /**
      * @return UserManager_Admin
      */
-    public function GetAdminManager() {
-        if (empty($this->_adminManager)) {
+    public function GetAdminManager(){
+        if (empty($this->_adminManager)){
             require_once 'classes/admin.php';
             $this->_adminManager = new UserManager_Admin($this);
         }
@@ -121,21 +121,21 @@ class UserManager extends Ab_ModuleManager {
     /**
      * @return UserManager_Personal
      */
-    public function GetPersonalManager() {
-        if (empty($this->_personalManager)) {
+    public function GetPersonalManager(){
+        if (empty($this->_personalManager)){
             require_once 'classes/personal.php';
             $this->_personalManager = new UserManager_Personal($this);
         }
         return $this->_personalManager;
     }
 
-    public function TreatResult($res) {
+    public function TreatResult($res){
         $ret = new stdClass();
         $ret->err = 0;
 
-        if (is_integer($res)) {
+        if (is_integer($res)){
             $ret->err = $res;
-        } else if (is_object($res)) {
+        } else if (is_object($res)){
             $ret = $res;
         }
         $ret->err = intval($ret->err);
@@ -143,30 +143,30 @@ class UserManager extends Ab_ModuleManager {
         return $ret;
     }
 
-    public function AJAX($d) {
+    public function AJAX($d){
         $ret = $this->GetSessionManager()->AJAX($d);
 
-        if (empty($ret)) {
+        if (empty($ret)){
             $ret = $this->GetPersonalManager()->AJAX($d);
         }
 
-        if (empty($ret)) {
+        if (empty($ret)){
             $ret = $this->GetAuthManager()->AJAX($d);
         }
 
-        if (empty($ret)) {
+        if (empty($ret)){
             $ret = $this->GetRegistrationManager()->AJAX($d);
         }
 
-        if (empty($ret)) {
+        if (empty($ret)){
             $ret = $this->GetPasswordManager()->AJAX($d);
         }
 
-        if (empty($ret)) {
+        if (empty($ret)){
             $ret = $this->GetAdminManager()->AJAX($d);
         }
 
-        if (empty($ret)) {
+        if (empty($ret)){
             $ret = new stdClass();
             $ret->err = 500;
         }
@@ -176,21 +176,21 @@ class UserManager extends Ab_ModuleManager {
 
     private $_cacheUser = array();
 
-    public function CacheUserClear() {
+    public function CacheUserClear(){
         $this->_cacheUser = array();
     }
 
-    public function CacheUser($userid, $type) {
-        if (!array_key_exists($type, $this->_cacheUser)) {
+    public function CacheUser($userid, $type){
+        if (!array_key_exists($type, $this->_cacheUser)){
             $this->_cacheUser[$type] = array();
         }
-        if (!array_key_exists($userid, $this->_cacheUser[$type])) {
+        if (!array_key_exists($userid, $this->_cacheUser[$type])){
             return null;
         }
         return $this->_cacheUser[$type][$userid];
     }
 
-    public function CacheUserAdd($user) {
+    public function CacheUserAdd($user){
         $this->_cacheUser[$user->GetType()][$user->id] = $user;
     }
 
@@ -200,15 +200,15 @@ class UserManager extends Ab_ModuleManager {
      *
      * @return null|UserItem
      */
-    public function User($userid = 0, $classUserItem = null) {
+    public function User($userid = 0, $classUserItem = null){
         $userid = intval($userid);
         $user = $this->CacheUser($userid, 'user');
-        if (!empty($user)) {
-            if (!empty($classUserItem)) {
+        if (!empty($user)){
+            if (!empty($classUserItem)){
                 // TODO: hack
                 $user = new $classUserItem($user);
                 $tUser = $this->CacheUser($userid, $user->GetType());
-                if (!empty($tUser)) {
+                if (!empty($tUser)){
                     return $tUser;
                 }
             }
@@ -217,14 +217,14 @@ class UserManager extends Ab_ModuleManager {
         }
 
         $row = UserQuery::UserById($this->db, $userid);
-        if (empty($row)) {
+        if (empty($row)){
             return null;
         }
 
         $user = new UserItem($row);
         $this->CacheUserAdd($user, $user->GetType());
 
-        if (!empty($classUserItem)) {
+        if (!empty($classUserItem)){
             $user = new $classUserItem($user);
             $this->CacheUserAdd($user, $user->GetType());
         }
@@ -232,17 +232,17 @@ class UserManager extends Ab_ModuleManager {
         return $user;
     }
 
-    public function UserByName($username, $checkEmail = false, $classUserItem = null) {
+    public function UserByName($username, $checkEmail = false, $classUserItem = null){
         $row = UserQuery::UserByName($this->db, $username, $checkEmail);
 
-        if (empty($row)) {
+        if (empty($row)){
             return null;
         }
 
         $user = new UserItem($row);
         $this->CacheUserAdd($user, $user->GetType());
 
-        if (!empty($classUserItem)) {
+        if (!empty($classUserItem)){
             $user = new $classUserItem($user);
             $this->CacheUserAdd($user, $user->GetType());
         }
@@ -250,18 +250,18 @@ class UserManager extends Ab_ModuleManager {
         return $user;
     }
 
-    public function UserExist($useNameOrEmail, $checkEmail = true) {
+    public function UserExist($useNameOrEmail, $checkEmail = true){
         $user = $this->UserByName($useNameOrEmail, $checkEmail);
 
         return !empty($user);
     }
 
-    public function UserDomainUpdate($userid = 0) {
+    public function UserDomainUpdate($userid = 0){
         // не обновлять, если в конфиге домен не определен
-        if (empty(Abricos::$DOMAIN)) {
+        if (empty(Abricos::$DOMAIN)){
             return;
         }
-        if ($userid === 0) {
+        if ($userid === 0){
             $userid = Abricos::$user->id;
         }
 
@@ -275,8 +275,8 @@ class UserManager extends Ab_ModuleManager {
     ////////////////////////////////////////////////////////////////////
 
 
-    public function UserGroupList($page = 1, $limit = 15, $filter = '') {
-        if (!$this->IsAdminRole()) {
+    public function UserGroupList($page = 1, $limit = 15, $filter = ''){
+        if (!$this->IsAdminRole()){
             return null;
         }
 
@@ -284,13 +284,13 @@ class UserManager extends Ab_ModuleManager {
         return UserQuery::UserGroupList($this->db, $page, $limit, $filter, !empty($modAntibot));
     }
 
-    public function UserInfo($userid) {
-        if (!$this->IsChangeUserRole($userid)) {
+    public function UserInfo($userid){
+        if (!$this->IsChangeUserRole($userid)){
             $user = UserQuery::UserPublicInfo($this->db, $userid, true);
         } else {
             $user = UserQuery::UserPrivateInfo($this->db, $userid, true);
         }
-        if (empty($user)) {
+        if (empty($user)){
             return array('id' => $userid);
         }
         $groups = UserQuery::GroupByUserId($this->db, $userid);
@@ -299,8 +299,8 @@ class UserManager extends Ab_ModuleManager {
         return $user;
     }
 
-    public function UserPasswordChange($userid, $newpassword, $oldpassword = '') {
-        if (!$this->IsChangeUserRole($userid)) {
+    public function UserPasswordChange($userid, $newpassword, $oldpassword = ''){
+        if (!$this->IsChangeUserRole($userid)){
             return 1; // нет доступа на изменение пароля
         }
 
@@ -309,21 +309,21 @@ class UserManager extends Ab_ModuleManager {
         // данные для внесения в бд
         $data = array();
 
-        if ($this->IsAdminRole()) {
+        if ($this->IsAdminRole()){
             // отключено
             $data['password'] = UserManager::UserPasswordCrypt($newpassword, $user['salt']);
         } else {
 
             // смена пароля
-            if (empty($newpassword) || strlen($newpassword) < 4) {
+            if (empty($newpassword) || strlen($newpassword) < 4){
                 return 2; // короткий пароль
             }
-            if ($newpassword == $user['username']) {
+            if ($newpassword == $user['username']){
                 return 3; // пароль совпадает с логином
             }
 
             $passcrypt = UserManager::UserPasswordCrypt($oldpassword, $user["salt"]);
-            if ($passcrypt == $user["password"]) {
+            if ($passcrypt == $user["password"]){
                 $data['password'] = UserManager::UserPasswordCrypt($newpassword, $user['salt']);
             } else {
                 return 4; // старый пароль ошибочный
@@ -341,8 +341,8 @@ class UserManager extends Ab_ModuleManager {
     ////////////////////////////////////////////////////////////////////
 
 
-    public function TermsOfUseAgreement() {
-        if ($this->userid == 0) {
+    public function TermsOfUseAgreement(){
+        if ($this->userid == 0){
             return false;
         }
 
@@ -353,24 +353,24 @@ class UserManager extends Ab_ModuleManager {
 
     private $_userFields = null;
 
-    public function UserFieldList() {
-        if (!is_null($this->_userFields)) {
+    public function UserFieldList(){
+        if (!is_null($this->_userFields)){
             return $this->_userFields;
         }
         $rows = UserQuery::UserFieldList($this->db);
         $cols = array();
-        while (($row = $this->db->fetch_array($rows))) {
+        while (($row = $this->db->fetch_array($rows))){
             $cols[$row['Field']] = $row;
         }
         $this->_userFields = $cols;
         return $this->_userFields;
     }
 
-    public function UserFieldCacheClear() {
+    public function UserFieldCacheClear(){
         $this->_userFields = null;
     }
 
-    public function UserField($fieldName) {
+    public function UserField($fieldName){
         $fields = $this->UserFieldList();
         if (!isset($fields[$fieldName])){
             return '';
@@ -378,7 +378,7 @@ class UserManager extends Ab_ModuleManager {
         return $fields[$fieldName];
     }
 
-    public function UserFieldCheck($fieldName) {
+    public function UserFieldCheck($fieldName){
         $field = $this->UserField($fieldName);
         return !empty($field);
     }
@@ -394,17 +394,17 @@ class UserManager extends Ab_ModuleManager {
      * @param $username
      * @return bool
      */
-    public static function UserNameValidate($username) {
+    public static function UserNameValidate($username){
         $username = strtolower(trim($username));
 
         $length = strlen($username);
-        if ($length == 0) {
+        if ($length == 0){
             return false;
-        } else if ($length < 3) {
+        } else if ($length < 3){
             return false;
-        } else if ($length > 50) {
+        } else if ($length > 50){
             return false;
-        } else if (preg_match("/^[^a-z]{1}|[^a-z0-9_.-]+/i", $username)) {
+        } else if (preg_match("/^[^a-z]{1}|[^a-z0-9_.-]+/i", $username)){
             return false;
         }
         // $username = htmlspecialchars_uni($username);
@@ -417,9 +417,9 @@ class UserManager extends Ab_ModuleManager {
      * @param $address
      * @return bool
      */
-    public static function EmailValidate($address) {
-        if (function_exists('filter_var')) { //Introduced in PHP 5.2
-            if (filter_var($address, FILTER_VALIDATE_EMAIL) === FALSE) {
+    public static function EmailValidate($address){
+        if (function_exists('filter_var')){ //Introduced in PHP 5.2
+            if (filter_var($address, FILTER_VALIDATE_EMAIL) === FALSE){
                 return false;
             } else {
                 return true;
@@ -429,34 +429,25 @@ class UserManager extends Ab_ModuleManager {
         }
     }
 
-    public static function UserPasswordCrypt($password, $salt) {
+    public static function UserPasswordCrypt($password, $salt){
         return md5(md5($password).$salt);
     }
 
-    public function Bos_MenuData() {
-        if (!$this->IsAdminRole()) {
+    public function Bos_MenuData(){
+        if (!$this->IsAdminRole()){
             return null;
         }
-        $lng = $this->module->GetI18n();
+        $i18n = $this->module->I18n();
         return array(
             array(
-                "name" => "adminka",
-                "title" => $lng['bosmenu']['adminka'],
-                "icon" => "/modules/user/images/cpanel-24.png",
-                "url" => "user/board/showBoardPanel",
-                "parent" => "controlPanel"
-            ),
-            array(
                 "name" => "user",
-                "title" => $lng['bosmenu']['users'],
+                "title" => $i18n->Translate('bosmenu.users'),
                 "icon" => "/modules/user/images/users-24.png",
                 "url" => "user/wspace/ws",
                 "parent" => "controlPanel"
             )
         );
     }
-
-
 }
 
 ?>

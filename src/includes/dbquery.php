@@ -13,7 +13,7 @@
  */
 class UserQuery {
 
-    public static function UserById(Ab_Database $db, $userid) {
+    public static function UserById(Ab_Database $db, $userid){
         $sql = "
 			SELECT u.userid as id, u.*
 			FROM ".$db->prefix."user u
@@ -23,7 +23,7 @@ class UserQuery {
         return $db->query_first($sql);
     }
 
-    public static function UserByName(Ab_Database $db, $username, $orByEmail = false) {
+    public static function UserByName(Ab_Database $db, $username, $orByEmail = false){
         $sql = "
 			SELECT u.userid as id, u.*
 			FROM ".$db->prefix."user u
@@ -39,16 +39,16 @@ class UserQuery {
      * @param UserListConfig $config
      * @return int3
      */
-    public static function UserList(Ab_Database $db, $config) {
+    public static function UserList(Ab_Database $db, $config){
         $aw = array();
-        if ($config->antibot) {
+        if ($config->antibot){
             array_push($aw, "antibotdetect=0");
         }
-        if (!empty($config->filter)) {
+        if (!empty($config->filter)){
             array_push($aw, "(username LIKE '%".bkstr($config->filter)."%' OR email LIKE '%".bkstr($config->filter)."%')");
         }
         $where = "";
-        if (count($aw) > 0) {
+        if (count($aw) > 0){
             $where = "WHERE ".implode(" AND ", $aw);
         }
         $sql = "
@@ -70,7 +70,7 @@ class UserQuery {
 
     }
 
-    public static function UserGroupList(Ab_Database $db, $userid) {
+    public static function UserGroupList(Ab_Database $db, $userid){
         $sql = "
 			SELECT groupid as id
 			FROM ".$db->prefix."usergroup
@@ -79,7 +79,7 @@ class UserQuery {
         return $db->query_read($sql);
     }
 
-    public static function GroupList(Ab_Database $db) {
+    public static function GroupList(Ab_Database $db){
         $sql = "
 			SELECT
 				groupid as id,
@@ -91,7 +91,7 @@ class UserQuery {
         return $db->query_read($sql);
     }
 
-    public static function GroupRoleList(Ab_Database $db) {
+    public static function GroupRoleList(Ab_Database $db){
         $sql = "
 			SELECT
 				roleid as id,
@@ -105,7 +105,7 @@ class UserQuery {
     }
 
 
-    public static function UserDomainUpdate(Ab_Database $db, $userid, $domain) {
+    public static function UserDomainUpdate(Ab_Database $db, $userid, $domain){
         $sql = "
 			INSERT IGNORE INTO ".$db->prefix."userdomain (userid, `domain`) VALUES (
 				".bkint($userid).",
@@ -122,8 +122,8 @@ class UserQuery {
     // ********************************************************************
 
 
-    public static function UserRole(Ab_Database $db, UserItem $user) {
-        if ($user->id === 0) {
+    public static function UserRole(Ab_Database $db, UserItem $user){
+        if ($user->id === 0){
             $sql = "
 				SELECT
 					ma.module as md,
@@ -144,9 +144,9 @@ class UserQuery {
 				WHERE ur.userid = ".bkint($user->id)." AND ur.usertype = 1
 			";
             $gps = $user->GetGroupList();
-            if (count($gps) > 0) {
+            if (count($gps) > 0){
                 $arr = array();
-                for ($i = 0; $i < count($gps); $i++) {
+                for ($i = 0; $i < count($gps); $i++){
                     array_push($arr, "gp.groupid = ".$gps[$i]);
                 }
                 $sql .= "
@@ -166,20 +166,20 @@ class UserQuery {
         return $db->query_read($sql);
     }
 
-    public static function PermissionInstall(Ab_Database $db, Ab_UserPermission $permission) {
+    public static function PermissionInstall(Ab_Database $db, Ab_UserPermission $permission){
         $modName = $permission->module->name;
         $actions = array();
         $rows = UserQuery::ModuleActionList($db, $modName);
-        while (($row = $db->fetch_array($rows))) {
+        while (($row = $db->fetch_array($rows))){
 
             $find = false;
-            foreach ($permission->defRoles as $role) {
-                if (intval($role->action) == intval($row['act'])) {
+            foreach ($permission->defRoles as $role){
+                if (intval($role->action) == intval($row['act'])){
                     $find = true;
                     break;
                 }
             }
-            if ($find) {
+            if ($find){
                 $actions[$row['act']] = $row;
             } else {
                 // action был удален, надо его зачистить на в базе
@@ -188,13 +188,13 @@ class UserQuery {
         }
 
         $asql = array();
-        foreach ($permission->defRoles as $role) {
-            if (!empty($actions[$role->action])) {
+        foreach ($permission->defRoles as $role){
+            if (!empty($actions[$role->action])){
                 continue;
             }
             array_push($asql, "('".$modName."', ".$role->action.")");
         }
-        if (!empty($asql)) {
+        if (!empty($asql)){
             $sql = "INSERT IGNORE INTO ".$db->prefix."sys_modaction (`module`, `action`) VALUES ";
             $sql .= implode(",", $asql);
             $db->query_write($sql);
@@ -202,8 +202,8 @@ class UserQuery {
 
         $rows = UserQuery::GroupList($db);
         $groups = array();
-        while (($row = $db->fetch_array($rows))) {
-            if (empty($row['sysname'])) {
+        while (($row = $db->fetch_array($rows))){
+            if (empty($row['sysname'])){
                 continue;
             }
             $groups[$row['sysname']] = $row['id'];
@@ -212,18 +212,18 @@ class UserQuery {
         require_once 'classes/admin_dbquery.php';
 
         $rows = UserQuery::ModuleActionList($db, $modName);
-        while (($row = $db->fetch_array($rows))) {
+        while (($row = $db->fetch_array($rows))){
 
-            foreach ($permission->defRoles as $role) {
-                if (intval($row['act']) != intval($role->action)) {
+            foreach ($permission->defRoles as $role){
+                if (intval($row['act']) != intval($role->action)){
                     continue;
                 }
                 $groupid = isset($groups[$role->groupkey]) ? intval($groups[$role->groupkey]) : 0;
-                if (empty($groupid)) {
+                if (empty($groupid)){
                     $i18n = $permission->module->I18n();
 
                     $groupname = $i18n->Translate('groups.'.$role->groupkey);
-                    if (empty($groupname)) {
+                    if (empty($groupname)){
                         $groupname = $role->groupkey;
                     }
 
@@ -242,7 +242,7 @@ class UserQuery {
         }
     }
 
-    public static function PermissionRemove(Ab_Database $db, Ab_UserPermission $permission) {
+    public static function PermissionRemove(Ab_Database $db, Ab_UserPermission $permission){
         $rows = $db->query_read("
 			SELECT
 				modactionid as id,
@@ -250,7 +250,7 @@ class UserQuery {
 			FROM ".$db->prefix."sys_modaction
 			WHERE module = '".$permission->module->name."'
 		");
-        while (($row = $db->fetch_array($rows))) {
+        while (($row = $db->fetch_array($rows))){
             $sql = "
 				DELETE FROM ".$db->prefix."userrole
 				WHERE modactionid=".bkint($row['id'])."
@@ -269,9 +269,9 @@ class UserQuery {
      *
      * @param Ab_Database $db
      */
-    public static function ModuleActionList(Ab_Database $db, $modName = '') {
+    public static function ModuleActionList(Ab_Database $db, $modName = ''){
         $where = "";
-        if (!empty($modName)) {
+        if (!empty($modName)){
             $where = "WHERE module='".bkstr($modName)."'";
         }
         $sql = "
@@ -286,7 +286,7 @@ class UserQuery {
         return $db->query_read($sql);
     }
 
-    public static function ModuleActionRemove(Ab_Database $db, $modactionid) {
+    public static function ModuleActionRemove(Ab_Database $db, $modactionid){
         $sql = "
 			DELETE FROM ".$db->prefix."userrole
 			WHERE modactionid=".bkint($modactionid)."
@@ -300,7 +300,7 @@ class UserQuery {
         $db->query_write($sql);
     }
 
-    public static function UserFieldList(Ab_Database $db) {
+    public static function UserFieldList(Ab_Database $db){
         $sql = "SHOW COLUMNS FROM ".$db->prefix."user";
         return $db->query_read($sql);
     }
@@ -312,7 +312,7 @@ class UserQuery {
 class UserQuery_old {
 
 
-    public static function TermsOfUseAgreement(Ab_Database $db, $userid) {
+    public static function TermsOfUseAgreement(Ab_Database $db, $userid){
         $sql = "
 			UPDATE ".$db->prefix."user
 			SET agreement=1
@@ -323,12 +323,12 @@ class UserQuery_old {
     }
 
 
-    public static function UserUpdate(Ab_Database $db, $userid, $data) {
+    public static function UserUpdate(Ab_Database $db, $userid, $data){
         $arr = array();
-        foreach ($data as $key => $value) {
+        foreach ($data as $key => $value){
             array_push($arr, $key."='".$value."'");
         }
-        if (empty($arr)) {
+        if (empty($arr)){
             return;
         }
 
@@ -341,15 +341,15 @@ class UserQuery_old {
         $db->query_write($sql);
     }
 
-    public static function UserGroupRemoveByKey(Ab_Database $db, $userid, $key) {
+    public static function UserGroupRemoveByKey(Ab_Database $db, $userid, $key){
         $group = UserQuery::GroupByKey($db, $key, true);
-        if (empty($group)) {
+        if (empty($group)){
             return;
         }
         UserQuery::UserGroupRemove($db, $userid, $group['id']);
     }
 
-    public static function UserGroupRemove(Ab_Database $db, $userid, $groupid) {
+    public static function UserGroupRemove(Ab_Database $db, $userid, $groupid){
         $sql = "
 			DELETE FROM `".$db->prefix."usergroup`
 			WHERE userid=".bkint($userid)." AND groupid=".bkint($groupid)."
@@ -357,17 +357,16 @@ class UserQuery_old {
         $db->query_write($sql);
     }
 
-    public static function UserGroupAppendByKey(Ab_Database $db, $userid, $key) {
+    public static function UserGroupAppendByKey(Ab_Database $db, $userid, $key){
         $group = UserQuery::GroupByKey($db, $key, true);
-        if (empty($group)) {
+        if (empty($group)){
             return;
         }
         UserQuery::UserGroupAppend($db, $userid, $group['id']);
     }
 
 
-
-      public static function UserGroupList(Ab_Database $db, $page, $limit, $filter = '', $notbot = false) {
+    public static function UserGroupList(Ab_Database $db, $page, $limit, $filter = '', $notbot = false){
         $from = (($page - 1) * $limit);
 
         $sql = "
@@ -387,7 +386,7 @@ class UserQuery_old {
         return $db->query_read($sql);
     }
 
-    public static function UserOnline(Ab_Database $db) {
+    public static function UserOnline(Ab_Database $db){
         $sql = "
 			SELECT count( * ) AS cnt
 			FROM (
@@ -401,7 +400,7 @@ class UserQuery_old {
     }
 
 
-    public static function RoleAppend(Ab_Database $db, $groupid, $d) {
+    public static function RoleAppend(Ab_Database $db, $groupid, $d){
         $sql = "
 			INSERT IGNORE INTO ".$db->prefix."userrole
 			(`modactionid`, `usertype`, `userid`, `status`) VALUES (
@@ -413,7 +412,7 @@ class UserQuery_old {
         $db->query_write($sql);
     }
 
-    public static function RoleRemove(Ab_Database $db, $roleid) {
+    public static function RoleRemove(Ab_Database $db, $roleid){
         $sql = "
 			DELETE FROM ".$db->prefix."userrole
 			WHERE roleid=".bkint($roleid)."
