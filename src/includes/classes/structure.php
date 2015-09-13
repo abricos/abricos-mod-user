@@ -34,6 +34,8 @@ class UserItem extends AbricosItem {
     protected $_data;
 
     public function __construct($d){
+        $d['id'] = intval($d['id']);
+
         parent::__construct($d);
 
         $d = array_merge(array(
