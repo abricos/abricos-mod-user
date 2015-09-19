@@ -46,6 +46,11 @@ Component.entryPoint = function(NS){
             }, callback, context);
         }
     }, [], {
+        ATTRS: {
+            userCurrent: {},
+            termsOfUse: {},
+            groupList: {}
+        },
         REQS: {
             login: {args: ['login']},
             logout: {},
@@ -56,16 +61,32 @@ Component.entryPoint = function(NS){
                 }
             },
             termsOfUse: {
-                cache: 'termsOfUse',
+                cache: function(){
+                    return this.get('termsOfUse');
+                },
                 response: function(d){
                     return d;
+                },
+                onResponse: function(termsOfUse){
+                    if (!termsOfUse){
+                        return;
+                    }
+                    this.set('termsOfUse', termsOfUse);
                 }
             },
             activate: {args: ['activate']},
             userCurrent: {
-                cache: 'userCurrent',
+                cache: function(){
+                    return this.get('userCurrent');
+                },
                 response: function(d){
                     return new NS.UserCurrent(d);
+                },
+                onResponse: function(user){
+                    if (!user){
+                        return;
+                    }
+                    this.set('userCurrent', user);
                 }
             },
             user: {
@@ -96,9 +117,17 @@ Component.entryPoint = function(NS){
                 }
             },
             groupList: {
-                cache: 'groupList',
+                cache: function(){
+                    return this.get('groupList');
+                },
                 response: function(d){
                     return new NS.Admin.GroupList({items: d.list});
+                },
+                onResponse: function(groupList){
+                    if (!groupList){
+                        return;
+                    }
+                    this.set('groupList', groupList);
                 }
             },
             userOptionList: {
