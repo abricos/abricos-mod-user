@@ -168,10 +168,14 @@ class UserItem extends AbricosItem {
 }
 
 class UserList extends AbricosList {
-    public $classConfig = 'UserListConfig';
 }
 
-class UserListConfig extends AbricosListConfig {
+class UserListConfig {
+
+    public $page = 1;
+    public $limit = 0;
+
+    private $_total = 0;
 
     public $filter;
 
@@ -180,8 +184,11 @@ class UserListConfig extends AbricosListConfig {
     public $uprofile = false;
 
     public function __construct($d = null){
-        parent::__construct($d);
         $d = array_to_object($d);
+
+        $this->page = max($d->page, 1);
+        $this->limit = isset($d->limit) ? intval($d->limit) : 10;
+
         $this->filter = isset($d->filter) ? strval($d->filter) : "";
 
         $this->limit = 10;
@@ -193,14 +200,28 @@ class UserListConfig extends AbricosListConfig {
         $this->uprofile = !empty($modUProfile);
     }
 
-    public function ToAJAX(){
-        $ret = parent::ToAJAX();
+    public function SetTotal($total){
+        $this->_total = intval($total);
+    }
+
+    public function GetTotal(){
+        return $this->_total;
+    }
+
+    public function GetFrom(){
+        return ($this->page - 1) * $this->limit;
+    }
+
+    public function ToJSON(){
+        $ret = new stdClass();
+        $ret->page = $this->page;
+        $ret->limit = $this->limit;
+        $ret->total = $this->_total;
         $ret->filter = $this->filter;
         $ret->antibot = $this->antibot;
         $ret->uprofile = $this->uprofile;
         return $ret;
     }
-
 }
 
 class UserGroup extends AbricosItem {

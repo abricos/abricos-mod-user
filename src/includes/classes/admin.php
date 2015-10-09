@@ -204,6 +204,7 @@ class UserManager_Admin {
 
         $ret = new stdClass();
         $ret->userList = $list->ToAJAX();
+        $ret->userList->config = $config->ToJSON();
         return $ret;
     }
 
@@ -216,9 +217,9 @@ class UserManager_Admin {
             return null;
         }
 
-        $list = new UserList($config);
+        $list = new UserList();
 
-        $rows = UserQuery::UserList($this->db, $list->config);
+        $rows = UserQuery::UserList($this->db, $config);
         while (($row = $this->db->fetch_array($rows))){
             $user = new UserItem($row);
             $this->manager->CacheUserAdd($user, $user->GetType());
