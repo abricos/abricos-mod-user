@@ -11,30 +11,18 @@ Component.entryPoint = function(NS){
         COMPONENT = this,
         SYS = Brick.mod.sys;
 
-    NS.GroupEditorWidget = Y.Base.create('groupEditorWidget', SYS.AppWidget, [
-        SYS.Form,
-        SYS.FormAction
-    ], {
-        initializer: function(){
-            this.publish('editorCancel', {
-                defaultFn: this._defEditorCancel
-            });
-            this.publish('editorSaved', {
-                defaultFn: this._defEditorSaved
-            });
-            this.publish('renderEditor', {
-                defaultFn: this._defRenderEditor
-            });
-        },
-        _defRenderEditor: function(){
-        },
+    NS.GroupEditorWidget = Y.Base.create('groupEditorWidget', SYS.AppWidget, [], {
         buildTData: function(){
             var groupId = this.get('groupId') | 0;
             return {
                 'status': groupId > 0 ? 'edit-isedit' : 'edit-isnew'
             };
         },
-        onInitAppWidget: function(err, appInstance, options){
+        onInitAppWidget: function(err, appInstance){
+            this.publish('editorCancel');
+            this.publish('editorSaved');
+            this.publish('renderEditor');
+
             if (this.get('groupList')){
                 this.onLoadGroupList();
             } else {
@@ -58,61 +46,52 @@ Component.entryPoint = function(NS){
             } else {
                 group = groupList.getById(groupId);
             }
-            this.set('model', group);
+
+            var tp = this.template;
+            tp.setValue('title', group.get('title'));
 
             this.listWidget = new NS.PermissionListWidget({
-                boundingBox: this.template.gel('permlist'),
+                boundingBox: tp.gel('permlist'),
                 permissionList: group.get('permission')
             });
             this.fire('renderEditor');
         },
-        onSubmitFormAction: function(){
+        save: function(){
             this.set('waiting', true);
 
-            this.listWidget.fillPermissionList();
+            var tp = this.template,
+                d = {
+                    id: this.get('groupId'),
+                    title: tp.getValue('title'),
+                    permission: this.listWidget.toJSON()
+                };
 
-            var model = this.get('model');
-
-            this.get('appInstance').groupSave(model, function(err, result){
+            this.get('appInstance').groupSave(d, function(err, result){
                 this.set('waiting', false);
                 if (!err){
                     this.fire('editorSaved');
                 }
             }, this);
         },
-        onClick: function(e){
-            switch (e.dataClick) {
-                case 'cancel':
-                    this.fire('editorCancel');
-                    return true;
-            }
-        },
-        _defEditorSaved: function(){
-        },
-        _defEditorCancel: function(){
+        cancel: function(){
+            this.fire('editorCancel');
         }
     }, {
         ATTRS: {
-            component: {
-                value: COMPONENT
-            },
-            templateBlockName: {
-                value: 'widget'
-            },
-            groupId: {
-                value: 0
-            },
-            groupList: {
-                value: null
-            }
+            component: {value: COMPONENT},
+            templateBlockName: {value: 'widget'},
+            groupId: {value: 0},
+            groupList: {value: null}
+        },
+        CLICKS: {
+            save: 'save',
+            cancel: 'cancel'
         }
     });
 
     NS.GroupEditorDialog = Y.Base.create('groupEditorDialog', SYS.Dialog, [], {
         initializer: function(){
-            this.publish('editorSaved', {
-                defaultFn: this._defEditorSaved
-            });
+            this.publish('editorSaved');
             Y.after(this._syncUIGroupEditorDialog, this, 'syncUI');
         },
         _syncUIGroupEditorDialog: function(){
@@ -136,8 +115,6 @@ Component.entryPoint = function(NS){
                 instance.centered();
             });
             widget.render();
-        },
-        _defEditorSaved: function(){
         }
     }, {
         ATTRS: {

@@ -18,7 +18,7 @@ Component.entryPoint = function(NS){
         reloadModuleList: function(){
             this.set('waiting', true);
 
-            Brick.appFunc('sys', 'moduleList', function(err, result){
+            this.get('appInstance').getApp('sys').moduleList(function(err, result){
                 this.set('waiting', false);
                 if (!err){
                     this.set('moduleList', result.moduleList);
@@ -36,7 +36,6 @@ Component.entryPoint = function(NS){
             var tp = this.template, lst = "";
 
             moduleList.each(function(module){
-
                 var m = module.toJSON(),
                     isFirst = true,
                     p = perms[m.name] || {},
@@ -60,12 +59,11 @@ Component.entryPoint = function(NS){
                 'rows': lst
             });
         },
-        fillPermissionList: function(){
+        toJSON: function(){
             var moduleList = this.get('moduleList'),
-                perms = this.get('permissionList');
+                perms = {};
 
             var tp = this.template,
-                elWidget = Y.Node.one(tp.gel('id')),
                 idPrefix = tp.gelid('row.chk');
 
             moduleList.each(function(module){
@@ -79,21 +77,14 @@ Component.entryPoint = function(NS){
                 }
                 perms[m.name] = p;
             });
+            return perms;
         }
     }, {
         ATTRS: {
-            component: {
-                value: COMPONENT
-            },
-            templateBlockName: {
-                value: 'widget,list,row'
-            },
-            moduleList: {
-                value: null
-            },
-            permissionList: {
-                value: null
-            }
+            component: {value: COMPONENT},
+            templateBlockName: {value: 'widget,list,row'},
+            moduleList: {value: null},
+            permissionList: {value: null}
         }
     });
 };

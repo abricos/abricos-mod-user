@@ -50,7 +50,7 @@ class UserQuery_Admin {
         $uData["userid"] = $userid;
         $uData['activateid'] = cmsrand(0, 100000000);
         $sql = "
-			INSERT INTO `".$db->prefix."useractivate`
+			INSERT INTO ".$db->prefix."useractivate
 				(userid, activateid, joindate) VALUES (
 				'".bkint($userid)."',
 				'".bkstr($uData['activateid'])."',
@@ -91,7 +91,7 @@ class UserQuery_Admin {
 
     public static function UserGroupUpdate(Ab_Database $db, $userid, $groups) {
         $sql = "
-			DELETE FROM `".$db->prefix."usergroup`
+			DELETE FROM ".$db->prefix."usergroup
 			WHERE userid=".bkint($userid)."
 		";
         $db->query_write($sql);
@@ -105,7 +105,7 @@ class UserQuery_Admin {
         }
 
         $sql = "
-			INSERT IGNORE INTO `".$db->prefix."usergroup` (`userid`, `groupid`) VALUES
+			INSERT IGNORE INTO ".$db->prefix."usergroup (userid, groupid) VALUES
 			".implode(',', $arr)."
 		";
         $db->query_write($sql);

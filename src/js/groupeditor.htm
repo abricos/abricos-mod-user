@@ -1,26 +1,30 @@
 <!--{widget}-->
-<form id="{i#id}" class="editor" role="form">
+<div class="editor">
     <div class="{v#status}">
         <div class="form-group">
             <label for="{i#title}">Название группы</label>
             <input id="{i#title}" name="title" type="text" class="form-control" data-wait="disable">
         </div>
         <div id="{i#permlist}" class="form-group"></div>
-        <div class="btn-toolbar text-right">
-            <span data-wait="show"> <img src="/images/loading.gif"/> Загрузка...</span>
-            <button type="submit" class="btn btn-default edit-isnew" data-wait="disable">
+
+        <span data-wait="show" class="pull-left">
+            <img src="/images/loading.gif"/>
+        </span>
+
+        <div class="btn-toolbar pull-right">
+            <button data-click="save" type="button" class="btn btn-default edit-isnew" data-wait="disable">
                 Создать
             </button>
-            <button type="submit" class="btn btn-primary edit-isedit" data-wait="disable">
+            <button data-click="save" type="button" class="btn btn-primary edit-isedit" data-wait="disable">
                 Сохранить
             </button>
-            <button type="button" class="btn btn-default" data-click="cancel" data-wait="disable">
+            <button data-click="cancel" type="button" class="btn btn-default" data-wait="disable">
                 Отмена
             </button>
         </div>
+        <div class="clearfix"></div>
     </div>
-</form>
-
+</div>
 
 <!--{dialog}-->
 <div class='hd'>Редактор группы&nbsp;</div>

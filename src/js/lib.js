@@ -13,9 +13,7 @@ Component.entryPoint = function(NS){
     });
 
     var Y = Brick.YUI,
-
         COMPONENT = this,
-
         SYS = Brick.mod.sys;
 
     SYS.Application.build(COMPONENT, {}, {
@@ -39,13 +37,10 @@ Component.entryPoint = function(NS){
                 'savedata': sd
             }, callback, context);
         },
-        groupSave: function(model, callback, context){
-            this.ajaxa({
-                'do': 'groupsave',
-                'groupdata': model.toJSON()
-            }, callback, context);
-        }
     }, [], {
+        APPS: {
+            sys: {}
+        },
         ATTRS: {
             userCurrent: {},
             termsOfUse: {},
@@ -129,6 +124,9 @@ Component.entryPoint = function(NS){
                     }
                     this.set('groupList', groupList);
                 }
+            },
+            groupSave: {
+                args: ['groupdata']
             },
             userOptionList: {
                 args: ['module'],

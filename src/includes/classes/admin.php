@@ -49,7 +49,7 @@ class UserManager_Admin {
                 return $this->UserListToAJAX($d->userListConfig);
             case "groupList":
                 return $this->GroupListToAJAX();
-            case "groupsave":
+            case "groupSave":
                 return $this->GroupSaveToAJAX($d->groupdata);
 
         }
@@ -335,6 +335,9 @@ class UserManager_Admin {
 
         foreach ($d->permission as $modName => $roles){
             foreach ($roles as $role => $action){
+                if (!isset($maList[$modName][$role])){
+                    continue;
+                }
                 $modActionId = $maList[$modName][$role];
                 UserQuery_Admin::GroupRoleActionUpdate($this->db, $modActionId, $d->id, $action);
             }
