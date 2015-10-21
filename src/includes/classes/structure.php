@@ -141,7 +141,9 @@ class UserItem extends AbricosItem {
             if (!isset($perm[$mod])){
                 $perm[$mod] = array();
             }
-            $perm[$mod][$row['act']] = $row['st'];
+            if (!isset($perm[$mod][$row['act']]) || empty($perm[$mod][$row['act']])){
+                $perm[$mod][$row['act']] = $row['st'];
+            }
         }
 
         return $this->_permission = $perm;
