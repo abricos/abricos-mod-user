@@ -44,7 +44,7 @@ class UserManager extends Ab_ModuleManager {
      * @return boolean
      */
     public function IsChangeUserRole($userid){
-        return $this->userid == $userid || $this->IsAdminRole();
+        return (Abricos::$user->id > 0 && Abricos::$user->id === intval($userid)) || $this->IsAdminRole();
     }
 
     private $_sessionManager = null;
@@ -304,7 +304,7 @@ class UserManager extends Ab_ModuleManager {
             return 1; // нет доступа на изменение пароля
         }
 
-        $user = UserQuery::User($this->db, $userid, true);
+        $user = UserQuery::UserById($this->db, $userid);
 
         // данные для внесения в бд
         $data = array();

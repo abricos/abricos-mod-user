@@ -24,24 +24,24 @@ class UserManager_Password {
      */
     public $db;
 
-    public function __construct(UserManager $manager) {
+    public function __construct(UserManager $manager){
         $this->manager = $manager;
         $this->db = $manager->db;
     }
 
-    public function AJAX($d) {
-        switch ($d->do) {
+    public function AJAX($d){
+        switch ($d->do){
             case "passwordRecovery":
                 return $this->PasswordRecoveryToAJAX($d->passwordRecovery);
         }
         return null;
     }
 
-    public function PasswordRecoveryToAJAX($d) {
+    public function PasswordRecoveryToAJAX($d){
         $result = $this->PasswordRecovery($d->email);
         $ret = new stdClass();
 
-        if (is_integer($result)) {
+        if (is_integer($result)){
             $ret->err = $result;
         } else {
             $ret->passwordRecovery = new stdClass();
@@ -61,18 +61,18 @@ class UserManager_Password {
      * @param string $email E-mail пользователя
      * @return Integer
      */
-    public function PasswordRecovery($email) {
-        if (!UserManager::EmailValidate($email)) {
+    public function PasswordRecovery($email){
+        if (!UserManager::EmailValidate($email)){
             return 4;
         }
 
         $user = $this->manager->UserByName($email, true);
-        if (empty($user)) {
+        if (empty($user)){
             return 1;
         }
 
         $sendcount = UserQuery_Password::PasswordSendCount($this->db, $user->id);
-        if ($sendcount > 0) {
+        if ($sendcount > 0){
             return 2;
         } // письмо уже отправлено
 
@@ -100,12 +100,12 @@ class UserManager_Password {
         return 0;
     }
 
-    public function PasswordRequestCheck($hash) {
+    public function PasswordRequestCheck($hash){
         $ret = new stdClass();
         $ret->error = 0;
 
         $pwdreq = UserQuery_Password::PasswordRequestCheck($this->db, $hash);
-        if (empty($pwdreq)) {
+        if (empty($pwdreq)){
             $ret->error = 1;
             sleep(1);
             return $ret;
@@ -134,6 +134,23 @@ class UserManager_Password {
         Abricos::Notify()->SendMail($user['email'], $subject, $message);
 
         return $ret;
+    }
+
+    public function PasswordChange($userid, $oldPassword, $newPassword){
+        if (!$this->manager->IsChangeUserRole($userid)){
+            return false;
+        };
+
+        $user = UserQuery::UserById($this->db, $userid);
+
+        $currPassCrypt = UserManager::UserPasswordCrypt($oldPassword, $user['salt']);
+        if ($user['password'] !== $currPassCrypt){
+            return false;
+        }
+
+        $passcrypt = UserManager::UserPasswordCrypt($newPassword, $user['salt']);
+        UserQuery_Password::PasswordChange($this->db, $userid, $passcrypt);
+        return true;
     }
 
 }
