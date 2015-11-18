@@ -1,6 +1,5 @@
 var Component = new Brick.Component();
 Component.requires = {
-    yui: ['aui-pagination'],
     mod: [
         {name: 'sys', files: ['form.js']},
         {name: '{C#MODNAME}', files: ['usereditor.js']}
