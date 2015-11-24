@@ -1,51 +1,54 @@
 <!--{widget}-->
-<form id="{i#id}" class="editor" role="form">
-    <div class="{v#status}">
-        <div class="form-group">
-            <label for="{i#username}">Имя пользователя</label>
-            <input id="{i#username}" name="username" type="text" class="form-control" disabled="disabled">
-        </div>
-        <div class="form-group">
-            <label for="{i#email}">E-mail</label>
-            <input id="{i#email}" name="email" type="text" class="form-control" data-wait="disable">
-        </div>
-        <div class="form-group">
-            <label>Пароль</label>
-            <button id="{i#passwordchange}" class="btn btn-default form-control" data-click="password-change"
-                    data-wait="disable">
-                Сменить пароль
-            </button>
-            <input id="{i#password}" name="password" type="password" class="hide form-control" data-wait="disable"
-                   placeholder="Введите пароль">
-        </div>
-        <div id="{i#activate}" class="form-group hide">
-            <label>Пользователь не активирован</label>
+<div id="{i#editor}" class="userEditor">
+    <div class="form-group">
+        <label for="{i#username}">Имя пользователя</label>
+        <input id="{i#username}" type="text" class="form-control" disabled="disabled">
+    </div>
+    <div class="form-group">
+        <label>E-mail</label>
+        <input id="{i#email}" type="text" class="form-control" data-wait="disable">
+    </div>
+    <div class="form-group">
+        <label>Пароль</label>
+        <button id="{i#passwordchange}" class="btn btn-default form-control" data-click="passwordChange"
+                data-wait="disable">
+            Сменить пароль
+        </button>
+        <input id="{i#password}" type="password" class="hide form-control" data-wait="disable"
+               placeholder="Введите пароль">
+    </div>
+    <div id="{i#activate}" class="form-group hide">
+        <label>Пользователь не активирован</label>
 
-            <div class="btn-toolbar">
-                <button class="btn btn-default" data-click="activate-custom" data-wait="disable" type="button">
-                    Активировать вручную
-                </button>
-                <button class="btn btn-default" data-click="activate-sendemail" data-wait="disable" type="button">
-                    Отправить запрос повторно
-                </button>
-            </div>
-        </div>
-        <div class="form-group">
-            <label>Группы пользователя</label>
-
-            <div id="{i#usergroups}"></div>
-        </div>
-        <div class="btn-toolbar text-right">
-            <span data-wait="show"> <img src="/images/loading.gif"/> Загрузка...</span>
-            <button type="submit" class="btn btn-primary" data-wait="disable">
-                Сохранить
+        <div class="btn-toolbar">
+            <button class="btn btn-default" data-click="activateCustom" data-wait="disable" type="button">
+                Активировать вручную
             </button>
-            <button type="button" class="btn btn-default" data-click="cancel" data-wait="disable">
-                Отмена
+            <button class="btn btn-default" data-click="activateSendemail" data-wait="disable" type="button">
+                Отправить запрос повторно
             </button>
         </div>
     </div>
-</form>
+    <div class="form-group">
+        <label>Группы пользователя</label>
+
+        <div id="{i#usergroups}"></div>
+    </div>
+    <hr/>
+    <div data-wait="show" class="pull-left">
+        <img src="/images/loading.gif"/> Загрузка...
+    </div>
+
+    <div class="btn-toolbar pull-right">
+        <button type="button" class="btn btn-primary" data-click="save" data-wait="disable">
+            Сохранить
+        </button>
+        <button type="button" class="btn btn-default" data-click="cancel" data-wait="disable">
+            Отмена
+        </button>
+    </div>
+    <div class="clearfix"></div>
+</div>
 
 <!--{dialog}-->
 <div class='hd'>Редактор пользователя&nbsp;</div>

@@ -11,22 +11,11 @@ Component.entryPoint = function(NS){
         COMPONENT = this,
         SYS = Brick.mod.sys;
 
-    NS.UserEditorWidget = Y.Base.create('userEditorWidget', SYS.AppWidget, [
-        SYS.Form,
-        SYS.FormAction
-    ], {
+    NS.UserEditorWidget = Y.Base.create('userEditorWidget', SYS.AppWidget, [], {
         initializer: function(){
-            this.publish('editorCancel', {
-                defaultFn: this._defEditorCancel
-            });
-            this.publish('editorSaved', {
-                defaultFn: this._defEditorSaved
-            });
-            this.publish('renderEditor', {
-                defaultFn: this._defRenderEditor
-            });
-        },
-        _defRenderEditor: function(){
+            this.publish('editorCancel');
+            this.publish('editorSaved');
+            this.publish('renderEditor');
         },
         onInitAppWidget: function(err, appInstance){
             var userId = this.get('userId') | 0;
@@ -37,25 +26,31 @@ Component.entryPoint = function(NS){
                     this.set('groupList', result.groupList);
                 }
                 if (userId === 0){
-                    this.set('waiting', false);
-                    this.set('user', new NS.Admin.User());
+                    var user = new NS.Admin.User({
+                        groups: [2]
+                    });
+                    this.set('user', user);
                     this.onLoadUser();
                 } else {
                     appInstance.user(userId, function(err, result){
-                        this.set('waiting', false);
                         if (!err){
                             this.set('user', result.user);
+                            this.onLoadUser();
                         }
-                        this.onLoadUser();
                     }, this);
                 }
             }, this);
         },
         onLoadUser: function(){
+            this.set('waiting', false);
+
             var user = this.get('user'),
                 tp = this.template;
 
-            this.set('model', user);
+            tp.setValue({
+                username: user.get('username'),
+                email: user.get('email')
+            });
 
             this.userGroupListWidget = new NS.UserGroupListWidget({
                 boundingBox: tp.gel('usergroups'),
@@ -65,58 +60,20 @@ Component.entryPoint = function(NS){
 
             if (user.get('id') > 0){
                 if (!user.get('emailconfirm')){
-                    Y.one(tp.gel('activate')).removeClass('hide');
+                    tp.show('activate');
                 }
             } else {
-                Y.one(tp.gel('username')).set('disabled', '');
+                tp.one('username').set('disabled', '');
                 this._showPasswordForm();
+                tp.one('username').focus();
             }
 
             this.fire('renderEditor');
         },
-        onSubmitFormAction: function(){
-            this.set('waiting', true);
-
-            var userGroups = this.userGroupListWidget.get('userGroups'),
-                password = Y.one(this.template.gel('password')).get('value'),
-                user = this.get('model');
-
-            user.set('groups', userGroups);
-            user.set('password', password);
-
-            this.get('appInstance').userSave(user, function(err, result){
-                this.set('waiting', false);
-                if (!err){
-                    this.fire('editorSaved');
-                }
-            }, this);
-        },
         _showPasswordForm: function(){
             var tp = this.template;
-
-            Y.one(tp.gel('passwordchange')).addClass('hide');
-            Y.one(tp.gel('password')).removeClass('hide').focus();
-        },
-
-        onClick: function(e){
-            switch (e.dataClick) {
-                case 'password-change':
-                    this._showPasswordForm();
-                    return true;
-                case 'cancel':
-                    this.fire('editorCancel', this.get('isUserChange'));
-                    return true;
-                case 'activate-custom':
-                    this.activateCustom();
-                    return true;
-                case 'activate-sendemail':
-                    this.activateEMailSendAgain();
-                    return true;
-            }
-        },
-        _defEditorSaved: function(){
-        },
-        _defEditorCancel: function(){
+            tp.toggleView(true, 'password', 'passwordchange');
+            tp.one('password').focus();
         },
         activateCustom: function(){
             this.set('waiting', true);
@@ -135,32 +92,49 @@ Component.entryPoint = function(NS){
             this.get('appInstance').userActivateSendEMail(this.get('userId'), function(err, result){
                 this.set('waiting', false);
             }, this);
+        },
+        save: function(){
+            this.set('waiting', true);
+
+            var tp = this.template,
+                userGroups = this.userGroupListWidget.get('userGroups'),
+                user = this.get('user');
+
+            user.set('groups', userGroups);
+            user.set('username', tp.getValue('username'));
+            user.set('email', tp.getValue('email'));
+            user.set('password', tp.getValue('password'));
+
+            this.get('appInstance').userSave(user, function(err, result){
+                this.set('waiting', false);
+                if (!err){
+                    this.fire('editorSaved');
+                }
+            }, this);
+        },
+        cancel: function(){
+            this.fire('editorCancel', this.get('isUserChange'));
         }
     }, {
         ATTRS: {
-            component: {
-                value: COMPONENT
-            },
-            templateBlockName: {
-                value: 'widget'
-            },
-            userId: {
-                value: 0
-            },
-            user: {
-                value: null
-            },
-            isUserChange: function(){
-                value: false
-            }
+            component: {value: COMPONENT},
+            templateBlockName: {value: 'widget'},
+            userId: {value: 0},
+            user: {value: null},
+            isUserChange: {value: false}
+        },
+        CLICKS: {
+            passwordChange: '_showPasswordForm',
+            activateCustom: 'activateCustom',
+            activateSendemail: 'activateSendemail',
+            save: 'save',
+            cancel: 'cancel'
         }
     });
 
     NS.UserEditorDialog = Y.Base.create('userEditorDialog', SYS.Dialog, [], {
         initializer: function(){
-            this.publish('editorSaved', {
-                defaultFn: this._defEditorSaved
-            });
+            this.publish('editorSaved');
             this.publish('editorCancel');
             Y.after(this._syncUIUserEditorDialog, this, 'syncUI');
         },
@@ -185,26 +159,15 @@ Component.entryPoint = function(NS){
                 instance.centered();
             });
             widget.render();
-        },
-        _defEditorSaved: function(){
         }
     }, {
         ATTRS: {
-            component: {
-                value: COMPONENT
-            },
-            templateBlockName: {
-                value: 'dialog'
-            },
-            userId: {
-                value: 0
-            },
-            width: {
-                value: 600
-            }
+            component: {value: COMPONENT},
+            templateBlockName: {value: 'dialog'},
+            userId: {value: 0},
+            width: {value: 600}
         }
     });
-
 
     NS.UserGroupListWidget = Y.Base.create('userGroupListWidget', SYS.AppWidget, [], {
         onInitAppWidget: function(err, appInstance){
@@ -281,18 +244,12 @@ Component.entryPoint = function(NS){
         }
     }, {
         ATTRS: {
-            component: {
-                value: COMPONENT
-            },
+            component: {value: COMPONENT},
             templateBlockName: {
                 value: 'groupwidget,grouplist,grouprow,select,option'
             },
-            userGroups: {
-                value: null
-            },
-            groupList: {
-                value: null
-            }
+            userGroups: {value: null},
+            groupList: {value: null}
         }
     });
 };
