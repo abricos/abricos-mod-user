@@ -1,0 +1,53 @@
+<!--[*]
+[script]brick/loginform.php[/script]
+[*]-->
+<form id="{v#id}regform" role="form" action="/user/register/" method="post">
+    <div class="form-group">
+        <label for="{v#id}reg-login" class="control-label">Имя пользователя</label>
+        <input id="{v#id}reg-login" type="text"
+               class="form-control field-required" name="username"
+               placeholder="Имя пользователя">
+    </div>
+    <div class="form-group">
+        <label for="{v#id}reg-email" class="control-label">Email</label>
+        <input id="{v#id}reg-email" type="email"
+               class="form-control field-required" name="email"
+               placeholder="Email">
+    </div>
+    <div class="form-group">
+        <label for="{v#id}reg-pass" class="control-label">Пароль</label>
+        <input id="{v#id}reg-pass" type="password"
+               class="form-control field-required"
+               name="password"
+               placeholder="Пароль">
+    </div>
+    <div class="form-group">
+        <label for="{v#id}reg-passconf" class="control-label">Подвердите пароль</label>
+        <input id="{v#id}reg-passconf" type="password"
+               class="form-control field-required"
+               name="passwordconfirm"
+               placeholder="Подвердите пароль">
+    </div>
+    <div class="form-group">
+        <div class="checkbox">
+            <label> <input type="checkbox" name="termsofuse" data-form="termsofuse"/> Я согласен с
+                <a href="/user/termsofuse/" data-click="termofuse"><i>пользовательским соглашением</i></a></label>
+        </div>
+    </div>
+    <div class="form-group text-right">
+        <button type="submit" class="btn btn-primary">
+            Зарегистрироваться
+        </button>
+        <button type="button" class="btn btn-default"
+                data-parent="#{v#id}form"
+                data-target="#{v#id}loginpanel"
+                data-toggle="collapse">Отмена
+        </button>
+    </div>
+</form>
+
+<script>
+    Brick.use('user', 'guest', function(err, NS){
+        (new NS.RegisterFormWidget({'boundingBox': '#{v#id}regform'})).render();
+    });
+</script>
