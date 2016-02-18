@@ -20,23 +20,6 @@ Component.entryPoint = function(NS){
         initializer: function(){
             this.initCallbackFire();
         },
-        userOptionSave: function(modName, option, callback, context){
-            var sd;
-            if (Y.Lang.isArray(option)){
-                sd = [];
-                for (var i = 0; i < option.length; i++){
-                    sd[sd.length] = option[i].toJSON();
-                }
-            } else {
-                sd = option.toJSON();
-            }
-
-            this.ajaxa({
-                'do': 'userOptionSave',
-                'module': modName,
-                'savedata': sd
-            }, callback, context);
-        },
     }, [], {
         APPS: {
             sys: {}
@@ -136,6 +119,17 @@ Component.entryPoint = function(NS){
                         items: d.list
                     });
                 }
+            },
+            userOptionSave: {
+                args: ['module', 'savedata'],
+                argsHandle: function(module, savedata){
+                    if (Y.Lang.isArray(savedata)){
+                        for (var i = 0; i < savedata.length; i++){
+                            savedata[i] = savedata[i].toJSON();
+                        }
+                    }
+                    return [module, savedata];
+                },
             },
             passwordRecovery: {
                 args: ['passwordRecovery']
