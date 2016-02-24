@@ -448,6 +448,22 @@ class UserManager extends Ab_ModuleManager {
             )
         );
     }
+
+    public function Bos_SummaryData(){
+        if (!$this->IsAdminRole()){
+            return;
+        }
+
+        $i18n = $this->module->I18n();
+        return array(
+            array(
+                "module" => "user",
+                "component" => "summary",
+                "widget" => "SummaryWidget",
+                "title" => $i18n->Translate('bosmenu.users'),
+            )
+        );
+    }
 }
 
 ?>
