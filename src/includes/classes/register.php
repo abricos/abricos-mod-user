@@ -174,17 +174,25 @@ class UserManager_Registration {
         $host = $_SERVER['HTTP_HOST'] ? $_SERVER['HTTP_HOST'] : $_ENV['HTTP_HOST'];
         $link = "http://".$host."/user/activate/".$user->id."/".$actinfo["activateid"]."/";
 
-        $brick = Brick::$builder->LoadBrickS('user', 'templates', null, null);
+        $notifyBrick = Brick::$builder->LoadBrickS("user", "notifyRegister");
+        $v = &$notifyBrick->param->var;
 
-        $subject = $brick->param->var['reg_mailconf_subj'];
-        $body = nl2br(Brick::ReplaceVarByData($brick->param->var['reg_mailconf'], array(
-            "actcode" => $actinfo["activateid"],
-            "username" => $user->username,
-            "link" => $link,
-            "sitename" => SystemModule::$instance->GetPhrases()->Get('site_name')
-        )));
+        /** @var NotifyApp $notifyApp */
+        $notifyApp = Abricos::GetApp('notify');
+        $mail = $notifyApp->MailByFields(
+            $user->email,
+            $v['subject'],
+            Brick::ReplaceVarByData($notifyBrick->content, array(
+                "email" => $user->email,
+                "actcode" => $actinfo["activateid"],
+                "username" => $user->username,
+                "link" => $link,
+                "sitename" => SystemModule::$instance->GetPhrases()->Get('site_name')
+            ))
+        );
 
-        Abricos::Notify()->SendMail($user->email, $subject, $body);
+        $notifyApp->MailSend($mail);
+
         return true;
     }
 
