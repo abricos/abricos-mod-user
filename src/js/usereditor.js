@@ -126,7 +126,7 @@ Component.entryPoint = function(NS){
         CLICKS: {
             passwordChange: '_showPasswordForm',
             activateCustom: 'activateCustom',
-            activateSendemail: 'activateSendemail',
+            activateEMailSendAgain: 'activateEMailSendAgain',
             save: 'save',
             cancel: 'cancel'
         }
