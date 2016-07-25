@@ -105,7 +105,7 @@ class UserManager_Personal {
 
         while (($row = $this->db->fetch_array($rows))) {
             $item = new UserOptionItem($row);
-            if (!$optNames[$item->id]) {
+            if (!isset($optNames[$item->id])) {
                 continue;
             }
             $list->Add($item);
