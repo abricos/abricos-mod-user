@@ -12,7 +12,7 @@
  */
 class UserQuery_Personal {
 
-    public static function UserOptionList(Ab_Database $db, $userid, $module) {
+    public static function UserOptionList(Ab_Database $db, $userid, $module){
         $sql = "
 			SELECT  c.optname as id, c.optvalue as val
 			FROM ".$db->prefix."userconfig c
@@ -21,7 +21,7 @@ class UserQuery_Personal {
         return $db->query_read($sql);
     }
 
-    public static function UserOptionSave(Ab_Database $db, $userid, $module, $name, $value) {
+    public static function UserOptionSave(Ab_Database $db, $userid, $module, $name, $value){
         $sql = "
 			INSERT INTO ".$db->prefix."userconfig (module, userid, optname, optvalue) VALUES (
 				'".bkstr($module)."',
@@ -33,7 +33,4 @@ class UserQuery_Personal {
 		";
         $db->query_write($sql);
     }
-
 }
-
-?>

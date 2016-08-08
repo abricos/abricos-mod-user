@@ -42,5 +42,3 @@ class UserItem_Admin extends UserItem {
     }
 
 }
-
-?>

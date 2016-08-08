@@ -43,7 +43,7 @@ class UserModule extends Ab_Module {
 
     private $_manager = null;
 
-    public function __construct() {
+    public function __construct(){
         UserModule::$instance = $this;
 
         $this->version = "0.3.1";
@@ -57,22 +57,22 @@ class UserModule extends Ab_Module {
      *
      * @return UserManager
      */
-    public function GetManager() {
-        if (is_null($this->_manager)) {
+    public function GetManager(){
+        if (is_null($this->_manager)){
             require_once 'includes/manager.php';
             $this->_manager = new UserManager($this);
         }
         return $this->_manager;
     }
 
-    public function GetContentName() {
+    public function GetContentName(){
         $adress = Abricos::$adress;
         $cname = '';
 
-        if ($adress->level > 1) {
+        if ($adress->level > 1){
             $cname = $adress->dir[1];
         }
-        if ($cname == '') {
+        if ($cname == ''){
             Abricos::SetPageStatus(PAGESTATUS_404);
         }
         return $cname;
@@ -81,13 +81,13 @@ class UserModule extends Ab_Module {
     /**
      * @return AntibotModule
      */
-    public function GetAntibotModule() {
+    public function GetAntibotModule(){
         return Abricos::GetModule('antibot');
     }
 
-    public function AntibotUserDataUpdate($userid = 0) {
+    public function AntibotUserDataUpdate($userid = 0){
         $mod = $this->GetAntibotModule();
-        if (empty($mod)) {
+        if (empty($mod)){
             return;
         }
         $mod->UserDataUpdate($userid);
@@ -106,7 +106,7 @@ class UserModule extends Ab_Module {
      *
      * @return boolean
      */
-    public function IsSuperAdmin() {
+    public function IsSuperAdmin(){
         return $this->info["superadmin"];
     }
 
@@ -118,9 +118,9 @@ class UserModule extends Ab_Module {
      * @deprecated
      * @return bool
      */
-    public function IsAdminMode() {
-        foreach ($this->info["group"] as $group) {
-            if ($group == 3) {
+    public function IsAdminMode(){
+        foreach ($this->info["group"] as $group){
+            if ($group == 3){
                 return true;
             }
         }
@@ -135,9 +135,9 @@ class UserModule extends Ab_Module {
      * @ignore
      * @return bool
      */
-    public function IsRegistred() {
-        foreach ($this->info["group"] as $group) {
-            if ($group == 2 || $group == 3) {
+    public function IsRegistred(){
+        foreach ($this->info["group"] as $group){
+            if ($group == 2 || $group == 3){
                 return true;
             }
         }
@@ -165,7 +165,7 @@ class UserAction {
  */
 class UserPermission extends Ab_UserPermission {
 
-    public function __construct(UserModule $module) {
+    public function __construct(UserModule $module){
         $defRoles = array(
             new Ab_UserRole(UserAction::REGISTRATION, Ab_UserGroup::GUEST),
             new Ab_UserRole(UserAction::USER_ADMIN, Ab_UserGroup::ADMIN)
@@ -173,7 +173,7 @@ class UserPermission extends Ab_UserPermission {
         parent::__construct($module, $defRoles);
     }
 
-    public function GetRoles() {
+    public function GetRoles(){
         return array(
             UserAction::REGISTRATION => $this->CheckAction(UserAction::REGISTRATION),
             UserAction::USER_ADMIN => $this->CheckAction(UserAction::USER_ADMIN)
@@ -182,5 +182,3 @@ class UserPermission extends Ab_UserPermission {
 }
 
 Abricos::ModuleRegister(new UserModule());
-
-?>

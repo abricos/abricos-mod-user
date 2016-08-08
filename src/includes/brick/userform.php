@@ -32,5 +32,3 @@ $brick->content = Brick::ReplaceVarByData($brick->content, array(
     "bosmenu" => $tplBosMenu,
     "username" => Abricos::$user->username
 ));
-
-?>

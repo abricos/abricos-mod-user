@@ -12,7 +12,7 @@
  */
 class UserQuery_Register {
 
-    public static function RegistrationActivateInfo(Ab_Database $db, $userid) {
+    public static function RegistrationActivateInfo(Ab_Database $db, $userid){
         $sql = "
 			SELECT *
 			FROM ".$db->prefix."useractivate
@@ -22,7 +22,7 @@ class UserQuery_Register {
         return $db->query_first($sql);
     }
 
-    public static function RegistrationActivateInfoByCode(Ab_Database $db, $code) {
+    public static function RegistrationActivateInfoByCode(Ab_Database $db, $code){
         $sql = "
 			SELECT *
 			FROM ".$db->prefix."useractivate
@@ -45,11 +45,11 @@ class UserQuery_Register {
      *        2 - пользователь уже активирован;
      *        3 - прочая ошибка
      */
-    public static function RegistrationActivate(Ab_Database $db, $userid, $activateId) {
+    public static function RegistrationActivate(Ab_Database $db, $userid, $activateId){
 
         $actData = UserQuery_Register::RegistrationActivateInfo($db, $userid);
 
-        if (empty($actData) || $actData['activateid'] != $activateId) {
+        if (empty($actData) || $actData['activateid'] != $activateId){
             return 3;
         }
         $sql = "
@@ -74,7 +74,7 @@ class UserQuery_Register {
      *
      * @param Ab_Database $db
      */
-    public static function RegistrationActivateClear(Ab_Database $db) {
+    public static function RegistrationActivateClear(Ab_Database $db){
         $d = TIMENOW - 60 * 60 * 24 * 7;
         $aw = array();
         $sql = "
@@ -84,11 +84,11 @@ class UserQuery_Register {
 			LIMIT 250
 		";
         $rows = $db->query_read($sql);
-        while (($row = $db->fetch_array($rows))) {
+        while (($row = $db->fetch_array($rows))){
             array_push($aw, "userid=".$row['userid']);
         }
 
-        if (count($aw) == 0) {
+        if (count($aw) == 0){
             return;
         }
         $sql = "
@@ -108,8 +108,4 @@ class UserQuery_Register {
 		";
         $db->query_write($sql);
     }
-
-
 }
-
-?>

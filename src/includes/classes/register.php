@@ -26,13 +26,13 @@ class UserManager_Registration {
      */
     public $db;
 
-    public function __construct(UserManager $manager) {
+    public function __construct(UserManager $manager){
         $this->manager = $manager;
         $this->db = $manager->db;
     }
 
-    public function AJAX($d) {
-        switch ($d->do) {
+    public function AJAX($d){
+        switch ($d->do){
             case "register":
                 return $this->RegisterToAJAX($d->register);
             case "activate":
@@ -55,23 +55,23 @@ class UserManager_Registration {
      * @param bool $checkEMail
      * @return int
      */
-    public function RegistrationValidate($username, $email, $checkEMail = true) {
-        if ($checkEMail && !UserManager::EmailValidate($email)) {
+    public function RegistrationValidate($username, $email, $checkEMail = true){
+        if ($checkEMail && !UserManager::EmailValidate($email)){
             return 4;
         }
-        if (!UserManager::UserNameValidate($username)) {
+        if (!UserManager::UserNameValidate($username)){
             return 3;
         }
 
         if ($checkEMail){
             $user = $this->manager->UserByName($email, true);
-            if (!empty($user)) {
+            if (!empty($user)){
                 return 2;
             }
         }
 
         $user = $this->manager->UserByName($username, false);
-        if (!empty($user)) {
+        if (!empty($user)){
             return 1;
         }
 
@@ -83,19 +83,19 @@ class UserManager_Registration {
      *
      * @return string
      */
-    public function SaltGenerate() {
+    public function SaltGenerate(){
         $salt = '';
-        for ($i = 0; $i < 3; $i++) {
+        for ($i = 0; $i < 3; $i++){
             $salt .= chr(rand(32, 126));
         }
         return $salt;
     }
 
-    public function RegisterToAJAX($d) {
+    public function RegisterToAJAX($d){
         $result = $this->Register($d->username, $d->password, $d->email, true, true);
 
         $ret = new stdClass();
-        if (is_integer($result)) {
+        if (is_integer($result)){
             $ret->err = $result;
         } else {
             $ret->register = new stdClass();
@@ -119,13 +119,13 @@ class UserManager_Registration {
      * @param Boolean $sendEMail
      * @return Integer|Object
      */
-    public function Register($username, $password, $email, $sendEMail = true, $checkEMail = true) {
+    public function Register($username, $password, $email, $sendEMail = true, $checkEMail = true){
         $username = trim($username);
         $password = trim($password);
         $email = trim($email);
 
         $retCode = $this->RegistrationValidate($username, $email, $checkEMail);
-        if ($retCode > 0) {
+        if ($retCode > 0){
             return $retCode;
         }
 
@@ -139,7 +139,7 @@ class UserManager_Registration {
         $ud["email"] = $email;
 
         // Добавление пользователя в базу
-        if ($this->manager->IsAdminRole()) {
+        if ($this->manager->IsAdminRole()){
             $userid = UserQuery_Admin::UserAppend($this->manager->db, $ud, UserModule::UG_REGISTERED);
         } else {
             if (strlen($password) < 4){// TODO: реализовать проверку на более стойкий пароль
@@ -152,7 +152,7 @@ class UserManager_Registration {
         $ret = new stdClass();
         $ret->userid = $userid;
 
-        if ($sendEMail) {
+        if ($sendEMail){
             $this->ConfirmEmailSend($userid);
         }
 
@@ -164,9 +164,9 @@ class UserManager_Registration {
      *
      * @param $userid
      */
-    private function ConfirmEmailSend($userid) {
+    private function ConfirmEmailSend($userid){
         $user = $this->manager->User($userid);
-        if (empty($user)) {
+        if (empty($user)){
             return null;
         }
 
@@ -198,14 +198,14 @@ class UserManager_Registration {
         return true;
     }
 
-    public function ConfirmEmailSendAgain($userid) {
-        if (!$this->manager->IsAdminRole()) {
+    public function ConfirmEmailSendAgain($userid){
+        if (!$this->manager->IsAdminRole()){
             return;
         }
         return $this->ConfirmEmailSend($userid);
     }
 
-    public function ActivateToAJAX($d) {
+    public function ActivateToAJAX($d){
         $ret = new stdClass();
         $ret->err = $this->Activate($d->userid, $d->code, $d->email, $d->password);
         return $ret;
@@ -223,10 +223,10 @@ class UserManager_Registration {
      * @param integer $code код активации
      * @return stdClass
      */
-    public function Activate($userid, $code = 0, $email = '', $password = '') {
-        if (empty($userid)) {
+    public function Activate($userid, $code = 0, $email = '', $password = ''){
+        if (empty($userid)){
             $row = UserQueryExt::RegistrationActivateInfoByCode($this->db, $code);
-            if (empty($row)) {
+            if (empty($row)){
                 sleep(1);
             } else {
                 $userid = $row['userid'];
@@ -234,16 +234,16 @@ class UserManager_Registration {
         }
 
         $user = $this->manager->User($userid);
-        if (empty($user)) {
+        if (empty($user)){
             return 1;
         }
         $user = new UserItem_Auth($user);
 
-        if ($user->emailconfirm) {
+        if ($user->emailconfirm){
             return 2;
         }
-        if ($code === 0) {
-            if (!$this->manager->IsAdminRole()) {
+        if ($code === 0){
+            if (!$this->manager->IsAdminRole()){
                 return 0;
             }
             $row = UserQuery_Register::RegistrationActivateInfo($this->db, $userid);
@@ -252,7 +252,7 @@ class UserManager_Registration {
 
         $ret = UserQuery_Register::RegistrationActivate($this->db, $userid, $code);
 
-        if ($ret === 0 && !empty($email) && !empty($password)) {
+        if ($ret === 0 && !empty($email) && !empty($password)){
             $auth = $this->manager->GetAuthManager();
             $auth->Login($email, $password);
         }
@@ -260,17 +260,14 @@ class UserManager_Registration {
         return $ret;
     }
 
-    public function TermsOfUseToAJAX() {
+    public function TermsOfUseToAJAX(){
         $ret = new stdClass();
         $ret->termsOfUse = $this->TermsOfUse();
         return $ret;
     }
 
-    public function TermsOfUse() {
+    public function TermsOfUse(){
         $brick = Brick::$builder->LoadBrickS('user', 'termsofuse', null, null);
         return $brick->content;
     }
-
 }
-
-?>

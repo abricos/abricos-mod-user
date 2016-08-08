@@ -15,5 +15,3 @@ if (Abricos::$user->id > 0){
 $brick->content = Brick::ReplaceVarByData($brick->content, array(
     "brickid" => $brick->id
 ));
-
-?>

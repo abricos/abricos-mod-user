@@ -18,7 +18,7 @@ class UserItem_Auth extends UserItem {
     public $password;
     public $activateid;
 
-    public function __construct(UserItem $user) {
+    public function __construct(UserItem $user){
         $d = $user->_data;
         parent::__construct($d);
 
@@ -27,7 +27,4 @@ class UserItem_Auth extends UserItem {
         $this->salt = strval($d['salt']);
         $this->password = strval($d['password']);
     }
-
 }
-
-?>

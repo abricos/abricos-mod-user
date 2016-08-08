@@ -261,6 +261,3 @@ class UserGroupList extends AbricosList {
         return parent::Get($id);
     }
 }
-
-
-?>

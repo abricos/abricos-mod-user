@@ -22,7 +22,7 @@ class UserQuery_Admin {
      * @param boolean $agreement True-согласен с пользовательским соглашением
      * @param boolean $isVirtual True-виртуальный пользователь
      */
-    public static function UserAppend(Ab_Database $db, &$uData, $groupid = UserModule::UG_GUEST, $ip = '', $agreement = false, $isVirtual = false) {
+    public static function UserAppend(Ab_Database $db, &$uData, $groupid = UserModule::UG_GUEST, $ip = '', $agreement = false, $isVirtual = false){
 
         $db->query_write("
 			INSERT INTO ".$db->prefix."user
@@ -43,7 +43,7 @@ class UserQuery_Admin {
 
         UserQuery_Admin::UserGroupUpdate($db, $userid, array($groupid));
 
-        if ($groupid != UserModule::UG_GUEST) {
+        if ($groupid != UserModule::UG_GUEST){
             return $userid;
         }
 
@@ -60,7 +60,7 @@ class UserQuery_Admin {
         return $userid;
     }
 
-    public static function UserUpdate(Ab_Database $db, $userId, $d) {
+    public static function UserUpdate(Ab_Database $db, $userId, $d){
         $sql = "
 			UPDATE ".$db->prefix."user
 			SET email='".strval($d->email)."'
@@ -70,7 +70,7 @@ class UserQuery_Admin {
         $db->query_write($sql);
     }
 
-    public static function UserPasswordUpdate(Ab_Database $db, $userId, $passwordCrypt) {
+    public static function UserPasswordUpdate(Ab_Database $db, $userId, $passwordCrypt){
         $sql = "
 			UPDATE ".$db->prefix."user
 			SET password='".strval($passwordCrypt)."'
@@ -81,7 +81,7 @@ class UserQuery_Admin {
     }
 
 
-    public static function UserGroupAppend(Ab_Database $db, $userid, $groupid) {
+    public static function UserGroupAppend(Ab_Database $db, $userid, $groupid){
         $sql = "
 			INSERT IGNORE INTO ".$db->prefix."usergroup (userid, groupid) VALUES
 			(".bkint($userid).",".bkint($groupid).")
@@ -89,7 +89,7 @@ class UserQuery_Admin {
         $db->query_write($sql);
     }
 
-    public static function UserGroupUpdate(Ab_Database $db, $userid, $groups) {
+    public static function UserGroupUpdate(Ab_Database $db, $userid, $groups){
         $sql = "
 			DELETE FROM ".$db->prefix."usergroup
 			WHERE userid=".bkint($userid)."
@@ -97,10 +97,10 @@ class UserQuery_Admin {
         $db->query_write($sql);
 
         $arr = array();
-        foreach ($groups as $gp) {
+        foreach ($groups as $gp){
             array_push($arr, "(".bkint($userid).",".bkint($gp).")");
         }
-        if (count($arr) < 1) {
+        if (count($arr) < 1){
             return;
         }
 
@@ -111,7 +111,7 @@ class UserQuery_Admin {
         $db->query_write($sql);
     }
 
-    public static function GroupAppend(Ab_Database $db, $title, $key = '') {
+    public static function GroupAppend(Ab_Database $db, $title, $key = ''){
         $sql = "
 			INSERT INTO ".$db->prefix."group (groupname, groupkey) VALUES (
 				'".bkstr($title)."',
@@ -122,7 +122,7 @@ class UserQuery_Admin {
         return $db->insert_id();
     }
 
-    public static function GroupUpdate(Ab_Database $db, $d) {
+    public static function GroupUpdate(Ab_Database $db, $d){
         $sql = "
 			UPDATE ".$db->prefix."group
 			SET groupname = '".bkstr($d->title)."'
@@ -141,5 +141,3 @@ class UserQuery_Admin {
         $db->query_write($sql);
     }
 }
-
-?>

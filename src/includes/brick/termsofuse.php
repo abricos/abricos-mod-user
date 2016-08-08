@@ -14,5 +14,3 @@ $brick->content = Brick::ReplaceVarByData($brick->content, array(
     "constsitename" => $siteName,
     "consthost" => $_SERVER['HTTP_HOST'] ? $_SERVER['HTTP_HOST'] : $_ENV['HTTP_HOST']
 ));
-
-?>

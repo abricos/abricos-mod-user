@@ -12,7 +12,7 @@
  */
 class UserQuery_Session {
 
-    public static function Session(Ab_Database $db, $cookieTimeOut, $hash, $idHash) {
+    public static function Session(Ab_Database $db, $cookieTimeOut, $hash, $idHash){
         $sql = "
 			DELETE FROM ".$db->prefix."session
 			WHERE lastactivity < ".(TIMENOW - $cookieTimeOut)." and userid > 0
@@ -31,7 +31,7 @@ class UserQuery_Session {
         return $db->query_first($sql);
     }
 
-    public static function SessionAppend(Ab_Database $db, $userid, $hash, $idHash) {
+    public static function SessionAppend(Ab_Database $db, $userid, $hash, $idHash){
         $sql = "
 			INSERT INTO ".$db->prefix."session (userid, sessionhash, idhash, lastactivity)
 			VALUES (
@@ -44,7 +44,7 @@ class UserQuery_Session {
         $db->query_write($sql, true);
     }
 
-    public static function SessionRemove(Ab_Database $db, $sessionHash) {
+    public static function SessionRemove(Ab_Database $db, $sessionHash){
         $sql = "
 			DELETE FROM ".$db->prefix."session
 			WHERE sessionhash='".bkstr($sessionHash)."'
@@ -52,7 +52,7 @@ class UserQuery_Session {
         $db->query_write($sql);
     }
 
-    public static function UserUpdateLastActive(Ab_Database $db, $userid, $ip) {
+    public static function UserUpdateLastActive(Ab_Database $db, $userid, $ip){
         $sql = "
 			UPDATE ".$db->prefix."user
 			SET lastvisit='".TIMENOW."',
@@ -62,8 +62,4 @@ class UserQuery_Session {
 		";
         $db->query_write($sql, true);
     }
-
-
 }
-
-?>

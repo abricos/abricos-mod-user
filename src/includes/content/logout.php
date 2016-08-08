@@ -10,5 +10,3 @@
 $userManager = UserModule::$instance->GetManager()->GetAuthManager();
 $err = $userManager->Logout();
 header('Location: /');
-
-?>

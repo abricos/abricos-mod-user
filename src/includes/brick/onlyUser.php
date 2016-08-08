@@ -17,5 +17,3 @@ $brick->content = Brick::ReplaceVarByData($brick->content, array(
     "userid" => Abricos::$user->id,
     "username" => Abricos::$user->username
 ));
-
-?>

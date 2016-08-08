@@ -419,9 +419,4 @@ class UserQuery_old {
 		";
         $db->query_write($sql);
     }
-
-
 }
-
-
-?>

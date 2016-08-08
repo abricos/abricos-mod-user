@@ -348,7 +348,4 @@ class UserManager_Admin {
 
         return $ret;
     }
-
 }
-
-?>

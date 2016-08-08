@@ -38,5 +38,3 @@ if ($error > 0){
         "unm" => $user->username
     ));
 }
-
-?>

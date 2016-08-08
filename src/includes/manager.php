@@ -465,5 +465,3 @@ class UserManager extends Ab_ModuleManager {
         );
     }
 }
-
-?>

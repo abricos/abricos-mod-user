@@ -25,7 +25,4 @@ class UserItem_Session extends UserItem {
 
         return $ret;
     }
-
 }
-
-?>

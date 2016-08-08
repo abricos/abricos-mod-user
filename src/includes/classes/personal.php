@@ -26,13 +26,13 @@ class UserManager_Personal {
      */
     public $db;
 
-    public function __construct(UserManager $manager) {
+    public function __construct(UserManager $manager){
         $this->manager = $manager;
         $this->db = $manager->db;
     }
 
-    public function AJAX($d) {
-        switch ($d->do) {
+    public function AJAX($d){
+        switch ($d->do){
             case "userOptionList":
                 return $this->UserOptionListToAJAX($d->module);
             case "userOptionSave":
@@ -41,41 +41,41 @@ class UserManager_Personal {
         return null;
     }
 
-    private function UserOptionNames($modName, $userid = 0) {
+    private function UserOptionNames($modName, $userid = 0){
         $mod = Abricos::GetModule($modName);
-        if (empty($mod)) {
+        if (empty($mod)){
             return null;
         }
         $man = $mod->GetManager();
-        if (empty($man)) {
+        if (empty($man)){
             return null;
         }
 
         $methodName = 'User_OptionNames';
-        if (empty($userid)) {
+        if (empty($userid)){
             $userid = Abricos::$user->id;
         } else {
             $methodName = 'User_OptionNamesOtherUser';
         }
 
-        if (!method_exists($man, $methodName)) {
+        if (!method_exists($man, $methodName)){
             return null;
         }
         $optNames = $man->$methodName($userid);
-        if (!is_array($optNames)) {
+        if (!is_array($optNames)){
             return null;
         }
 
         $ret = array();
-        foreach ($optNames as $optName) {
+        foreach ($optNames as $optName){
             $ret[$optName] = true;
         }
         return $ret;
     }
 
-    public function UserOptionListToAJAX($modName) {
+    public function UserOptionListToAJAX($modName){
         $list = $this->UserOptionList($modName);
-        if (empty($list)) {
+        if (empty($list)){
             return 403;
         }
 
@@ -90,30 +90,30 @@ class UserManager_Personal {
      * @param $varNames
      * @return UserOptionList
      */
-    public function UserOptionList($modName, $userid = 0) {
+    public function UserOptionList($modName, $userid = 0){
         $optNames = $this->UserOptionNames($modName, $userid);
-        if (empty($optNames)) {
+        if (empty($optNames)){
             return null;
         }
 
-        if (empty($userid)) {
+        if (empty($userid)){
             $userid = Abricos::$user->id;
         }
 
         $list = new UserOptionList();
         $rows = UserQuery_Personal::UserOptionList(Abricos::$db, $userid, $modName);
 
-        while (($row = $this->db->fetch_array($rows))) {
+        while (($row = $this->db->fetch_array($rows))){
             $item = new UserOptionItem($row);
-            if (!isset($optNames[$item->id])) {
+            if (!isset($optNames[$item->id])){
                 continue;
             }
             $list->Add($item);
         }
 
-        foreach ($optNames as $optName => $optCfg) {
+        foreach ($optNames as $optName => $optCfg){
             $option = $list->Get($optName);
-            if (!empty($option)) {
+            if (!empty($option)){
                 continue;
             }
             $item = new UserOptionItem(array(
@@ -126,9 +126,9 @@ class UserManager_Personal {
         return $list;
     }
 
-    public function UserOptionSaveToAJAX($modName, $d) {
-        if (is_array($d)) {
-            for ($i = 0; $i < count($d); $i++) {
+    public function UserOptionSaveToAJAX($modName, $d){
+        if (is_array($d)){
+            for ($i = 0; $i < count($d); $i++){
                 $this->UserOptionSave($modName, $d[$i]);
             }
         } else {
@@ -137,16 +137,12 @@ class UserManager_Personal {
         return $this->UserOptionListToAJAX($modName);
     }
 
-    public function UserOptionSave($modName, $d) {
+    public function UserOptionSave($modName, $d){
         $optNames = $this->UserOptionNames($modName);
-        if (empty($optNames)) {
+        if (empty($optNames)){
             return null;
         }
 
         UserQuery_Personal::UserOptionSave(Abricos::$db, Abricos::$user->id, $modName, $d->id, $d->value);
     }
-
-
 }
-
-?>

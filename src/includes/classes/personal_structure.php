@@ -15,12 +15,12 @@ class UserOptionItem extends AbricosItem {
 
     public $value;
 
-    public function __construct($d) {
+    public function __construct($d){
         parent::__construct($d);
         $this->value = isset($d['val']) ? strval($d['val']) : '';
     }
 
-    public function ToAJAX() {
+    public function ToAJAX(){
         $ret = parent::ToAJAX();
         $ret->value = $this->value;
         return $ret;
@@ -33,7 +33,7 @@ class UserOptionList extends AbricosList {
      * @param string $optionName
      * @return UserOptionItem
      */
-    public function Get($optionName) {
+    public function Get($optionName){
         return parent::Get($optionName);
     }
 
@@ -41,9 +41,7 @@ class UserOptionList extends AbricosList {
      * @param int $i
      * @return UserOptionItem
      */
-    public function GetByIndex($i) {
+    public function GetByIndex($i){
         return parent::GetByIndex($i);
     }
 }
-
-?>

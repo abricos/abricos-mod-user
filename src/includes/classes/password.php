@@ -152,7 +152,4 @@ class UserManager_Password {
         UserQuery_Password::PasswordChange($this->db, $userid, $passcrypt);
         return true;
     }
-
 }
-
-?>

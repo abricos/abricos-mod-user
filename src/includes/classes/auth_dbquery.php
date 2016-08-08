@@ -23,8 +23,4 @@ class UserQuery_Auth {
 		";
         $db->query_write($sql);
     }
-
-
 }
-
-?>

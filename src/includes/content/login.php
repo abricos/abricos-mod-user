@@ -27,5 +27,3 @@ if ($err == 0){
 } else {
     $brick->param->var['err'] = Brick::ReplaceVar($brick->param->var['err'], 'err', $brick->param->var['e'.$err]);
 }
-
-?>
