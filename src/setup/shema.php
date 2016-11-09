@@ -16,66 +16,83 @@ $pfx = $db->prefix;
 if ($updateManager->isInstall()){
     $db->query_write("
 		CREATE TABLE IF NOT EXISTS ".$pfx."session (
-		  sessionhash char(32) NOT NULL default '',
-		  userid int(10) unsigned NOT NULL default '0',
-		  host char(15) NOT NULL default '',
-		  idhash char(32) NOT NULL default '',
-		  lastactivity int(10) unsigned NOT NULL default '0',
-		  location char(255) NOT NULL default '',
-		  useragent char(100) NOT NULL default '',
-		  loggedin smallint(5) unsigned NOT NULL default '0',
-		  badlocation smallint(5) unsigned NOT NULL default '0',
-		  bypass tinyint(4) NOT NULL default '0',
-		  PRIMARY KEY  (sessionhash)
+		  sessionhash CHAR(32) NOT NULL DEFAULT '',
+		  userid INT(10) UNSIGNED NOT NULL DEFAULT 0,
+		  host CHAR(15) NOT NULL DEFAULT '',
+		  idhash CHAR(32) NOT NULL DEFAULT '',
+		  lastactivity INT(10) UNSIGNED NOT NULL DEFAULT 0,
+		  location CHAR(255) NOT NULL DEFAULT '',
+		  useragent CHAR(100) NOT NULL DEFAULT '',
+		  loggedin smallint(5) UNSIGNED NOT NULL DEFAULT 0,
+		  badlocation smallint(5) UNSIGNED NOT NULL DEFAULT 0,
+		  bypass tinyint(4) NOT NULL DEFAULT '0',
+		  PRIMARY KEY (sessionhash)
 		)".$charset
     );
     $db->query_write("
 		CREATE TABLE IF NOT EXISTS ".$pfx."user (
-		  userid int(10) unsigned NOT NULL auto_increment,
+		  userid INT(10) UNSIGNED NOT NULL auto_increment,
 		  language CHAR(2) NOT NULL DEFAULT 'en', 
-		  usergroupid int(4) unsigned NOT NULL default '0',
-		  username varchar(150) NOT NULL default '',
-		  password varchar(32) NOT NULL default '',
-		  email varchar(100) NOT NULL default '',
-		  joindate int(10) unsigned NOT NULL default '0',
-		  lastvisit int(10) unsigned NOT NULL default '0',
+		  usergroupid INT(4) UNSIGNED NOT NULL DEFAULT 0,
+		  
+		  username VARCHAR(150) NOT NULL DEFAULT '',
+		  firstname VARCHAR(100) NOT NULL DEFAULT '',
+		  patronymic VARCHAR(100) NOT NULL DEFAULT '',
+		  lastname VARCHAR(100) NOT NULL DEFAULT '',
+		  avatar VARCHAR(8) NOT NULL DEFAULT '',
+		  
+		  email VARCHAR(100) NOT NULL DEFAULT '',
+		  
+		  salt CHAR(3) NOT NULL DEFAULT '',
+		  password VARCHAR(32) NOT NULL DEFAULT '',
+		  
+		  joindate INT(10) UNSIGNED NOT NULL DEFAULT 0,
+		  lastvisit INT(10) UNSIGNED NOT NULL DEFAULT 0,
+		  
 		  agreement TINYINT(1) UNSIGNED NOT NULL DEFAULT 0,
-		  ipadress varchar(15) NOT NULL default '',
+		  ipadress VARCHAR(15) NOT NULL DEFAULT '',
 		  isvirtual TINYINT(1) UNSIGNED NOT NULL DEFAULT 0 COMMENT '1-виртуальный пользователь',
-		  salt char(3) NOT NULL default '',
-		  upddate int(10) unsigned NOT NULL DEFAULT 0 COMMENT 'Дата обновления',
-		  deldate int(10) NOT NULL default '0',
-		  PRIMARY KEY  (userid),
-		  KEY username (username)
+		  
+		  upddate INT(10) UNSIGNED NOT NULL DEFAULT 0 COMMENT 'Дата обновления',
+		  deldate INT(10) NOT NULL DEFAULT '0',
+		  PRIMARY KEY (userid),
+		  UNIQUE KEY username (username)
 		)".$charset
     );
 
     $db->query_write("
 		CREATE TABLE IF NOT EXISTS ".$pfx."useractivate (
-		  useractivateid int(10) unsigned NOT NULL auto_increment,
-		  userid int(10) unsigned NOT NULL,
-		  activateid int(10) unsigned NOT NULL,
-		  joindate int(10) unsigned NOT NULL,
+		  useractivateid INT(10) UNSIGNED NOT NULL auto_increment,
+		  userid INT(10) UNSIGNED NOT NULL,
+		  activateid INT(10) UNSIGNED NOT NULL,
+		  joindate INT(10) UNSIGNED NOT NULL,
 		  PRIMARY KEY  (useractivateid)
 		)".$charset
     );
     $db->query_write("
 		CREATE TABLE IF NOT EXISTS ".$pfx."userpwdreq (
-		  pwdreqid int(10) unsigned NOT NULL auto_increment,
-		  userid int(10) unsigned NOT NULL,
-		  hash varchar(32) NOT NULL,
-		  dateline int(10) unsigned NOT NULL,
-		  counteml int(2) NOT NULL default '0',
+		  pwdreqid INT(10) UNSIGNED NOT NULL auto_increment,
+		  userid INT(10) UNSIGNED NOT NULL,
+		  hash VARCHAR(32) NOT NULL,
+		  dateline INT(10) UNSIGNED NOT NULL,
+		  counteml INT(2) NOT NULL DEFAULT '0',
 		  PRIMARY KEY  (pwdreqid)
 		)".$charset
     );
 
+    $salt = '';
+    $password = 'admin';
+    for ($i = 0; $i < 3; $i++){
+        $salt .= chr(rand(32, 126));
+    }
+
+    $passwordCrypt = md5(md5($password).$salt);
+
     // добавление в таблицу администратора
     $db->query_write("
 		INSERT INTO ".$pfx."user (language, usergroupid, username, password, email, joindate, salt) VALUES
-		('".Abricos::$LNG."', 6, 'admin', '3f5726cdbe88eac915ffb9e981b72682', '', ".TIMENOW.", '( R');
+		('".Abricos::$LNG."', 6, 'admin', '".$passwordCrypt."', '', ".TIMENOW.", '".$salt."');
 	");
-
 }
 
 // обновление для платформы Abricos версии 0.5
@@ -84,10 +101,10 @@ if ($updateManager->isInstall() || $updateManager->serverVersion === '1.0.1'){
 
     $db->query_write("
 		CREATE TABLE IF NOT EXISTS ".$pfx."userconfig (
-		  userconfigid int(10) unsigned NOT NULL auto_increment,
-		  userid int(10) unsigned NOT NULL,
-		  module varchar(50) NOT NULL DEFAULT '' COMMENT 'Имя модуля',
-		  optname varchar(25) NOT NULL DEFAULT '' COMMENT 'Имя параметра',
+		  userconfigid INT(10) UNSIGNED NOT NULL auto_increment,
+		  userid INT(10) UNSIGNED NOT NULL,
+		  module VARCHAR(50) NOT NULL DEFAULT '' COMMENT 'Имя модуля',
+		  optname VARCHAR(25) NOT NULL DEFAULT '' COMMENT 'Имя параметра',
 		  optvalue TEXT NOT NULL COMMENT 'Значение параметра',
 		  PRIMARY KEY  (userconfigid),
 		  UNIQUE KEY configvar (userid,module,optname),
@@ -102,9 +119,9 @@ if ($updateManager->isUpdate('0.2.1')){
     $db->query_write("DROP TABLE IF EXISTS ".$pfx."usergroup");
     $db->query_write("
 		CREATE TABLE IF NOT EXISTS ".$pfx."group (
-		  groupid int(5) unsigned NOT NULL auto_increment,
-		  groupname varchar(100) NOT NULL default '' COMMENT 'Наименование группы',
-		  groupkey varchar(32) NOT NULL DEFAULT '' COMMENT 'Идентификатор группы в ядре',
+		  groupid INT(5) UNSIGNED NOT NULL auto_increment,
+		  groupname VARCHAR(100) NOT NULL DEFAULT '' COMMENT 'Наименование группы',
+		  groupkey VARCHAR(32) NOT NULL DEFAULT '' COMMENT 'Идентификатор группы в ядре',
 		  PRIMARY KEY  (groupid)
 		)".$charset
     );
@@ -120,9 +137,9 @@ if ($updateManager->isUpdate('0.2.1')){
 
     $db->query_write("
 		CREATE TABLE IF NOT EXISTS ".$pfx."usergroup (
-		  usergroupid int(5) unsigned NOT NULL auto_increment,
-		  userid int(10) unsigned NOT NULL,
-		  groupid int(5) unsigned NOT NULL,
+		  usergroupid INT(5) UNSIGNED NOT NULL auto_increment,
+		  userid INT(10) UNSIGNED NOT NULL,
+		  groupid INT(5) UNSIGNED NOT NULL,
 		  PRIMARY KEY  (usergroupid),
 		  UNIQUE KEY usergroup (userid,groupid)
 		)".$charset
@@ -139,30 +156,35 @@ if ($updateManager->isUpdate('0.2.1')){
 
     $db->query_write("ALTER TABLE ".$pfx."user ADD emailconfirm TINYINT(1) UNSIGNED NOT NULL DEFAULT 0 AFTER email");
     $db->query_write("
-		UPDATE ".$pfx."user
-		SET
-			emailconfirm=1
-		WHERE lastvisit > 0 OR userid=1
+        UPDATE ".$pfx."user
+        SET emailconfirm=1
+        WHERE lastvisit > 0 OR userid=1
 	");
 
     $db->query_write("
 		CREATE TABLE IF NOT EXISTS ".$pfx."userrole (
-		  roleid int(10) unsigned NOT NULL auto_increment,
-		  modactionid int(10) unsigned NOT NULL DEFAULT 0 COMMENT 'Идентификатор действия',
-		  usertype tinyint(1) unsigned NOT NULL default 0 COMMENT '0 - группа, 1 - пользователь',
-		  userid int(10) unsigned NOT NULL DEFAULT 0 COMMENT 'Идентификатор пользователя/группы в зависимости от usertype',
-		  status tinyint(1) unsigned NOT NULL default 0 COMMENT '1 - разрешено, 0 - запрещено',
+		  roleid INT(10) UNSIGNED NOT NULL auto_increment,
+		  modactionid INT(10) UNSIGNED NOT NULL DEFAULT 0 COMMENT 'Идентификатор действия',
+		  usertype tinyint(1) UNSIGNED NOT NULL DEFAULT 0 COMMENT '0 - группа, 1 - пользователь',
+		  userid INT(10) UNSIGNED NOT NULL DEFAULT 0 COMMENT 'Идентификатор пользователя/группы в зависимости от usertype',
+		  status tinyint(1) UNSIGNED NOT NULL DEFAULT 0 COMMENT '1 - разрешено, 0 - запрещено',
 		  PRIMARY KEY  (roleid),
 		  KEY userid (userid),
 		  UNIQUE KEY userrole (modactionid,userid,usertype)
 		)".$charset
     );
     Abricos::GetModule('user')->permission->Install();
-
-    $db->query_write("ALTER TABLE ".$pfx."user DROP INDEX username, ADD UNIQUE username ( username )");
 }
 
-if ($updateManager->isUpdate('0.2.2')){
+if ($updateManager->isUpdate('0.2.1') && !$updateManager->isInstall()){
+    $db->query_write("
+        ALTER TABLE ".$pfx."user 
+            DROP INDEX username, 
+            ADD UNIQUE username (username)
+    ");
+}
+
+if ($updateManager->isUpdate('0.2.2') && !$updateManager->isInstall()){
     // удалить все второстепенные поля, для работы новой технологии
     // хранения этих полей, такие как Фамилия, Имя и т.п.
     // по умолчанию таблица пользователей будет содержать только основные
@@ -194,11 +216,12 @@ if ($updateManager->isUpdate('0.2.2')){
     if (!empty($cols['birthday']))
         $db->query_write("ALTER TABLE ".$pfx."user DROP birthday");
 }
+
 if ($updateManager->isUpdate('0.2.3') && !$updateManager->isInstall()){
     if (!$createGroupTable){
         $db->query_write("
 			ALTER TABLE ".$pfx."group 
-			ADD groupkey varchar(32) NOT NULL DEFAULT '' COMMENT 'Глобальный идентификатор группы в ядре'
+			ADD groupkey VARCHAR(32) NOT NULL DEFAULT '' COMMENT 'Глобальный идентификатор группы в ядре'
 		");
     }
 
@@ -225,17 +248,15 @@ if ($updateManager->isUpdate('0.2.5.2') && !$updateManager->isInstall()){
 	");
 }
 
-
 if ($updateManager->isUpdate('0.2.5.3')){
-
     // логи входа дубликатов
     $db->query_write("
 		CREATE TABLE IF NOT EXISTS ".$pfx."userdoublelog (
-			doublelogid int(10) unsigned NOT NULL auto_increment,
-			userid int(10) unsigned NOT NULL DEFAULT 0 COMMENT '',
-			doubleuserid int(10) unsigned NOT NULL DEFAULT 0 COMMENT '',
-			ipadress varchar(15) NOT NULL default '',
-			dateline int(10) unsigned NOT NULL DEFAULT 0 COMMENT '',
+			doublelogid INT(10) UNSIGNED NOT NULL auto_increment,
+			userid INT(10) UNSIGNED NOT NULL DEFAULT 0 COMMENT '',
+			doubleuserid INT(10) UNSIGNED NOT NULL DEFAULT 0 COMMENT '',
+			ipadress VARCHAR(15) NOT NULL DEFAULT '',
+			dateline INT(10) UNSIGNED NOT NULL DEFAULT 0 COMMENT '',
 			PRIMARY KEY  (doublelogid)
 		)".$charset
     );
@@ -243,28 +264,26 @@ if ($updateManager->isUpdate('0.2.5.3')){
     // дубликаты
     $db->query_write("
 		CREATE TABLE IF NOT EXISTS ".$pfx."userdouble (
-			userid int(10) unsigned NOT NULL DEFAULT 0 COMMENT '',
-			doubleuserid int(10) unsigned NOT NULL DEFAULT 0 COMMENT '',
-			dateline int(10) unsigned NOT NULL DEFAULT 0 COMMENT '',
+			userid INT(10) UNSIGNED NOT NULL DEFAULT 0 COMMENT '',
+			doubleuserid INT(10) UNSIGNED NOT NULL DEFAULT 0 COMMENT '',
+			dateline INT(10) UNSIGNED NOT NULL DEFAULT 0 COMMENT '',
 		  	UNIQUE KEY userdouble (userid,doubleuserid)
 		)".$charset
     );
-
 }
 
 if ($updateManager->isUpdate('0.2.5.4') && !$updateManager->isInstall()){
     $db->query_write("
-		ALTER TABLE ".$pfx."user ADD upddate int(10) unsigned NOT NULL DEFAULT 0 COMMENT 'Дата обновления'
+		ALTER TABLE ".$pfx."user ADD upddate INT(10) UNSIGNED NOT NULL DEFAULT 0 COMMENT 'Дата обновления'
 	");
 }
 
 if ($updateManager->isUpdate('0.2.5.5')){
-
     // Принадлежность пользователя к домену (мультидоменная система)
     $db->query_write("
 		CREATE TABLE IF NOT EXISTS ".$pfx."userdomain (
-			userid int(10) unsigned NOT NULL DEFAULT 0 COMMENT '',
-			domain varchar(15) NOT NULL default '',
+			userid INT(10) UNSIGNED NOT NULL DEFAULT 0 COMMENT '',
+			domain VARCHAR(15) NOT NULL DEFAULT '',
 		  	UNIQUE KEY userdomain (userid,domain)
 		)".$charset
     );

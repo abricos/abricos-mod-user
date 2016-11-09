@@ -46,7 +46,7 @@ class UserModule extends Ab_Module {
     public function __construct(){
         UserModule::$instance = $this;
 
-        $this->version = "0.3.1";
+        $this->version = "0.3.2";
         $this->name = "user";
         $this->takelink = "user";
         $this->permission = new UserPermission($this);
