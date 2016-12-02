@@ -79,23 +79,28 @@ class UserManager_Password {
         $hash = md5(microtime());
         UserQuery_Password::PasswordRequestCreate($this->db, $user->id, $hash);
 
-        $host = $_SERVER['HTTP_HOST'] ? $_SERVER['HTTP_HOST'] : $_ENV['HTTP_HOST'];
-        $link = "http://".$host."/user/passrec/".$hash;
+        $host = Ab_URI::Site();
+        $link = $host."/user/passrec/".$hash;
 
         $sitename = SystemModule::$instance->GetPhrases()->Get('site_name');
 
         $brick = Brick::$builder->LoadBrickS('user', 'templates', null, null);
         $v = &$brick->param->var;
 
-        $subject = Brick::ReplaceVarByData($v['pwd_mail_subj'], array("sitename" => $sitename));
-        $body = nl2br(Brick::ReplaceVarByData($v['pwd_mail'], array(
-            "email" => $email,
-            "link" => $link,
-            "username" => $user->username,
-            "sitename" => $sitename
-        )));
+        /** @var NotifyApp $notifyApp */
+        $notifyApp = Abricos::GetApp('notify');
 
-        Abricos::Notify()->SendMail($email, $subject, $body);
+        $mail = $notifyApp->MailByFields(
+            $email,
+            Brick::ReplaceVarByData($v['pwd_mail_subj'], array("sitename" => $sitename)),
+            nl2br(Brick::ReplaceVarByData($v['pwd_mail'], array(
+                "email" => $email,
+                "link" => $link,
+                "username" => $user->username,
+                "sitename" => $sitename
+            )))
+        );
+        $notifyApp->MailSend($mail);
 
         return 0;
     }
@@ -131,7 +136,13 @@ class UserManager_Password {
         $message = str_replace("%2", $newpass, $message);
         $message = str_replace("%3", $sitename, $message);
 
-        Abricos::Notify()->SendMail($user['email'], $subject, $message);
+        /** @var NotifyApp $notifyApp */
+        $notifyApp = Abricos::GetApp('notify');
+
+        $mail = $notifyApp->MailByFields(
+            $user['email'], $subject, $message
+        );
+        $notifyApp->MailSend($mail);
 
         return $ret;
     }

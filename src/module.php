@@ -14,6 +14,7 @@ class UserModule extends Ab_Module {
 
     /**
      * @var UserModule
+     * @deprecated
      */
     public static $instance;
 
