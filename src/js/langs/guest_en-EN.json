@@ -1,0 +1,14 @@
+{
+  "login": {
+    "error": {
+      "empty": "You must fill out the required fields"
+    }
+  },
+  "register": {
+    "error": {
+      "empty": "You must fill out the required fields",
+      "termsofuse": "You must accept the user agreement",
+      "password": "Passwords do not match"
+    }
+  }
+}

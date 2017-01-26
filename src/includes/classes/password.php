@@ -82,23 +82,23 @@ class UserManager_Password {
         $host = Ab_URI::Site();
         $link = $host."/user/passrec/".$hash;
 
-        $sitename = SystemModule::$instance->GetPhrases()->Get('site_name');
+        $siteName = SystemModule::$instance->GetPhrases()->Get('site_name');
 
-        $brick = Brick::$builder->LoadBrickS('user', 'templates', null, null);
-        $v = &$brick->param->var;
+        $notifyBrick = Brick::$builder->LoadBrickS("user", "notifyPassReset");
+        $v = &$notifyBrick->param->var;
 
         /** @var NotifyApp $notifyApp */
         $notifyApp = Abricos::GetApp('notify');
-
         $mail = $notifyApp->MailByFields(
             $email,
-            Brick::ReplaceVarByData($v['pwd_mail_subj'], array("sitename" => $sitename)),
-            nl2br(Brick::ReplaceVarByData($v['pwd_mail'], array(
+            Brick::ReplaceVarByData($v['subject'], array("sitename" => $siteName)),
+            Brick::ReplaceVarByData($notifyBrick->content, array(
                 "email" => $email,
                 "link" => $link,
+                "userViewName" => $user->FullName(),
                 "username" => $user->username,
-                "sitename" => $sitename
-            )))
+                "sitename" => $siteName
+            ))
         );
         $notifyApp->MailSend($mail);
 
@@ -117,33 +117,35 @@ class UserManager_Password {
         }
         $userid = $pwdreq['userid'];
 
-        $user = UserQuery::UserById($this->db, $userid);
-        $ret->email = $user['email'];
-
+        $userData = UserQuery::UserById($this->db, $userid);
         $newpass = cmsrand(100000, 999999);
-        $passcrypt = UserManager::UserPasswordCrypt($newpass, $user['salt']);
+        $passcrypt = UserManager::UserPasswordCrypt($newpass, $userData['salt']);
+
         UserQuery_Password::PasswordChange($this->db, $userid, $passcrypt);
 
-        $sitename = SystemModule::$instance->GetPhrases()->Get('site_name');
+        $user = $this->manager->User($userid);
 
-        $brick = Brick::$builder->LoadBrickS('user', 'templates', null, null);
+        $siteName = SystemModule::$instance->GetPhrases()->Get('site_name');
 
-        $subject = $brick->param->var['pwdres_changemail_subj'];
-        $subject = str_replace("%1", $sitename, $subject);
-
-        $message = nl2br($brick->param->var['pwdres_changemail']);
-        $message = str_replace("%1", $user['username'], $message);
-        $message = str_replace("%2", $newpass, $message);
-        $message = str_replace("%3", $sitename, $message);
+        $notifyBrick = Brick::$builder->LoadBrickS("user", "notifyPassNew");
+        $v = &$notifyBrick->param->var;
 
         /** @var NotifyApp $notifyApp */
         $notifyApp = Abricos::GetApp('notify');
-
         $mail = $notifyApp->MailByFields(
-            $user['email'], $subject, $message
+            $user->email,
+            Brick::ReplaceVarByData($v['subject'], array("sitename" => $siteName)),
+            Brick::ReplaceVarByData($notifyBrick->content, array(
+                "email" => $user->email,
+                "password" => $newpass,
+                "userViewName" => $user->FullName(),
+                "username" => $user->username,
+                "sitename" => $siteName
+            ))
         );
         $notifyApp->MailSend($mail);
 
+        $ret->email = $user->email;
         return $ret;
     }
 

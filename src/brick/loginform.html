@@ -8,85 +8,89 @@
     <div class="panel">
         <div id="{v#id}loginpanel" class="panel-collapse collapse in">
             <form id="{v#id}loginform" role="form" action="/user/login/" method="post">
-                <h3>Авторизация</h3>
+                <h3>{#brick.loginform.login.title}</h3>
 
                 <div class="form-group">
-                    <label for="{v#id}in-username" class="control-label">Имя пользователя или email</label>
+                    <label for="{v#id}in-username" class="control-label">{#brick.loginform.login.username.label}</label>
                     <input id="{v#id}in-username" type="text"
                            name="username" class="form-control field-required"
-                           placeholder="Имя пользователя или email">
+                           placeholder="{#brick.loginform.login.username.holder}">
                 </div>
                 <div class="form-group">
-                    <label for="{v#id}in-pass" class="control-label">Пароль</label>
+                    <label for="{v#id}in-pass" class="control-label">{#brick.loginform.login.password.label}</label>
                     <input id="{v#id}in-pass" type="password"
                            name="password" class="form-control field-required"
-                           placeholder="Пароль">
+                           placeholder="{#brick.loginform.login.password.holder}">
                 </div>
                 <div class="form-group">
                     <div class="checkbox">
                         <label> <input type="checkbox" name="autologin" checked="checked"
-                                       data-form="autologin"> Запомнить меня </label>
+                                       data-form="autologin"> {#brick.loginform.login.autologin} </label>
                     </div>
                 </div>
                 <div class="form-group">
-                    <button type="submit" class="btn btn-primary" data-wait="disable">Войти</button>
+                    <button type="submit" class="btn btn-primary" data-wait="disable">
+                        {#brick.loginform.login.action.submit}
+                    </button>
                     &nbsp;&nbsp;&nbsp;
                     <a data-parent="#{v#id}form" href="#{v#id}passrec"
-                       data-toggle="collapse" data-wait="disable">Вспомнить пароль</a>
-                    <img src="/images/loading.gif" style="display: none" data-wait="show"/>
+                       data-toggle="collapse" data-wait="disable">{#brick.loginform.login.action.passrec}</a>
+                    <img src="/images/loading.gif" data-wait="show"/>
                 </div>
 
                 <div class="form-group">
                     <a data-parent="#{v#id}form" href="#{v#id}regpanel"
-                       data-toggle="collapse">Новый пользователь? Регистрация...</a>
+                       data-toggle="collapse">
+                        {#brick.loginform.login.action.register}
+                    </a>
                 </div>
             </form>
         </div>
 
         <div id="{v#id}regpanel" class="panel-collapse collapse">
             <form id="{v#id}regform" role="form" action="/user/register/" method="post">
-                <h3>Регистрация</h3>
+                <h3>{#brick.loginform.register.title}</h3>
 
                 <div class="form-group">
-                    <label for="{v#id}reg-login" class="control-label">Имя пользователя</label>
+                    <label for="{v#id}reg-login" class="control-label">{#brick.loginform.register.login.label}</label>
                     <input id="{v#id}reg-login" type="text"
                            class="form-control field-required" name="username"
-                           placeholder="Имя пользователя">
+                           placeholder="{#brick.loginform.register.login.holder}">
                 </div>
                 <div class="form-group">
-                    <label for="{v#id}reg-email" class="control-label">Email</label>
+                    <label for="{v#id}reg-email" class="control-label">{#brick.loginform.register.email.label}</label>
                     <input id="{v#id}reg-email" type="email"
                            class="form-control field-required" name="email"
-                           placeholder="Email">
+                           placeholder="{#brick.loginform.register.email.label}">
                 </div>
                 <div class="form-group">
-                    <label for="{v#id}reg-pass" class="control-label">Пароль</label>
+                    <label for="{v#id}reg-pass" class="control-label">{#brick.loginform.register.password.label}</label>
                     <input id="{v#id}reg-pass" type="password"
                            class="form-control field-required"
                            name="password"
-                           placeholder="Пароль">
+                           placeholder="{#brick.loginform.register.password.holder}">
                 </div>
                 <div class="form-group">
-                    <label for="{v#id}reg-passconf" class="control-label">Подвердите пароль</label>
+                    <label for="{v#id}reg-passconf" class="control-label">{#brick.loginform.register.confirm.label}</label>
                     <input id="{v#id}reg-passconf" type="password"
                            class="form-control field-required"
                            name="passwordconfirm"
-                           placeholder="Подвердите пароль">
+                           placeholder="{#brick.loginform.register.confirm.holder}">
                 </div>
                 <div class="form-group">
                     <div class="checkbox">
-                        <label> <input type="checkbox" name="termsofuse" data-form="termsofuse"/> Я согласен с
-                            <a href="/user/termsofuse/" data-click="termofuse">пользовательским соглашением</a></label>
+                        <label> <input type="checkbox" name="termsofuse" data-form="termsofuse"/> {#brick.loginform.register.termsofuse.iagree}
+                            <a href="/user/termsofuse/" data-click="termofuse">{#brick.loginform.register.termsofuse.title}</a></label>
                     </div>
                 </div>
                 <div class="form-group text-right">
                     <button type="submit" class="btn btn-primary">
-                        Зарегистрироваться
+                        {#brick.loginform.register.action.submit}
                     </button>
                     <button type="button" class="btn btn-default"
                             data-parent="#{v#id}form"
                             data-target="#{v#id}loginpanel"
-                            data-toggle="collapse">Отмена
+                            data-toggle="collapse">{#brick.loginform.register.action.cancel}
                     </button>
                 </div>
             </form>
@@ -94,27 +98,30 @@
 
         <div id="{v#id}passrec" class="panel-collapse collapse">
             <form id="{v#id}passrecform" role="form" action="/user/passrec/" method="post">
-                <h3>Восстановление&nbsp;доступа</h3>
+                <h3>
+                    {#brick.loginform.passrec.title}
+                </h3>
 
                 <p>
-                    Чтобы восстановить пароль, укажите e-mail, который Вы
-                    использовали при регистрации.
+                    {#brick.loginform.passrec.descript}
                 </p>
 
                 <div class="form-group">
-                    <input class="form-control" name="email" placeholder="Введите e-mail">
+                    <input class="form-control" name="email" placeholder="{#brick.loginform.passrec.email.holder}">
                 </div>
                 <div class="form-group">
-                    <button type="submit" class="btn btn-primary">Восстановить</button>
+                    <button type="submit" class="btn btn-primary">
+                        {#brick.loginform.passrec.action.submit}
+                    </button>
                     <button type="button" class="btn btn-default"
                             data-parent="#{v#id}form"
                             data-target="#{v#id}loginpanel"
-                            data-toggle="collapse">Отмена
+                            data-toggle="collapse">
+                        {#brick.loginform.passrec.action.cancel}
                     </button>
                 </div>
             </form>
         </div>
-
     </div>
 </div>
 

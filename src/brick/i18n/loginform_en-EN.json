@@ -1,0 +1,57 @@
+{
+  "login": {
+    "title": "Sign In",
+    "username": {
+      "label": "Login or e-mail",
+      "holder": "Login or e-mail"
+    },
+    "password": {
+      "label": "Password",
+      "holder": "Password"
+    },
+    "autologin": "Remember me",
+    "action": {
+      "submit": "Sign In",
+      "passrec": "Forgot password",
+      "register": "New User? Registration..."
+    }
+  },
+  "register": {
+    "title": "Registration",
+    "login": {
+      "label": "Login",
+      "holder": "Login"
+    },
+    "email": {
+      "label": "E-mail",
+      "holder": "E-mail"
+    },
+    "password": {
+      "label": "Password",
+      "holder": "Password"
+    },
+    "confirm": {
+      "label": "Config password",
+      "holder": "Config password"
+    },
+    "termsofuse": {
+      "iagree": "I agree to",
+      "title": "the terms of use"
+    },
+    "action": {
+      "submit": "Sign Up",
+      "cancel": "Cancel"
+    }
+  },
+  "passrec": {
+    "title": "Reset password",
+    "descript": "To recover a password, enter the e-mail, which you used during registration.",
+    "email": {
+      "holder": "Your e-mail address"
+    },
+    "action": {
+      "submit": "Get a link to reset",
+      "cancel": "Cancel"
+    }
+  }
+}

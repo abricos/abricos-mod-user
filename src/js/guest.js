@@ -10,9 +10,7 @@ Component.requires = {
 Component.entryPoint = function(NS){
 
     var Y = Brick.YUI,
-
         COMPONENT = this,
-
         SYS = Brick.mod.sys;
 
     NS.LoginFormWidget = Y.Base.create('loginFormWidget', SYS.AppWidget, [
@@ -46,11 +44,9 @@ Component.entryPoint = function(NS){
         }
     }, {
         ATTRS: {
+            component: {value: COMPONENT},
             showMessages: {
                 value: false
-            },
-            component: {
-                value: COMPONENT
             },
             useExistingWidget: {
                 value: true
@@ -115,11 +111,9 @@ Component.entryPoint = function(NS){
         }
     }, {
         ATTRS: {
+            component: {value: COMPONENT},
             showMessages: {
                 value: false
-            },
-            component: {
-                value: COMPONENT
             },
             useExistingWidget: {
                 value: true
@@ -157,12 +151,8 @@ Component.entryPoint = function(NS){
         }
     }, {
         ATTRS: {
-            component: {
-                value: COMPONENT
-            },
-            templateBlockName: {
-                value: 'termsofuse'
-            }
+            component: {value: COMPONENT},
+            templateBlockName: {value: 'termsofuse'}
         }
     });
 
@@ -205,21 +195,11 @@ Component.entryPoint = function(NS){
         }
     }, {
         ATTRS: {
-            userId: {
-                value: 0
-            },
-            userEMail: {
-                value: ''
-            },
-            userPassword: {
-                value: ''
-            },
-            component: {
-                value: COMPONENT
-            },
-            templateBlockName: {
-                value: 'regactivate,erroract'
-            }
+            component: {value: COMPONENT},
+            templateBlockName: {value: 'regactivate,erroract'},
+            userId: {value: 0},
+            userEMail: {value: ''},
+            userPassword: {value: ''}
         }
     });
 
@@ -241,9 +221,7 @@ Component.entryPoint = function(NS){
         }
     }, {
         ATTRS: {
-            component: {
-                value: COMPONENT
-            },
+            component: {value: COMPONENT},
             useExistingWidget: {
                 value: true
             },
@@ -264,12 +242,8 @@ Component.entryPoint = function(NS){
         }
     }, {
         ATTRS: {
-            component: {
-                value: COMPONENT
-            },
-            templateBlockName: {
-                value: 'passrecokdialog'
-            }
+            component: {value: COMPONENT},
+            templateBlockName: {value: 'passrecokdialog'}
         }
     });
 

@@ -173,8 +173,8 @@ class UserManager_Registration {
         $user = new UserItem_Auth($user);
         $actinfo = UserQuery_Register::RegistrationActivateInfo($this->manager->db, $userid);
 
-        $host = $_SERVER['HTTP_HOST'] ? $_SERVER['HTTP_HOST'] : $_ENV['HTTP_HOST'];
-        $link = "http://".$host."/user/activate/".$user->id."/".$actinfo["activateid"]."/";
+        $host = Ab_URI::Site();
+        $link = $host."/user/activate/".$user->id."/".$actinfo["activateid"]."/";
 
         $notifyBrick = Brick::$builder->LoadBrickS("user", "notifyRegister");
         $v = &$notifyBrick->param->var;
@@ -187,6 +187,7 @@ class UserManager_Registration {
             Brick::ReplaceVarByData($notifyBrick->content, array(
                 "email" => $user->email,
                 "actcode" => $actinfo["activateid"],
+                "userViewName" => $user->FullName(),
                 "username" => $user->username,
                 "link" => $link,
                 "sitename" => SystemModule::$instance->GetPhrases()->Get('site_name')
