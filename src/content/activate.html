@@ -5,26 +5,26 @@
 
 [bkvar=ok]
     <p>
-	    {#content.activate.1}
+	    Активация пользователя прошла успешно.
 	</p>
 	<p>
-	    {#content.activate.2}: {v#unm}
+	    Имя пользователя: {v#unm}
 	</p>
 [/bkvar]
 
 [bkvar=err]
-	{#content.activate.3}: {v#err}
+	Ошибка активации пользователя: {v#err}
 	<script>
 	    window.location = "/";
 	</script>
 [/bkvar]
 
-[bkvar=err1]{#content.activate.4}[/bkvar]
-[bkvar=err2]{#content.activate.5}[/bkvar]
-[bkvar=err3]{#content.activate.6}[/bkvar]
+[bkvar=err1]Пользователь не найден[/bkvar]
+[bkvar=err2]Пользователь уже активирован[/bkvar]
+[bkvar=err3]Неизвестная ошибка[/bkvar]
 
 [*]-->
-<h3>{#content.activate.7}</h3>
+<h3>Активация пользователя</h3>
 <div class='bd'>
     [bkvar]result[/bkvar]
 </div>

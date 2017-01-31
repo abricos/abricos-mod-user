@@ -35,7 +35,7 @@
                     &nbsp;&nbsp;&nbsp;
                     <a data-parent="#{v#id}form" href="#{v#id}passrec"
                        data-toggle="collapse" data-wait="disable">{#brick.loginform.login.action.passrec}</a>
-                    <img src="/images/loading.gif" data-wait="show"/>
+                    <img src="/images/loading.gif" style="display: none" data-wait="show"/>
                 </div>
 
                 <div class="form-group">
@@ -71,7 +71,8 @@
                            placeholder="{#brick.loginform.register.password.holder}">
                 </div>
                 <div class="form-group">
-                    <label for="{v#id}reg-passconf" class="control-label">{#brick.loginform.register.confirm.label}</label>
+                    <label for="{v#id}reg-passconf"
+                           class="control-label">{#brick.loginform.register.confirm.label}</label>
                     <input id="{v#id}reg-passconf" type="password"
                            class="form-control field-required"
                            name="passwordconfirm"
@@ -79,7 +80,8 @@
                 </div>
                 <div class="form-group">
                     <div class="checkbox">
-                        <label> <input type="checkbox" name="termsofuse" data-form="termsofuse"/> {#brick.loginform.register.termsofuse.iagree}
+                        <label> <input type="checkbox" name="termsofuse" data-form="termsofuse"/>
+                            {#brick.loginform.register.termsofuse.iagree}
                             <a href="/user/termsofuse/" data-click="termofuse">{#brick.loginform.register.termsofuse.title}</a></label>
                     </div>
                 </div>

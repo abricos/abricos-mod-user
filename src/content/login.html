@@ -1,21 +1,38 @@
 <!--[*]
 [tt=main][/tt]
 [script]content/login.php[/script]
-[mod=user]userblock[/mod]
 
-[bkvar=e1]{#content.login.1}[/bkvar]
-[bkvar=e2]{#content.login.2}[/bkvar]
-[bkvar=e3]{#content.login.3}[/bkvar]
-[bkvar=e4]{#content.login.4}[/bkvar]
-[bkvar=e5]{#content.login.5}[/bkvar]
+[v=err]
+	<div class="alert alert-danger">
+	    <p>
+	        <b>{#content.login.error.title}</b>
+	    </p>
+	    <p>
+	        {v#err}
+	    <p>
+    </div>
+[/v]
 
-[bkvar=err]
-	<div class="userlogin-error">{#content.login.6}: {v#err}</div>
-[/bkvar]
+[v=ok]
+	<div class="alert alert-success">
+	    <p>
+	        {#content.login.ok}
+	    </p>
+    </div>
+[/v]
+
+[v=form]
+    <div class="panel panel-default">
+        <div class="panel-body">
+            {v#form}
+        </div>
+    </div>
+[/v]
 
 [*]-->
-<h3>{#content.login.7}</h3>
-[bkvar]err[/bkvar]
-<div class="big">
-	[mod]user:userblock[/mod]
+<div class="row">
+    <div class="col-sm-6 col-sm-offset-3">
+        {v#auth}
+        {v#loginform}
+    </div>
 </div>
