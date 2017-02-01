@@ -22,9 +22,11 @@ if (!empty($bosModule)){
             "noBosUI" => true
         )
     ));
-    $tplBosMenu = Brick::ReplaceVarByData($v["bosmenu"], array(
-        "bosmenu" => $modBrick->content
-    ));
+    if (!empty($modBrick->content)){
+        $tplBosMenu = Brick::ReplaceVarByData($v["bosmenu"], array(
+            "bosmenu" => $modBrick->content
+        ));
+    }
 }
 
 $brick->content = Brick::ReplaceVarByData($brick->content, array(
