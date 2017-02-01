@@ -102,12 +102,21 @@ Component.entryPoint = function(NS){
             }, this);
         },
         onClick: function(e){
-            if (e.dataClick !== 'termofuse'){
+            if (e.dataClick === 'termofuse'){
+                this.showTermsOfUse();
+                return true;
+            }
+            return false;
+        },
+        showTermsOfUse: function(){
+            if (this._termsDialog){
                 return;
             }
-
-            new NS.TermsOfUseDialog();
-            return true;
+            this._termsDialog = new NS.TermsOfUseDialog();
+            var instance = this;
+            setTimeout(function(){ // hack bug
+                instance._termsDialog = null;
+            }, 500);
         }
     }, {
         ATTRS: {
@@ -144,10 +153,8 @@ Component.entryPoint = function(NS){
             }, this);
         },
         setTermsOfUseText: function(text){
-            var node = this.gel('text');
-            if (node){
-                node.setHTML(text);
-            }
+            var tp = this.template;
+            tp.setHTML('text', text);
         }
     }, {
         ATTRS: {

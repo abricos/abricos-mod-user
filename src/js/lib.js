@@ -26,7 +26,6 @@ Component.entryPoint = function(NS){
         },
         ATTRS: {
             userCurrent: {},
-            termsOfUse: {},
             groupList: {}
         },
         REQS: {
@@ -39,18 +38,7 @@ Component.entryPoint = function(NS){
                 }
             },
             termsOfUse: {
-                cache: function(){
-                    return this.get('termsOfUse');
-                },
-                response: function(d){
-                    return d;
-                },
-                onResponse: function(termsOfUse){
-                    if (!termsOfUse){
-                        return;
-                    }
-                    this.set('termsOfUse', termsOfUse);
-                }
+                attribute: true
             },
             activate: {args: ['activate']},
             userCurrent: {
