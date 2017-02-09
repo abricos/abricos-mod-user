@@ -78,7 +78,7 @@ class UserManager_Auth {
      * @param String $password пароль
      * @return Integer
      */
-    public function Login($username, $password, $autologin = false){
+    public function Login($username, $password, $remember = false){
         $username = trim($username);
         $password = trim($password);
 
@@ -102,12 +102,12 @@ class UserManager_Auth {
             return 2;
         }
 
-        $this->LoginMethod($user, $autologin);
+        $this->LoginMethod($user, $remember);
 
         return 0;
     }
 
-    public function LoginMethod($user, $autologin = false){
+    public function LoginMethod($user, $remember = false){
         if ($user instanceof UserItem){
             $user = new UserItem_Auth($user);
         }
@@ -122,11 +122,16 @@ class UserManager_Auth {
         if ($guserid > 0 && $guserid != $user->id){
             UserQuery_Auth::UserDoubleLogAppend($this->db, $guserid, $user->id, $_SERVER['REMOTE_ADDR']);
         }
-        if ($autologin){
+        if ($remember){
             // установить куки для автологина
             $privateKey = $session->GetSessionPrivateKey();
             $sessionKey = md5(TIMENOW.$privateKey.cmsrand(1, 1000000));
-            setcookie($session->cookieName, $sessionKey, TIMENOW + $session->sessionTimeOut, $session->sessionPath);
+            setcookie(
+                $session->sessionName,
+                $sessionKey, TIMENOW + $session->cookieTimeout,
+                $session->sessionPath,
+                $session->sessionHost
+            );
             UserQuery_Session::SessionAppend($this->db, $user->id, $sessionKey, $privateKey);
         }
 
@@ -146,13 +151,10 @@ class UserManager_Auth {
     }
 
     public function Logout(){
-
         $session = $this->manager->GetSessionManager();
-        $sessionKey = Abricos::CleanGPC('c', $session->cookieName, TYPE_STR);
-        setcookie($session->cookieName, '', TIMENOW, $session->sessionPath);
+        $sessionKey = Abricos::CleanGPC('c', $session->sessionName, TYPE_STR);
+        setcookie($session->sessionName, null, -1, $session->sessionPath);
         UserQuery_Session::SessionRemove($this->db, $sessionKey);
         $session->Drop('userid');
-
-        // $this->module->info = array("userid" => 0, "group" => array(1), "username" => "Guest");
     }
 }

@@ -19,29 +19,22 @@ require_once 'session_structure.php';
 class UserManager_Session {
 
     /**
-     * Время хранения сесси
+     * Время хранения сессии
      *
      * @var integer
      */
-    public $sessionTimeOut = 1209600; // 86400*14
+    public $sessionTimeOut = 60 * 60 * 24 * 14;
 
     public $sessionHost = null;
 
     public $sessionPath = '/';
 
-    private $phpSessionName = 'PHPSESSID';
+    public $sessionName = 'PHPSESSID';
 
-    public $cookieName = 'skey';
+    public $cookieTimeout = 60 * 60 * 24 * 14;
 
     /**
      * Идентификатор сессии пользователя
-     *
-     * @var string
-     */
-    public $sessionHash = '';
-
-    /**
-     * Идентификатор PHP сессии
      *
      * @var string
      */
@@ -55,34 +48,29 @@ class UserManager_Session {
     public function __construct(UserManager $manager){
         $this->manager = $manager;
 
-        $cfg = &Abricos::$config['session'];
+        $cfg = isset(Abricos::$config['user'])
+            ? Abricos::$config['user']
+            : array();
 
-        if (isset($cfg['phpname'])){
-            $this->phpSessionName = $cfg['phpname'];
+        if (isset($cfg['cookie']['host'])){
+            $this->sessionHost = $cfg['cookie']['host'];
         }
 
-        if (isset($cfg['timeout'])){
-            $this->sessionTimeOut = $cfg['timeout'];
+        if (isset($cfg['cookie']['path'])){
+            $this->sessionPath = $cfg['cookie']['path'];
         }
 
-        if (isset($cfg['host'])){
-            $this->sessionHost = $cfg['host'];
+        if (isset($cfg['cookie']['timeout'])){
+            $this->cookieTimeout = intval($cfg['cookie']['timeout']);
         }
 
-        if (isset($cfg['path'])){
-            $this->sessionPath = $cfg['path'];
+        if (isset($cfg['session']['name'])){
+            $this->sessionName = ['session']['name'];
         }
 
-        $cookiePrefix = '';
-        if (isset($cfg['cookie_prefix'])){
-            $cookiePrefix = $cfg['cookie_prefix'];
+        if (isset($cfg['session']['timeout'])){
+            $this->sessionTimeOut = intval($cfg['session']['timeout']);
         }
-
-        $cookieName = 'skey';
-        if (isset($cfg['cookie_name'])){
-            $cookieName = $cfg['cookie_name'];
-        }
-        $this->cookieName = $cookiePrefix.$cookieName;
 
         $this->Start();
 
@@ -106,13 +94,36 @@ class UserManager_Session {
      * Старт сессии
      */
     public function Start(){
+        session_name($this->sessionName);
+        session_set_cookie_params(
+            $this->sessionTimeOut,
+            $this->sessionPath,
+            $this->sessionHost
+        );
+
+        if (!session_id()){
+            if (isset($_COOKIE[$this->sessionName])
+                && !is_string($_COOKIE[$this->sessionName])
+            ){
+                die("Hacking!");
+            }
+
+            $aRequest = array_merge($_GET, $_POST);
+            if (@ini_get('session.use_only_cookies') === "0"
+                && isset($aRequest[$this->sessionName])
+                && !is_string($aRequest[$this->sessionName])
+            ){
+                die("Hacking!");
+            }
+        }
+
+        /*
         $sessionIDG = Abricos::CleanGPC('g', 'session', TYPE_STR);
         if (!empty($sessionIDG)){
             session_id($sessionIDG);
         }
+        /**/
 
-        session_name($this->phpSessionName);
-        session_set_cookie_params($this->sessionTimeOut, $this->sessionPath, $this->sessionHost);
         session_start();
     }
 
@@ -143,17 +154,17 @@ class UserManager_Session {
     public function Update(){
         $db = $this->manager->db;
 
-        $userid = $this->Get('userid');
-        $flag = $this->Get('flag');
+        $userid = intval($this->Get('userid'));
+        $flag = intval($this->Get('flag'));
 
         if (empty($userid) && empty($flag)){
             // сессия на пользователя не установлена, проверка на автологин
-            $sessionKey = Abricos::CleanGPC('c', $this->cookieName, TYPE_STR);
+            $sessionKey = Abricos::CleanGPC('c', $this->sessionName, TYPE_STR);
             if (!empty($sessionKey)){
                 $privateKey = $this->GetSessionPrivateKey();
                 $sessionDB = UserQuery_Session::Session($db, $this->sessionTimeOut, $sessionKey, $privateKey);
                 if (!empty($sessionDB)){
-                    $userid = $sessionDB['userid'];
+                    $userid = intval($sessionDB['userid']);
                 }
             }
         }
@@ -164,6 +175,7 @@ class UserManager_Session {
             $user = $this->manager->User($userid);
 
             if (empty($user)){ // Гость
+                $userid = 0;
                 $this->Drop('userid');
             } else {
                 if ($user->IsSuperAdmin()){
